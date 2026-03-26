@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ハンズオン02: 画像/モックアップからClaude CodeでUI生成</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy-900: #0b1929;
+    --navy-800: #102a43;
+    --navy-700: #1a3a5c;
+    --navy-600: #244e7a;
+    --accent: #60a5fa;
+    --accent-bright: #93c5fd;
+    --white: #f0f4f8;
+    --gray-300: #c9d6e3;
+    --gray-500: #7b8da4;
+    --green: #34d399;
+    --orange: #fbbf24;
+    --red: #f87171;
+    --code-bg: #0d2137;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--navy-900);
+    color: var(--white);
+    overflow: hidden;
+  }
+
+  .slide-container {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .slide {
+    width: 100vw;
+    height: 100vh;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 100px;
+    position: absolute;
+    top: 0; left: 0;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .slide.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* Slide number */
+  .slide-number {
+    position: fixed;
+    bottom: 28px;
+    right: 40px;
+    font-size: 14px;
+    color: var(--gray-500);
+    font-weight: 400;
+    z-index: 100;
+    letter-spacing: 0.05em;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--green));
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 2.8em;
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--white), var(--accent-bright));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  h2 {
+    font-size: 2em;
+    font-weight: 700;
+    margin-bottom: 36px;
+    color: var(--accent-bright);
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 1.3em;
+    color: var(--gray-300);
+    font-weight: 300;
+    margin-top: 12px;
+  }
+
+  ul {
+    list-style: none;
+    font-size: 1.15em;
+    line-height: 2;
+  }
+
+  ul li {
+    padding-left: 28px;
+    position: relative;
+    color: var(--gray-300);
+  }
+
+  ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  ul li strong {
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .em {
+    color: var(--accent-bright);
+    font-weight: 500;
+  }
+
+  /* Code blocks */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--navy-700);
+    border-radius: 12px;
+    padding: 24px 28px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.82em;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 16px 0;
+    white-space: pre;
+    color: var(--gray-300);
+    position: relative;
+  }
+
+  .code-block .kw { color: #c792ea; }
+  .code-block .str { color: #c3e88d; }
+  .code-block .cmt { color: #546e7a; }
+  .code-block .fn { color: #82aaff; }
+  .code-block .tag { color: #f07178; }
+  .code-block .attr { color: #ffcb6b; }
+  .code-block .num { color: #f78c6c; }
+
+  .code-label {
+    position: absolute;
+    top: -1px; right: -1px;
+    background: var(--navy-700);
+    color: var(--gray-500);
+    font-size: 11px;
+    padding: 4px 14px;
+    border-radius: 0 12px 0 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  /* Grid layouts */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* Cards */
+  .card {
+    background: rgba(16, 42, 67, 0.6);
+    border: 1px solid var(--navy-700);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .card-accent {
+    border-left: 4px solid var(--accent);
+  }
+
+  .card-green {
+    border-left: 4px solid var(--green);
+  }
+
+  .card-orange {
+    border-left: 4px solid var(--orange);
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 9999px;
+    font-size: 0.8em;
+    font-weight: 500;
+    margin: 4px 4px 4px 0;
+  }
+
+  .badge-blue { background: rgba(96,165,250,0.15); color: var(--accent-bright); }
+  .badge-green { background: rgba(52,211,153,0.15); color: var(--green); }
+  .badge-orange { background: rgba(251,191,36,0.15); color: var(--orange); }
+
+  /* Flow */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .flow-item {
+    background: var(--navy-800);
+    border: 1px solid var(--navy-700);
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    font-weight: 500;
+    min-width: 140px;
+  }
+
+  .flow-arrow {
+    color: var(--accent);
+    font-size: 1.6em;
+    font-weight: 300;
+  }
+
+  /* Step indicators */
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--navy-900);
+    font-weight: 700;
+    font-size: 0.9em;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  .step-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 1.1em;
+    color: var(--gray-300);
+  }
+
+  /* File tree */
+  .file-tree {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.82em;
+    line-height: 1.8;
+    color: var(--gray-300);
+    background: var(--code-bg);
+    border: 1px solid var(--navy-700);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+
+  .file-tree .dir { color: var(--accent); }
+  .file-tree .file { color: var(--gray-300); }
+  .file-tree .cmt { color: var(--gray-500); font-style: italic; }
+
+  /* Title slide special */
+  .title-slide {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .title-slide h1 {
+    font-size: 3.2em;
+    margin-bottom: 16px;
+  }
+
+  .title-tag {
+    display: inline-block;
+    padding: 6px 24px;
+    border-radius: 9999px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.95em;
+    margin-bottom: 32px;
+    letter-spacing: 0.1em;
+  }
+
+  .title-meta {
+    color: var(--gray-500);
+    font-size: 0.95em;
+    margin-top: 24px;
+  }
+
+  /* Checklist */
+  .checklist li::before {
+    content: '☐';
+    color: var(--accent);
+  }
+
+  /* Key nav hints */
+  .nav-hint {
+    position: fixed;
+    bottom: 28px;
+    left: 40px;
+    font-size: 12px;
+    color: var(--gray-500);
+    z-index: 100;
+  }
+
+  .nav-hint kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--navy-800);
+    border: 1px solid var(--navy-700);
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 11px;
+  }
+
+  /* Decorative elements */
+  .bg-glow {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.07;
+    pointer-events: none;
+  }
+
+  .bg-glow-1 { background: var(--accent); top: -100px; right: -100px; }
+  .bg-glow-2 { background: var(--green); bottom: -150px; left: -100px; }
+
+  .small { font-size: 0.85em; }
+
+  .highlight-box {
+    background: rgba(96,165,250,0.08);
+    border: 1px solid rgba(96,165,250,0.25);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 12px 0;
+  }
+
+  .two-col-code {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .mt { margin-top: 20px; }
+  .mb { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="slide-container" id="slideContainer">
+
+  <!-- ===== Slide 1: Title ===== -->
+  <div class="slide title-slide active" data-slide="1">
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="title-tag">Claude Code Training</div>
+    <h1>ハンズオン02:<br>画像/モックアップから<br>Claude CodeでUI生成</h1>
+    <p class="subtitle">Figmaデザイン → PNG → Claude Code → Angularコンポーネント</p>
+    <p class="title-meta">金融ダッシュボード「FinScope」を題材に</p>
+  </div>
+
+  <!-- ===== Slide 2: 目的・学べること ===== -->
+  <div class="slide" data-slide="2">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>目的・学べること</h2>
+    <p style="color:var(--gray-300); font-size:1.1em; margin-bottom:28px;">
+      画面デザインのモックアップ（スクリーンショット）をClaude Codeに渡し、<br>
+      本格的なAngularコンポーネントを生成する体験をします。
+    </p>
+    <div class="grid-2">
+      <div>
+        <h3>習得スキル</h3>
+        <ul>
+          <li><strong>画像からUIコードを生成</strong>するワークフロー</li>
+          <li>デザイン再現度を高める<strong>プロンプトの書き方</strong></li>
+          <li>生成コードの<strong>コンポーネント分割</strong>指示</li>
+          <li>複数画面にわたる<strong>共通コンポーネントの再利用</strong></li>
+        </ul>
+      </div>
+      <div>
+        <h3>到達イメージ</h3>
+        <ul>
+          <li>6画面の金融ダッシュボードを構築</li>
+          <li>共通レイアウト・UIコンポーネントの分離</li>
+          <li>画面遷移（Angular Router）の実装</li>
+          <li>反復的な改善サイクルの体得</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 3: MUFGの事例 ===== -->
+  <div class="slide" data-slide="3">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>背景: MUFGの事例</h2>
+    <p style="color:var(--gray-300); font-size:1.05em; margin-bottom:24px;">
+      三菱UFJフィナンシャル・グループ（MUFG）での実践事例
+    </p>
+    <div class="flow mb">
+      <div class="flow-item">Figma<br><small style="color:var(--gray-500)">デザインデータ</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">PNG画像<br><small style="color:var(--gray-500)">スクリーンショット</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">Claude<br><small style="color:var(--gray-500)">コード生成</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item">React UI<br><small style="color:var(--gray-500)">コンポーネント</small></div>
+    </div>
+    <div class="mt">
+      <ul>
+        <li><strong>PNGスクリーンショットを使う</strong> -- LLMは画像を理解できるため、Figmaネイティブ形式は不要</li>
+        <li><strong>1画面ずつ段階的に生成</strong> -- 共通コンポーネントが自然に生まれ再利用される</li>
+        <li><strong>生成後に人間がレビュー・調整</strong> -- 80-90%の精度で高速にプロトタイピング</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== Slide 4: このハンズオンのポイント ===== -->
+  <div class="slide" data-slide="4">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>このハンズオンのポイント</h2>
+    <div class="highlight-box mb">
+      <p style="font-size:1.2em; font-weight:500; color:var(--white);">
+        HTMLソースコードではなく、<span class="em">画像（見た目の情報のみ）</span>からUIを再現する
+      </p>
+    </div>
+    <div class="grid-2 mt">
+      <div class="card card-accent">
+        <h3>やること</h3>
+        <ul>
+          <li>スクリーンショット（PNG）をClaude Codeに渡す</li>
+          <li>画像のデザインを言語化してプロンプトに含める</li>
+          <li>生成されたコードをモックアップと比較・改善</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left:4px solid var(--red);">
+        <h3 style="color:var(--red);">やらないこと</h3>
+        <ul>
+          <li>HTMLソースコードのコピー&ペースト</li>
+          <li>既存のコードを渡して変換させる</li>
+          <li>100%完璧な再現を追求する</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 5: 技術スタック ===== -->
+  <div class="slide" data-slide="5">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>技術スタック</h2>
+    <div class="grid-3">
+      <div class="card card-accent">
+        <h3>フレームワーク</h3>
+        <p style="color:var(--gray-300)"><span class="badge badge-blue">Angular 17+</span></p>
+        <ul class="small" style="margin-top:12px">
+          <li>Standalone Components</li>
+          <li>TypeScript strict mode</li>
+          <li>Angular Router</li>
+        </ul>
+      </div>
+      <div class="card card-green">
+        <h3>スタイリング</h3>
+        <p style="color:var(--gray-300)"><span class="badge badge-green">Tailwind CSS 3.4</span></p>
+        <ul class="small" style="margin-top:12px">
+          <li>ユーティリティクラス中心</li>
+          <li>カスタムカラー: navy, accent</li>
+          <li>モバイルファースト</li>
+        </ul>
+      </div>
+      <div class="card card-orange">
+        <h3>ライブラリ</h3>
+        <p style="color:var(--gray-300)">
+          <span class="badge badge-orange">Chart.js</span>
+          <span class="badge badge-orange">ng2-charts</span>
+        </p>
+        <ul class="small" style="margin-top:12px">
+          <li>Lucide Angular (アイコン)</li>
+          <li>NgModuleは使わない</li>
+          <li>Angular Material不使用</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box mt" style="font-size:0.95em;">
+      CLAUDE.md にコーディング規約・使用ライブラリを記載 → Claude Codeが自動で読み込み
+    </div>
+  </div>
+
+  <!-- ===== Slide 6: 事前準備 ===== -->
+  <div class="slide" data-slide="6">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>事前準備</h2>
+    <div class="grid-2">
+      <div>
+        <h3>1. スクリーンショット（準備済み）</h3>
+        <div class="code-block"><span class="dir">screenshots/</span>
+  01-dashboard.png       <span class="cmt"># ダッシュボード画面</span>
+  02-portfolio.png       <span class="cmt"># ポートフォリオ管理画面</span>
+  03-trade-entry.png     <span class="cmt"># 取引入力画面</span>
+  04-risk-analysis.png   <span class="cmt"># リスク分析画面</span>
+  05-client-detail.png   <span class="cmt"># 顧客詳細画面</span>
+  06-compliance.png      <span class="cmt"># コンプライアンス画面</span></div>
+      </div>
+      <div>
+        <h3>2. プロジェクトのセットアップ</h3>
+        <div class="code-block"><span class="cmt"># プロジェクトディレクトリで実行</span>
+<span class="kw">cd</span> project/
+<span class="fn">npm install</span>
+<span class="fn">ng serve</span>
+<span class="cmt"># → http://localhost:4200 で起動確認</span></div>
+        <h3 class="mt">3. Claude Codeの起動</h3>
+        <div class="code-block"><span class="kw">cd</span> project/
+<span class="fn">claude</span>
+<span class="cmt"># CLAUDE.md が自動読み込みされる</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 7: 全体フロー ===== -->
+  <div class="slide" data-slide="7">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>ハンズオンの全体フロー</h2>
+    <div style="max-width:800px;">
+      <div class="step-row">
+        <span class="step-num">1</span>
+        <div><strong style="color:var(--white)">ダッシュボード画面の生成</strong><span style="color:var(--gray-500);margin-left:12px;">30分</span><br>
+        <span class="small" style="color:var(--gray-300)">最も複雑な画面から開始 → 共通コンポーネントの土台を構築</span></div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">2</span>
+        <div><strong style="color:var(--white)">コンポーネント分割</strong><span style="color:var(--gray-500);margin-left:12px;">15分</span><br>
+        <span class="small" style="color:var(--gray-300)">Sidebar, Header, KpiCard 等を独立したコンポーネントに分離</span></div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">3</span>
+        <div><strong style="color:var(--white)">残り5画面の順次生成</strong><span style="color:var(--gray-500);margin-left:12px;">各15分 × 5画面</span><br>
+        <span class="small" style="color:var(--gray-300)">共通コンポーネントを再利用しながら各画面を実装</span></div>
+      </div>
+      <div class="step-row">
+        <span class="step-num">4</span>
+        <div><strong style="color:var(--white)">画面遷移・ルーティング</strong><span style="color:var(--gray-500);margin-left:12px;">15分</span><br>
+        <span class="small" style="color:var(--gray-300)">Angular Routerでサイドバーリンクとページ遷移を接続</span></div>
+      </div>
+    </div>
+    <div class="highlight-box mt small">
+      合計目安: 約2.5時間（生成待ち時間を含む）
+    </div>
+  </div>
+
+  <!-- ===== Slide 8: Step 1 - ダッシュボード生成 ===== -->
+  <div class="slide" data-slide="8">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>Step 1: ダッシュボード画面の生成</h2>
+    <div class="grid-2">
+      <div>
+        <h3>なぜ最も複雑な画面から始めるのか？</h3>
+        <ul>
+          <li>サイドバー・ヘッダー等の<strong>共通レイアウト</strong>が定義される</li>
+          <li>Card, Badge, Table等の<strong>基本UIコンポーネント</strong>が生まれる</li>
+          <li>カラー・フォント・間隔の<strong>デザイン基調</strong>がコードに反映</li>
+        </ul>
+      </div>
+      <div>
+        <h3>プロンプト例</h3>
+        <div class="code-block" style="font-size:0.78em"><span class="code-label">プロンプト</span>
+../screenshots/01-dashboard.png を見てください。
+これは金融ダッシュボードアプリのメイン画面の
+デザインモックアップです。
+この画像のデザインをAngular standalone components
++ TypeScript + Tailwind CSSで実装してください。
+
+実装要件:
+- Angular Router でデフォルトルートに設定
+- サイドバーとヘッダーは app.component.ts に配置
+- KPIカードは再利用可能な standalone component
+- チャートは Chart.js + ng2-charts を使用
+- デザインのカラー、間隔を正確に再現
+- 日本語テキストはモックアップと同じ内容</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 9: Step 1 - チェックポイント ===== -->
+  <div class="slide" data-slide="9">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>Step 1: チェックポイント</h2>
+    <p style="color:var(--gray-300);margin-bottom:28px;">生成されたコードを以下の観点で検証してください:</p>
+    <div class="grid-2">
+      <div class="card card-accent">
+        <h3>レイアウト・デザイン</h3>
+        <ul class="checklist">
+          <li>モックアップとレイアウトが一致しているか</li>
+          <li>サイドバーのナビゲーション項目が全て揃っているか</li>
+          <li>KPIカードの値・アイコン・色が正しいか</li>
+        </ul>
+      </div>
+      <div class="card card-green">
+        <h3>機能・データ</h3>
+        <ul class="checklist">
+          <li>チャートが表示されているか（描画されることが重要）</li>
+          <li>テーブルのカラム構成とバッジが再現されているか</li>
+          <li>レスポンシブ対応がある程度効いているか</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box mt">
+      <strong>ポイント:</strong> 100%の再現は不要。80-90%の精度が出ていればOK。差分は後から修正指示を出す。
+    </div>
+  </div>
+
+  <!-- ===== Slide 10: Step 2 - コンポーネント分割 ===== -->
+  <div class="slide" data-slide="10">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>Step 2: コンポーネント分割</h2>
+    <p style="color:var(--gray-300);margin-bottom:20px;">Step 1 の生成コードを再利用可能なコンポーネントに分離します。</p>
+    <div class="code-block" style="font-size:0.8em"><span class="code-label">プロンプト</span>
+生成されたダッシュボード画面のコードをコンポーネントに分割してください。
+
+分割方針:
+- <span class="fn">components/layout/sidebar.component.ts</span>      - サイドバーナビゲーション
+- <span class="fn">components/layout/header.component.ts</span>       - ヘッダー
+- <span class="fn">components/ui/kpi-card.component.ts</span>         - KPI表示カード（汎用）
+- <span class="fn">components/ui/status-badge.component.ts</span>     - ステータスバッジ
+- <span class="fn">components/ui/data-table.component.ts</span>       - データテーブル
+- <span class="fn">components/charts/asset-line-chart.component.ts</span> - 折れ線チャート
+- <span class="fn">components/charts/sector-pie-chart.component.ts</span> - 円グラフ
+
+各コンポーネントは <span class="kw">standalone: true</span> で、<span class="kw">@Input()</span> に適切な型定義を持つこと。</div>
+    <div class="mt" style="font-size:0.95em;color:var(--gray-300);">
+      分割後もブラウザ表示が崩れないことを必ず確認してください。
+    </div>
+  </div>
+
+  <!-- ===== Slide 11: Step 3 - 残り5画面の概要 ===== -->
+  <div class="slide" data-slide="11">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>Step 3: 残り5画面の順次生成</h2>
+    <p style="color:var(--gray-300);margin-bottom:24px;">共通コンポーネントを再利用しながら、各画面を順番に生成します。</p>
+    <div class="grid-3" style="grid-template-columns:1fr 1fr; gap:20px;">
+      <div class="card card-accent">
+        <h3>3-1. ポートフォリオ管理</h3>
+        <p class="small" style="color:var(--gray-300)">フィルターバー、損益率の色分け、ページネーション</p>
+        <p class="small" style="color:var(--gray-500);margin-top:8px">→ /portfolio</p>
+      </div>
+      <div class="card card-green">
+        <h3>3-2. 取引入力</h3>
+        <p class="small" style="color:var(--gray-300)">注文フォーム（Reactive Forms）、気配値ボード、確認モーダル</p>
+        <p class="small" style="color:var(--gray-500);margin-top:8px">→ /trade</p>
+      </div>
+      <div class="card card-orange">
+        <h3>3-3. リスク分析</h3>
+        <p class="small" style="color:var(--gray-300)">VaR表示、リスクゲージ(SVG)、相関マトリクス、ストレステスト</p>
+        <p class="small" style="color:var(--gray-500);margin-top:8px">→ /risk</p>
+      </div>
+      <div class="card" style="border-left:4px solid #a78bfa">
+        <h3 style="color:#a78bfa">3-4. 顧客詳細</h3>
+        <p class="small" style="color:var(--gray-300)">プロフィールカード、タブ切り替え、KYC情報、確認書類</p>
+        <p class="small" style="color:var(--gray-500);margin-top:8px">→ /clients/:id</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--red)">
+        <h3 style="color:var(--red)">3-5. コンプライアンス</h3>
+        <p class="small" style="color:var(--gray-300)">アラートカード、不審取引検出、プログレスバー、監査ログ</p>
+        <p class="small" style="color:var(--gray-500);margin-top:8px">→ /compliance</p>
+      </div>
+    </div>
+    <div class="highlight-box mt small">
+      各画面で <strong>既存の共通コンポーネント（Sidebar, Header, KpiCard, StatusBadge等）の再利用</strong> を明示的にプロンプトに含める
+    </div>
+  </div>
+
+  <!-- ===== Slide 12: Step 3 - プロンプト例 ===== -->
+  <div class="slide" data-slide="12">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>Step 3: 各画面のプロンプト例</h2>
+    <div class="two-col-code">
+      <div>
+        <h3>ポートフォリオ管理画面</h3>
+        <div class="code-block" style="font-size:0.72em"><span class="code-label">プロンプト</span>
+../screenshots/02-portfolio.png を見てください。
+ポートフォリオ管理画面のモックアップです。
+既存の共通コンポーネント
+（SidebarComponent, HeaderComponent,
+ DataTableComponent, StatusBadgeComponent）を
+再利用して実装してください。
+
+新規で必要なコンポーネント:
+- フィルターバー（ドロップダウン）
+- 損益率の色分け（＋緑、−赤）
+- ページネーション
+
+ルーティング: /portfolio を追加</div>
+      </div>
+      <div>
+        <h3>リスク分析画面</h3>
+        <div class="code-block" style="font-size:0.72em"><span class="code-label">プロンプト</span>
+../screenshots/04-risk-analysis.png を見てください。
+リスク分析画面のモックアップです。
+VaR表示、リスク指標ゲージ、相関マトリクス、
+ストレステスト結果を実装してください。
+
+新規コンポーネント:
+- VaR表示パネル
+- リスク指標ゲージ（SVGメーター型）
+- 相関マトリクスヒートマップ
+- シナリオ分析テーブル
+
+ルーティング: /risk を追加</div>
+      </div>
+    </div>
+    <div class="highlight-box mt small">
+      <strong>共通パターン:</strong> スクリーンショットを渡す → 既存コンポーネントの再利用を指示 → 新規コンポーネントを明示 → ルーティング追加
+    </div>
+  </div>
+
+  <!-- ===== Slide 13: Step 4 - 画面遷移 ===== -->
+  <div class="slide" data-slide="13">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>Step 4: 画面遷移・ルーティング</h2>
+    <div class="grid-2">
+      <div>
+        <div class="code-block" style="font-size:0.78em"><span class="code-label">プロンプト</span>
+すべての画面が完成しました。
+以下の画面遷移を実装してください:
+
+1. サイドバーの各リンクを
+   Angular の <span class="kw">routerLink</span> で接続
+2. 現在のページに応じて
+   <span class="kw">routerLinkActive</span> で
+   アクティブ状態を切り替え
+3. ダッシュボードの「すべて表示」を
+   取引画面に接続
+4. 顧客管理画面はダッシュボードから
+   直接リンク</div>
+      </div>
+      <div>
+        <h3>チェックポイント</h3>
+        <ul class="checklist" style="margin-bottom:24px">
+          <li>すべてのサイドバーリンクが正しいページに遷移するか</li>
+          <li>現在のページでサイドバー項目がハイライトされるか</li>
+          <li>ブラウザの戻る/進むが正しく機能するか</li>
+        </ul>
+        <h3>ルーティング構成</h3>
+        <div class="code-block" style="font-size:0.78em"><span class="fn">/</span>            → ダッシュボード
+<span class="fn">/portfolio</span>   → ポートフォリオ管理
+<span class="fn">/trade</span>       → 取引入力
+<span class="fn">/risk</span>        → リスク分析
+<span class="fn">/clients/:id</span> → 顧客詳細
+<span class="fn">/compliance</span>  → コンプライアンス</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 14: デザイン再現度を上げるコツ ===== -->
+  <div class="slide" data-slide="14">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>デザイン再現度を上げるコツ</h2>
+    <div class="grid-2">
+      <div>
+        <h3>スクリーンショットの品質</h3>
+        <ul>
+          <li><strong>解像度を高く</strong> -- Retina 2倍解像度で撮影</li>
+          <li><strong>全画面で撮る</strong> -- 部分ではなく画面全体を渡す</li>
+          <li><strong>フルスクリーンショット</strong> -- DevToolsの "Capture full size screenshot" でスクロール全体</li>
+        </ul>
+      </div>
+      <div>
+        <h3>プロンプトの工夫</h3>
+        <div class="two-col-code" style="grid-template-columns:1fr;gap:12px">
+          <div class="code-block" style="font-size:0.72em"><span class="code-label">悪い例</span>
+<span class="cmt"># ❌</span>
+この画像を再現してください</div>
+          <div class="code-block" style="font-size:0.72em"><span class="code-label">良い例</span>
+<span class="cmt"># ✅</span>
+この画像は金融ダッシュボードのメイン画面です。
+以下の点に特に注意して実装してください:
+- KPIカードのアイコンの背景色は各カードで異なる
+- テーブル偶数行に薄いグレー背景
+- ステータスバッジは角丸のpillスタイル
+- 金額は3桁区切りのカンマフォーマット</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 15: フォント・カラーの明示 ===== -->
+  <div class="slide" data-slide="15">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>デザインシステムの明示</h2>
+    <p style="color:var(--gray-300);margin-bottom:20px;">フォント・カラー・角丸などをプロンプトで明示すると再現度が大幅に向上します。</p>
+    <div class="grid-2">
+      <div>
+        <div class="code-block" style="font-size:0.78em"><span class="code-label">プロンプトに含めるデザイン指示</span>
+デザインシステム:
+- フォント: <span class="str">Noto Sans JP</span>
+- プライマリカラー: <span class="str">navy-900 (#102a43)</span>
+- アクセントカラー: <span class="str">blue-500 (#3b82f6)</span>
+- 成功: <span class="str">emerald-600</span>
+- 警告: <span class="str">amber-600</span>
+- エラー: <span class="str">red-600</span>
+- 角丸: <span class="str">xl (12px)</span> カードに
+        <span class="str">lg (8px)</span> ボタンに使用</div>
+      </div>
+      <div>
+        <h3>CLAUDE.md に書いておく</h3>
+        <ul>
+          <li>技術スタック・ライブラリの指定</li>
+          <li>ファイル構成・命名規則</li>
+          <li>使ってはいけないもの（NgModule等）</li>
+          <li>データフォーマットの規約</li>
+        </ul>
+        <div class="highlight-box mt small">
+          CLAUDE.md に一度書けば、毎回のプロンプトで繰り返す必要がなくなる
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 16: 反復的な改善サイクル ===== -->
+  <div class="slide" data-slide="16">
+    <div class="bg-glow bg-glow-1"></div>
+    <h2>反復的な改善サイクル</h2>
+    <p style="color:var(--gray-300);margin-bottom:28px;">一度の生成で完璧なUIは得られません。以下のサイクルで改善します。</p>
+    <div class="flow" style="justify-content:center;margin-bottom:32px;">
+      <div class="flow-item" style="background:rgba(96,165,250,0.15);border-color:var(--accent)">
+        <span style="font-size:1.4em;">1</span><br>生成
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item" style="background:rgba(52,211,153,0.15);border-color:var(--green)">
+        <span style="font-size:1.4em;">2</span><br>比較
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item" style="background:rgba(251,191,36,0.15);border-color:var(--orange)">
+        <span style="font-size:1.4em;">3</span><br>差分指示
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item" style="background:rgba(248,113,113,0.15);border-color:var(--red)">
+        <span style="font-size:1.4em;">4</span><br>再生成
+      </div>
+      <div class="flow-arrow">→</div>
+      <div style="color:var(--accent);font-size:0.9em;">繰り返し</div>
+    </div>
+    <div class="grid-2">
+      <div class="code-block" style="font-size:0.75em"><span class="code-label">レイアウト修正の例</span>
+現在の画面をモックアップと比較すると、
+サイドバーの幅が狭く見えます。
+モックアップでは <span class="kw">w-64 (256px)</span> ですが、
+現在の実装を確認して修正してください。</div>
+      <div class="code-block" style="font-size:0.75em"><span class="code-label">チャート修正の例</span>
+ng2-charts の折れ線チャートが表示されません。
+コンソールエラーを確認し、修正してください。
+<span class="fn">BaseChartDirective</span> が正しく import されているか、
+<span class="fn">Chart.js の registerables</span> が登録されているか
+確認してください。</div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 17: ファイル構成 ===== -->
+  <div class="slide" data-slide="17">
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>完成形のファイル構成</h2>
+    <div class="grid-2">
+      <div class="file-tree">
+<span class="dir">project/</span>
+├── <span class="dir">src/</span>
+│   ├── main.ts
+│   ├── index.html
+│   ├── styles.css            <span class="cmt"># Tailwind imports</span>
+│   └── <span class="dir">app/</span>
+│       ├── app.component.ts  <span class="cmt"># 共通レイアウト</span>
+│       ├── app.routes.ts     <span class="cmt"># ルーティング</span>
+│       ├── <span class="dir">pages/</span>
+│       │   ├── <span class="dir">dashboard/</span>
+│       │   ├── <span class="dir">portfolio/</span>
+│       │   ├── <span class="dir">trade/</span>
+│       │   ├── <span class="dir">risk/</span>
+│       │   ├── <span class="dir">clients/</span>
+│       │   └── <span class="dir">compliance/</span>
+│       ├── <span class="dir">components/</span>
+│       │   ├── <span class="dir">layout/</span>   <span class="cmt"># Sidebar, Header</span>
+│       │   ├── <span class="dir">ui/</span>       <span class="cmt"># KpiCard, Badge, Table</span>
+│       │   └── <span class="dir">charts/</span>   <span class="cmt"># LineChart, PieChart</span>
+│       ├── <span class="dir">data/</span>          <span class="cmt"># ダミーデータ</span>
+│       ├── <span class="dir">lib/</span>           <span class="cmt"># ヘルパー関数</span>
+│       └── <span class="dir">types/</span>         <span class="cmt"># 共通型定義</span>
+├── CLAUDE.md
+├── angular.json
+└── package.json</div>
+      <div>
+        <h3>ポイント</h3>
+        <ul>
+          <li><strong>pages/</strong> -- 各画面のページコンポーネント（6画面）</li>
+          <li><strong>components/layout/</strong> -- 全画面共通のSidebarとHeader</li>
+          <li><strong>components/ui/</strong> -- 再利用可能な汎用UIコンポーネント</li>
+          <li><strong>components/charts/</strong> -- Chart.js ベースのチャート群</li>
+          <li><strong>data/</strong> -- API未実装のためダミーデータを配置</li>
+          <li><strong>types/</strong> -- interface / type の共通定義</li>
+        </ul>
+        <div class="highlight-box mt small">
+          CLAUDE.md にこの構成を記載しておくことで、Claude Code が正しいディレクトリにファイルを生成する
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Slide 18: まとめ ===== -->
+  <div class="slide" data-slide="18">
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <h2>まとめ</h2>
+    <div class="grid-3" style="margin-bottom:32px;">
+      <div class="card card-accent">
+        <h3>プロトタイピング</h3>
+        <p class="small" style="color:var(--gray-300)">Figmaデザインから数時間でインタラクティブなプロトタイプを構築</p>
+      </div>
+      <div class="card card-green">
+        <h3>デザインシステム構築</h3>
+        <p class="small" style="color:var(--gray-300)">既存デザインモックアップからコンポーネントライブラリの雛形を生成</p>
+      </div>
+      <div class="card card-orange">
+        <h3>レガシーUI刷新</h3>
+        <p class="small" style="color:var(--gray-300)">現行システムのスクリーンショットからモダンフレームワークへの移行コードを生成</p>
+      </div>
+    </div>
+    <div class="highlight-box" style="text-align:center;font-size:1.15em;">
+      <strong style="color:var(--accent-bright)">AI生成はゴールではなくスタート地点</strong><br>
+      <span style="color:var(--gray-300)">生成されたコードを土台として、人間が品質・アクセシビリティ・パフォーマンスを磨き上げていく</span>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <p style="font-size:1.3em;font-weight:700;color:var(--white);">ご質問はありますか？</p>
+      <p style="color:var(--gray-500);margin-top:8px;font-size:0.95em;">ハンズオンを始めましょう！</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Slide Number -->
+<div class="slide-number" id="slideNumber">1 / 18</div>
+
+<!-- Progress Bar -->
+<div class="progress-bar" id="progressBar" style="width: 5.56%"></div>
+
+<!-- Nav Hint -->
+<div class="nav-hint">
+  <kbd>←</kbd> <kbd>→</kbd> でページ送り
+</div>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let currentSlide = 0;
+
+  function showSlide(index) {
+    if (index < 0 || index >= totalSlides) return;
+    slides[currentSlide].classList.remove('active');
+    currentSlide = index;
+    slides[currentSlide].classList.add('active');
+    document.getElementById('slideNumber').textContent = (currentSlide + 1) + ' / ' + totalSlides;
+    document.getElementById('progressBar').style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      showSlide(currentSlide + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      showSlide(currentSlide - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      showSlide(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      showSlide(totalSlides - 1);
+    }
+  });
+
+  // Click navigation: left third = prev, right two-thirds = next
+  document.querySelector('.slide-container').addEventListener('click', function(e) {
+    const x = e.clientX;
+    const w = window.innerWidth;
+    if (x < w / 3) {
+      showSlide(currentSlide - 1);
+    } else {
+      showSlide(currentSlide + 1);
+    }
+  });
+})();
+</script>
+</body>
+</html>
