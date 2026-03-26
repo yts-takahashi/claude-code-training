@@ -1,6 +1,8 @@
 node_modules/
 .next/
+.angular/
 dist/
 *.tsbuildinfo
 .env
 .env.local
+.playwright-mcp/
