@@ -1,0 +1,60 @@
+<div [class]="'space-y-1 ' + className">
+  <label [for]="name" class="block text-sm font-medium text-gray-700">
+    {{ label }}
+    @if (required) {
+      <span class="text-fin-danger ml-1">*</span>
+    }
+  </label>
+
+  @if (type === 'select') {
+    <select
+      [name]="name"
+      [id]="name"
+      [value]="value"
+      [disabled]="disabled"
+      [class]="inputClasses"
+      (change)="onValueChange($any($event.target).value)"
+    >
+      <option value="">{{ placeholder || '選択してください' }}</option>
+      @for (opt of options; track opt.value) {
+        <option [value]="opt.value">{{ opt.label }}</option>
+      }
+    </select>
+  } @else if (type === 'textarea') {
+    <textarea
+      [name]="name"
+      [id]="name"
+      [value]="value ?? ''"
+      [placeholder]="placeholder || ''"
+      [disabled]="disabled"
+      [readOnly]="readOnly"
+      [rows]="rows"
+      [class]="inputClasses"
+      (input)="onValueChange($any($event.target).value)"
+    ></textarea>
+  } @else {
+    <input
+      [type]="type"
+      [name]="name"
+      [id]="name"
+      [value]="value ?? ''"
+      [placeholder]="placeholder || ''"
+      [disabled]="disabled"
+      [readOnly]="readOnly"
+      [class]="inputClasses"
+      (input)="onValueChange($any($event.target).value)"
+    />
+  }
+
+  @if (error) {
+    <p class="text-xs text-fin-danger flex items-center gap-1">
+      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+      </svg>
+      {{ error }}
+    </p>
+  }
+  @if (helperText && !error) {
+    <p class="text-xs text-gray-400">{{ helperText }}</p>
+  }
+</div>

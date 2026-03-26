@@ -1,1 +1,1 @@
-export { LineChart, type LineChartProps, type LineChartSeries } from './LineChart';
+export { LineChartComponent, type LineChartProps, type LineChartSeries } from './line-chart.component';

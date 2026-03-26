@@ -1,0 +1,66 @@
+<aside [class]="sidebarClasses">
+  <!-- ヘッダー -->
+  <div class="flex items-center justify-between px-4 py-4 border-b border-gray-700">
+    @if (!collapsed) {
+      <ng-content select="[header]"></ng-content>
+      @if (!collapsed) {
+        <span class="text-lg font-bold">FinUI</span>
+      }
+    }
+    <button (click)="toggleCollapse()" class="p-1 rounded hover:bg-gray-700">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="collapseIconPath" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- メニュー -->
+  <nav class="flex-1 py-4 overflow-y-auto">
+    @for (item of items; track item.key) {
+      <div>
+        <button
+          [class]="getItemClasses(item)"
+          [title]="collapsed ? item.label : ''"
+          (click)="onItemClick(item)"
+        >
+          <span class="flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.iconPath" />
+            </svg>
+          </span>
+          @if (!collapsed) {
+            <span class="flex-1 text-left">{{ item.label }}</span>
+            @if (item.badge != null) {
+              <span class="px-2 py-0.5 text-xs bg-fin-danger rounded-full">{{ item.badge }}</span>
+            }
+            @if (hasChildren(item)) {
+              <svg
+                class="w-4 h-4 transition-transform"
+                [class.rotate-90]="isExpanded(item.key)"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            }
+          }
+        </button>
+
+        <!-- サブメニュー -->
+        @if (hasChildren(item) && isExpanded(item.key) && !collapsed) {
+          <div class="bg-gray-950">
+            @for (child of item.children; track child.key) {
+              <button
+                [class]="getSubItemClasses(child.key)"
+                (click)="onSubItemClick(child.key)"
+              >
+                {{ child.label }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+  </nav>
+</aside>

@@ -1,1 +1,1 @@
-export { Tabs, type TabsProps, type TabItem } from './Tabs';
+export { TabsComponent, type TabsProps, type TabItem } from './tabs.component';

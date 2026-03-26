@@ -1,1 +1,1 @@
-export { CurrencyDisplay, type CurrencyDisplayProps } from './CurrencyDisplay';
+export { CurrencyDisplayComponent, type CurrencyDisplayProps } from './currency-display.component';

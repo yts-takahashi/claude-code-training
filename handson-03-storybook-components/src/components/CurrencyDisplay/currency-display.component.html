@@ -1,0 +1,19 @@
+<span [class]="'inline-flex items-center gap-2 ' + className">
+  <span [class]="sizeClass + ' ' + colorClass + ' font-mono tabular-nums'">
+    {{ displayAmount }}
+  </span>
+  @if (changeRate != null) {
+    <span [class]="'inline-flex items-center gap-0.5 text-xs font-medium ' + changeRateColorClass">
+      @if (isChangePositive) {
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 4l8 8h-6v8h-4v-8H4z" />
+        </svg>
+      } @else {
+        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 20l-8-8h6V4h4v8h6z" />
+        </svg>
+      }
+      {{ changeRateFormatted }}
+    </span>
+  }
+</span>

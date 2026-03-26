@@ -1,0 +1,27 @@
+<div [class]="className">
+  <!-- タブヘッダー -->
+  <div class="border-b border-fin-border">
+    <nav class="flex gap-0 -mb-px">
+      @for (item of items; track item.key) {
+        <button
+          [class]="getTabClasses(item)"
+          [disabled]="item.disabled"
+          (click)="onTabClick(item.key, item.disabled)"
+        >
+          {{ item.label }}
+          @if (item.badge != null) {
+            <span [class]="getBadgeClasses(item)">{{ item.badge }}</span>
+          }
+        </button>
+      }
+    </nav>
+  </div>
+
+  <!-- タブコンテンツ -->
+  <div class="py-4">
+    @if (activeItem?.contentTemplate) {
+      <ng-container [ngTemplateOutlet]="activeItem.contentTemplate"></ng-container>
+    }
+    <ng-content></ng-content>
+  </div>
+</div>

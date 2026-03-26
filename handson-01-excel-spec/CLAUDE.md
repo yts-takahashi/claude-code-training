@@ -6,44 +6,76 @@
 
 ## 技術スタック
 
-- **フロントエンド**: Next.js 14 (App Router) + TypeScript 5.x
-- **UIライブラリ**: Tailwind CSS 3.x + shadcn/ui
+- **フロントエンド**: Angular 17+ (standalone components) + TypeScript 5.x
+- **UIライブラリ**: Tailwind CSS 3.x + Angular Material
+- **バックエンド**: NestJS 10+ + TypeScript 5.x
 - **ORM**: Prisma 5.x
 - **データベース**: PostgreSQL 16
-- **認証**: NextAuth.js v5
-- **テスト**: Vitest + Testing Library + Playwright (E2E)
+- **認証**: Passport + JWT (NestJS Guard)
+- **テスト**: Jest + Testing Library + Cypress (E2E)
 
 ## ディレクトリ構成方針
 
 ```
-src/
-  app/                    # Next.js App Router
-    (auth)/               # 認証関連ページ
-    (dashboard)/          # メインレイアウト配下のページ群
-    api/                  # API Route Handlers
-  components/
-    ui/                   # shadcn/ui ベースの汎用コンポーネント
-    features/             # 機能別コンポーネント（loan/, customer/ 等）
-  lib/
-    db/                   # Prisma クライアント・ユーティリティ
-    validators/           # Zod バリデーションスキーマ
-    services/             # ビジネスロジック層
-    utils/                # 汎用ユーティリティ
-  types/                  # 型定義
-prisma/
-  schema.prisma           # Prisma スキーマ
-  migrations/             # マイグレーションファイル
-  seed.ts                 # シードデータ
+loanflow/
+  frontend/                  # Angular アプリケーション
+    src/
+      app/
+        core/                # シングルトンサービス・ガード・インターセプター
+          guards/            # AuthGuard, RoleGuard 等
+          interceptors/      # HTTP インターセプター（認証ヘッダ付与等）
+          services/          # AuthService 等のコアサービス
+        shared/              # 共有コンポーネント・パイプ・ディレクティブ
+          components/        # 汎用UIコンポーネント（ボタン、テーブル等）
+          pipes/             # カスタムパイプ（金額フォーマット等）
+          directives/        # カスタムディレクティブ
+        features/            # 機能モジュール（lazy loaded）
+          auth/              # ログイン・認証関連
+          dashboard/         # ダッシュボード
+          loan-applications/ # 融資申請（一覧・詳細・新規作成）
+          customers/         # 顧客管理
+          collaterals/       # 担保管理
+          repayments/        # 返済管理
+        models/              # インターフェース・型定義
+      environments/          # 環境設定ファイル
+    angular.json
+    tailwind.config.js
+  backend/                   # NestJS アプリケーション
+    src/
+      modules/
+        auth/                # 認証モジュール（Passport + JWT）
+        loan-applications/   # 融資申請モジュール
+        customers/           # 顧客モジュール
+        collaterals/         # 担保モジュール
+        repayments/          # 返済モジュール
+        loan-products/       # 融資商品モジュール
+      common/
+        decorators/          # カスタムデコレーター
+        filters/             # 例外フィルター
+        guards/              # 認証・認可ガード
+        interceptors/        # レスポンス変換等
+        validators/          # カスタムバリデーター（class-validator）
+      prisma/                # PrismaService（NestJS ラッパー）
+    prisma/
+      schema.prisma          # Prisma スキーマ
+      migrations/            # マイグレーションファイル
+      seed.ts                # シードデータ
 ```
 
 ## コーディング規約
 
-- 変数名・関数名はキャメルケース（TypeScript標準）
+- ファイル名はケバブケース（Angular CLI 標準: `loan-application-list.component.ts`）
+- クラス名はパスカルケース（`LoanApplicationListComponent`）
+- 変数名・関数名・プロパティ名はキャメルケース（TypeScript 標準）
 - DBカラム名はスネークケース（Prismaの `@map` で対応）
-- コンポーネントはパスカルケース
+- Angular コンポーネントは standalone component として作成する（`standalone: true`）
+- サービスは `@Injectable({ providedIn: 'root' })` または機能モジュール内で提供
+- NestJS のコントローラー・サービス・モジュールは NestJS CLI の命名規約に従う
 - APIレスポンスはキャメルケースに変換して返す
-- エラーハンドリングは Result 型パターンを推奨
-- 金額は整数（円単位）で扱い、表示時にフォーマットする
+- バリデーションは NestJS 側で `class-validator` + `class-transformer` を使用
+- Angular 側のフォームバリデーションは Reactive Forms で実装
+- エラーハンドリングは NestJS の Exception Filter パターンを使用
+- 金額は整数（円単位）で扱い、表示時にパイプでフォーマットする
 
 ## AI への指示方針
 

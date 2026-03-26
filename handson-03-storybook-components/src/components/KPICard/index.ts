@@ -1,1 +1,1 @@
-export { KPICard, type KPICardProps } from './KPICard';
+export { KPICardComponent, type KPICardProps } from './kpi-card.component';

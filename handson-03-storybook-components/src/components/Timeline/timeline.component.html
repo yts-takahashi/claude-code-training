@@ -1,0 +1,39 @@
+<div [class]="'space-y-0 ' + className">
+  @for (step of steps; track step.id; let i = $index) {
+    <div class="flex gap-4">
+      <!-- 左側: ドット + 線 -->
+      <div class="flex flex-col items-center">
+        <div [class]="getDotClasses(step.status)">
+          @if (step.status === 'completed') {
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+          } @else if (step.status === 'current') {
+            <div class="w-3 h-3 bg-white rounded-full"></div>
+          } @else {
+            <span class="text-xs text-gray-400 font-medium">{{ i + 1 }}</span>
+          }
+        </div>
+        @if (!isLast(i)) {
+          <div [class]="getLineClasses(step.status)"></div>
+        }
+      </div>
+
+      <!-- 右側: コンテンツ -->
+      <div [class]="isLast(i) ? 'pb-0' : 'pb-8'">
+        <p [class]="getTextClasses(step.status)">{{ step.title }}</p>
+        @if (step.description) {
+          <p class="text-xs text-gray-500 mt-1">{{ step.description }}</p>
+        }
+        <div class="flex items-center gap-3 mt-1">
+          @if (step.datetime) {
+            <span class="text-xs text-gray-400">{{ step.datetime }}</span>
+          }
+          @if (step.assignee) {
+            <span class="text-xs text-gray-400">担当: {{ step.assignee }}</span>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,38 @@
+@if (visible) {
+  <div [class]="containerClasses" role="alert">
+    <svg
+      [class]="'w-5 h-5 flex-shrink-0 mt-0.5 ' + config.iconColor"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="config.icon" />
+    </svg>
+
+    <div class="flex-1 min-w-0">
+      @if (title) {
+        <p [class]="'text-sm font-semibold ' + config.titleColor">{{ title }}</p>
+      }
+      <p [class]="messageClasses">{{ message }}</p>
+      @if (actionText) {
+        <button
+          (click)="handleAction()"
+          [class]="'mt-2 text-sm font-medium underline ' + config.titleColor"
+        >
+          {{ actionText }}
+        </button>
+      }
+    </div>
+
+    @if (closable) {
+      <button
+        (click)="handleClose()"
+        class="flex-shrink-0 p-1 rounded hover:bg-black/5"
+      >
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    }
+  </div>
+}

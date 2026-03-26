@@ -1,1 +1,1 @@
-export { PieChart, type PieChartProps, type PieChartDataItem } from './PieChart';
+export { PieChartComponent, type PieChartProps, type PieChartDataItem } from './pie-chart.component';
