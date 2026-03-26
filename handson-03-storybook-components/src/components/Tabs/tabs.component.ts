@@ -44,7 +44,7 @@ export class TabsComponent {
   private internalActiveKey = '';
 
   get currentActiveKey(): string {
-    return this.activeKey ?? this.internalActiveKey || this.defaultActiveKey || this.items[0]?.key || '';
+    return this.activeKey ?? (this.internalActiveKey || this.defaultActiveKey || this.items[0]?.key || '');
   }
 
   get activeItem(): TabItem | undefined {

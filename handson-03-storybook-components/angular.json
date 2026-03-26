@@ -10,11 +10,11 @@
       "prefix": "fin",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:application",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/finui-design-system",
             "index": "src/index.html",
-            "browser": "src/main.ts",
+            "main": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.json",
             "styles": ["src/index.css"],
@@ -34,6 +34,25 @@
             }
           },
           "defaultConfiguration": "production"
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "finui-design-system:build",
+            "compodoc": false,
+            "port": 6006,
+            "tsConfig": ".storybook/tsconfig.json",
+            "styles": ["src/index.css"]
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": ".storybook",
+            "browserTarget": "finui-design-system:build",
+            "compodoc": false
+          }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",

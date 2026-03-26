@@ -109,7 +109,7 @@ export class LineChartComponent implements OnChanges {
             label: (context) => {
               const label = context.dataset.label || '';
               const value = context.parsed.y;
-              return `${label}: ${tipFormatter(value)}`;
+              return `${label}: ${tipFormatter(value ?? 0)}`;
             },
           },
         },

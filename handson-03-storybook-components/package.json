@@ -7,8 +7,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook": "./node_modules/.bin/ng run finui-design-system:storybook",
+    "build-storybook": "./node_modules/.bin/ng run finui-design-system:build-storybook",
     "lint": "ng lint",
     "type-check": "tsc --noEmit"
   },
