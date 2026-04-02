@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ハンズオン04: Angular プロジェクトに Storybook を導入する</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --accent: #38bdf8;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --danger: #f87171;
+    --warning: #fbbf24;
+    --code-bg: #0d1117;
+    --border: #334155;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    overflow: hidden;
+  }
+
+  .slide-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 100px;
+    background: var(--bg-primary);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .slide.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .slide-number {
+    position: fixed;
+    bottom: 30px;
+    right: 40px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    z-index: 100;
+    font-family: 'Fira Code', monospace;
+  }
+
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    z-index: 100;
+    transition: width 0.3s ease;
+  }
+
+  .slide.title-slide {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  }
+
+  .slide.title-slide::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 40%, rgba(56, 189, 248, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(167, 139, 250, 0.06) 0%, transparent 50%);
+  }
+
+  .title-label {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .title-main {
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1.4;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-sub {
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin-bottom: 40px;
+  }
+
+  .title-meta {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  h2 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: var(--text-primary);
+    position: relative;
+    padding-bottom: 16px;
+  }
+
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+  }
+
+  h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 16px;
+    margin-top: 24px;
+  }
+
+  ul, ol {
+    list-style: none;
+    padding: 0;
+  }
+
+  ul li, ol li {
+    font-size: 20px;
+    line-height: 1.6;
+    padding: 8px 0 8px 28px;
+    position: relative;
+    color: var(--text-primary);
+  }
+
+  ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 18px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  ol { counter-reset: ol-counter; }
+  ol li { counter-increment: ol-counter; }
+  ol li::before {
+    content: counter(ol-counter);
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sub-text {
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-family: 'Fira Code', monospace;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .code-block .code-label {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .fn { color: #d2a8ff; }
+  .cm { color: #8b949e; }
+  .ty { color: #79c0ff; }
+  .op { color: #c9d1d9; }
+  .num { color: #79c0ff; }
+
+  .card-grid {
+    display: grid;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+
+  .card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .card p, .card li {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .card li {
+    padding: 2px 0 2px 20px;
+    font-size: 14px;
+  }
+
+  .card li::before {
+    width: 6px;
+    height: 6px;
+    top: 12px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 16px;
+  }
+
+  th {
+    background: var(--bg-secondary);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    font-size: 14px;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  tr:hover td {
+    background: rgba(56, 189, 248, 0.03);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-blue { background: rgba(56, 189, 248, 0.15); color: var(--accent); }
+  .badge-purple { background: rgba(167, 139, 250, 0.15); color: var(--accent2); }
+  .badge-green { background: rgba(52, 211, 153, 0.15); color: var(--accent3); }
+
+  .highlight-box {
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .highlight-box.warning {
+    background: rgba(251, 191, 36, 0.08);
+    border-left-color: var(--warning);
+  }
+
+  .highlight-box.danger {
+    background: rgba(248, 113, 113, 0.08);
+    border-left-color: var(--danger);
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+
+  .layout-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    white-space: pre;
+  }
+
+  .nav-hint {
+    position: fixed;
+    bottom: 30px;
+    left: 40px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    opacity: 0.5;
+    z-index: 100;
+  }
+
+  .compact li {
+    font-size: 17px;
+    padding: 5px 0 5px 28px;
+  }
+
+  .compact-sm li {
+    font-size: 15px;
+    padding: 4px 0 4px 24px;
+  }
+
+  .compact-sm li::before {
+    top: 14px;
+    width: 6px;
+    height: 6px;
+  }
+
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-16 { margin-bottom: 16px; }
+
+  .text-accent { color: var(--accent); }
+  .text-accent2 { color: var(--accent2); }
+  .text-accent3 { color: var(--accent3); }
+  .text-warning { color: var(--warning); }
+  .text-danger { color: var(--danger); }
+  .text-secondary { color: var(--text-secondary); }
+  .text-sm { font-size: 15px; }
+  .font-bold { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="slide-number" id="slideNumber"></div>
+<div class="nav-hint">← → キーでページ移動</div>
+
+<div class="slide-container">
+
+<!-- Slide 1: Title -->
+<div class="slide title-slide active" data-slide="1">
+  <div class="title-label">Hands-on 04</div>
+  <div class="title-main">Angular プロジェクトに<br>Storybook を導入する</div>
+  <div class="title-sub">TaskBoard × Claude Code</div>
+  <div class="title-meta">Claude Code Training Series</div>
+</div>
+
+<!-- Slide 2: 目的・学べること -->
+<div class="slide" data-slide="2">
+  <h2>目的・学べること</h2>
+  <div class="highlight-box">既存のAngularプロジェクトにStorybookを導入し、コンポーネントカタログを構築する方法をClaude Codeで体験する</div>
+  <ul class="compact mt-16">
+    <li>Storybook の基本概念と Angular プロジェクトへの導入方法を理解する</li>
+    <li>Claude Code を使った Storybook の自動セットアップを体験する</li>
+    <li>ストーリー(.stories.ts) の書き方と設計パターンを習得する</li>
+    <li>Controls / Args / Decorators など主要機能の活用法を学ぶ</li>
+  </ul>
+  <h3>前提知識</h3>
+  <ul class="compact-sm">
+    <li>Angular 17+ / TypeScript の基礎知識</li>
+    <li>コンポーネント設計の基本概念</li>
+    <li>Claude Code の基本操作</li>
+  </ul>
+</div>
+
+<!-- Slide 3: Storybook とは -->
+<div class="slide" data-slide="3">
+  <h2>Storybook とは</h2>
+  <div class="two-col">
+    <div>
+      <h3>概要</h3>
+      <ul class="compact-sm">
+        <li>UIコンポーネントを独立して開発・テスト・ドキュメント化するツール</li>
+        <li>コンポーネントの全状態（バリアント）を一覧で確認できる</li>
+        <li>デザイナー・開発者間のコミュニケーションツールとして機能</li>
+        <li>Angular / React / Vue など主要フレームワークに対応</li>
+      </ul>
+    </div>
+    <div>
+      <h3>主な機能</h3>
+      <div class="card-grid cols-2">
+        <div class="card">
+          <h4>Stories</h4>
+          <p>コンポーネントの各状態を定義・表示</p>
+        </div>
+        <div class="card">
+          <h4>Controls</h4>
+          <p>@Input をリアルタイムに操作</p>
+        </div>
+        <div class="card">
+          <h4>Actions</h4>
+          <p>@Output イベントをログ表示</p>
+        </div>
+        <div class="card">
+          <h4>Docs</h4>
+          <p>自動ドキュメント生成</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 4: プロジェクト構成 -->
+<div class="slide" data-slide="4">
+  <h2>スターターAngularプロジェクト</h2>
+  <div class="two-col">
+    <div>
+      <div class="layout-diagram">project/
+├── src/
+│   ├── app/
+│   │   ├── app.component.ts
+│   │   └── components/
+│   │       ├── Button/
+│   │       ├── Card/
+│   │       ├── Badge/
+│   │       ├── SearchInput/
+│   │       ├── Avatar/
+│   │       └── ProgressBar/
+│   ├── styles.css
+│   └── index.html
+├── angular.json
+├── package.json
+└── tailwind.config.js</div>
+    </div>
+    <div>
+      <h3>6つのコンポーネント</h3>
+      <table>
+        <thead>
+          <tr><th>コンポーネント</th><th>セレクタ</th><th>主な@Input</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Button</td><td>app-button</td><td>variant, size, disabled, loading</td></tr>
+          <tr><td>Card</td><td>app-card</td><td>title, subtitle, bordered, hoverable</td></tr>
+          <tr><td>Badge</td><td>app-badge</td><td>variant, size</td></tr>
+          <tr><td>SearchInput</td><td>app-search-input</td><td>placeholder, debounceMs</td></tr>
+          <tr><td>Avatar</td><td>app-avatar</td><td>name, imageUrl, size</td></tr>
+          <tr><td>ProgressBar</td><td>app-progress-bar</td><td>value, color, showLabel</td></tr>
+        </tbody>
+      </table>
+      <div class="highlight-box">Storybook は未導入の状態です。これからClaude Codeを使って導入します。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 5: 事前準備 -->
+<div class="slide" data-slide="5">
+  <h2>事前準備</h2>
+  <ol>
+    <li>
+      <span class="font-bold">依存パッケージのインストール</span>
+      <div class="code-block" style="font-size: 14px;">cd handson-04-storybook-setup/project && npm install</div>
+    </li>
+    <li>
+      <span class="font-bold">開発サーバーの起動確認</span>
+      <div class="code-block" style="font-size: 14px;">npm start</div>
+      <span class="sub-text">http://localhost:4200 にアクセス</span>
+    </li>
+    <li>
+      <span class="font-bold">Claude Codeの起動</span>
+      <div class="code-block" style="font-size: 14px;">claude</div>
+    </li>
+  </ol>
+  <div class="highlight-box mt-16">開発サーバーで6つのコンポーネントが表示されることを確認してください</div>
+</div>
+
+<!-- Slide 6: Step 1 — Storybook 導入 -->
+<div class="slide" data-slide="6">
+  <h2>Step 1: Claude Code で Storybook を導入</h2>
+  <div class="two-col">
+    <div>
+      <h3>プロンプト例</h3>
+      <div class="code-block" style="font-size: 13px;"><span class="cm">このAngularプロジェクトに
+Storybook 8 を導入してください。
+
+要件:
+- @storybook/angular を使用
+- .storybook/ に設定ファイルを配置
+- Tailwind CSS が適用されるよう設定
+- storybook スクリプトを追加</span></div>
+    </div>
+    <div>
+      <h3>検証チェックポイント</h3>
+      <ul class="compact-sm">
+        <li>.storybook/main.ts が作成されているか</li>
+        <li>.storybook/preview.ts が作成されているか</li>
+        <li>package.json に依存関係が追加されているか</li>
+        <li>npm run storybook で起動するか</li>
+        <li>Tailwind CSS が Storybook 内で適用されているか</li>
+      </ul>
+      <div class="highlight-box warning">Storybookの初回起動には時間がかかる場合があります。エラーが出た場合はClaude Codeにエラーメッセージを貼り付けて修正を依頼してください。</div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 7: Step 2 — 最初のストーリー（Button） -->
+<div class="slide" data-slide="7">
+  <h2>Step 2: 最初のストーリーを作成 — Button</h2>
+  <div class="two-col">
+    <div>
+      <h3>プロンプト例</h3>
+      <div class="code-block" style="font-size: 13px;"><span class="cm">src/app/components/Button/
+  button.component.ts を読んで、
+Storybook ストーリーを作成してください。
+
+- Default ストーリー
+- AllVariants（横並び表示）
+- AllSizes（横並び表示）
+- Loading / Disabled 状態
+- Controls で全 @Input を操作可能に
+- title は 'Components/Button'</span></div>
+    </div>
+    <div>
+      <h3>ストーリー構成</h3>
+      <div class="card-grid" style="grid-template-columns: 1fr;">
+        <div class="card">
+          <h4>Default</h4>
+          <p>primary / md のデフォルト状態</p>
+        </div>
+        <div class="card">
+          <h4>AllVariants</h4>
+          <p>primary, secondary, danger, ghost を横並び</p>
+        </div>
+        <div class="card">
+          <h4>AllSizes</h4>
+          <p>sm, md, lg を横並び</p>
+        </div>
+        <div class="card">
+          <h4>Loading</h4>
+          <p>ローディングスピナー表示</p>
+        </div>
+        <div class="card">
+          <h4>Disabled</h4>
+          <p>無効状態</p>
+        </div>
+      </div>
+      <div class="highlight-box">Tip: Controls パネルで variant を切り替えて、全バリアントの色が正しいか確認しましょう</div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 8: ストーリーの基本構造 -->
+<div class="slide" data-slide="8">
+  <h2>ストーリーファイルの基本構造</h2>
+  <div class="code-block"><span class="code-label">button.stories.ts</span>
+<span class="kw">import</span> <span class="kw">type</span> { <span class="ty">Meta</span>, <span class="ty">StoryObj</span> } <span class="kw">from</span> <span class="str">'@storybook/angular'</span>;
+<span class="kw">import</span> { <span class="ty">ButtonComponent</span> } <span class="kw">from</span> <span class="str">'./button.component'</span>;
+
+<span class="kw">const</span> <span class="op">meta</span>: <span class="ty">Meta</span>&lt;<span class="ty">ButtonComponent</span>&gt; <span class="op">=</span> {
+  <span class="op">title</span>: <span class="str">'Components/Button'</span>,
+  <span class="op">component</span>: <span class="ty">ButtonComponent</span>,
+  <span class="op">tags</span>: [<span class="str">'autodocs'</span>],
+  <span class="op">argTypes</span>: {
+    <span class="op">variant</span>: {
+      <span class="op">control</span>: <span class="str">'select'</span>,
+      <span class="op">options</span>: [<span class="str">'primary'</span>, <span class="str">'secondary'</span>, <span class="str">'danger'</span>, <span class="str">'ghost'</span>],
+    },
+    <span class="op">clicked</span>: { <span class="op">action</span>: <span class="str">'clicked'</span> },
+  },
+};
+
+<span class="kw">export default</span> <span class="op">meta</span>;
+<span class="kw">type</span> <span class="ty">Story</span> <span class="op">=</span> <span class="ty">StoryObj</span>&lt;<span class="ty">ButtonComponent</span>&gt;;
+
+<span class="kw">export const</span> <span class="fn">Default</span>: <span class="ty">Story</span> <span class="op">=</span> {
+  <span class="op">args</span>: { <span class="op">variant</span>: <span class="str">'primary'</span>, <span class="op">size</span>: <span class="str">'md'</span> },
+};</div>
+  <div class="highlight-box">Meta でコンポーネントの設定、StoryObj で個別のストーリーを定義する</div>
+</div>
+
+<!-- Slide 9: Step 3 — 残りの一括生成 -->
+<div class="slide" data-slide="9">
+  <h2>Step 3: 残り5コンポーネントの一括生成</h2>
+  <h3>プロンプト例</h3>
+  <div class="code-block" style="font-size: 13px;"><span class="cm">残り5つのコンポーネント
+(Card, Badge, SearchInput, Avatar, ProgressBar)
+のストーリーを一括で作成してください。
+
+Button のストーリーのフォーマットに
+合わせてください。
+各コンポーネントに Default + バリエーション
+ストーリーを含めてください。</span></div>
+  <div class="card-grid cols-3 mt-16">
+    <div class="card">
+      <h4>Card</h4>
+      <p>Default / Bordered / Hoverable / WithSubtitle</p>
+    </div>
+    <div class="card">
+      <h4>Badge</h4>
+      <p>Default / AllVariants / AllSizes</p>
+    </div>
+    <div class="card">
+      <h4>SearchInput</h4>
+      <p>Default + Actions表示</p>
+    </div>
+    <div class="card">
+      <h4>Avatar</h4>
+      <p>Default / WithImage / AllSizes / Initials</p>
+    </div>
+    <div class="card">
+      <h4>ProgressBar</h4>
+      <p>Default / AllColors / Complete / WithLabel</p>
+    </div>
+    <div class="card" style="background: rgba(56, 189, 248, 0.08); border-color: var(--accent);">
+      <h4>合計</h4>
+      <p>6コンポーネント × 平均4ストーリー = 約24ストーリー</p>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 10: Step 4 — カスタマイズ -->
+<div class="slide" data-slide="10">
+  <h2>Step 4: ストーリーのカスタマイズ</h2>
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>Decorators</h4>
+      <p>コンポーネントにラッパーを追加</p>
+      <p>余白・背景色・レイアウトの設定</p>
+      <div class="code-block" style="font-size: 12px; margin-top: 8px; padding: 12px;">decorators: [() =&gt; ({ styles: ['...'] })]</div>
+    </div>
+    <div class="card">
+      <h4>Play Functions</h4>
+      <p>ストーリーの自動テスト</p>
+      <p>ユーザー操作のシミュレーション</p>
+      <div class="code-block" style="font-size: 12px; margin-top: 8px; padding: 12px;">play: async ({ canvasElement }) =&gt; { ... }</div>
+    </div>
+    <div class="card">
+      <h4>Docs / JSDoc</h4>
+      <p>自動ドキュメント生成</p>
+      <p>コンポーネントの説明文を追加</p>
+      <div class="code-block" style="font-size: 12px; margin-top: 8px; padding: 12px;">tags: ['autodocs']</div>
+    </div>
+    <div class="card">
+      <h4>Global Settings</h4>
+      <p>preview.ts でグローバル設定</p>
+      <p>背景色・ビューポート・テーマ</p>
+      <div class="code-block" style="font-size: 12px; margin-top: 8px; padding: 12px;">全ストーリーに共通設定を適用</div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 11: Step 5 — 新コンポーネント＋ストーリー同時作成 -->
+<div class="slide" data-slide="11">
+  <h2>Step 5: コンポーネントとストーリーを同時作成</h2>
+  <div class="two-col">
+    <div>
+      <h3>プロンプト例</h3>
+      <div class="code-block" style="font-size: 13px;"><span class="cm">新しい「Tooltip」コンポーネントを
+ストーリーと一緒に作成してください。
+
+仕様:
+- selector: app-tooltip
+- @Input: text, position, delay
+- ホバーで表示/非表示
+- Tailwind CSS / standalone
+
+ストーリー:
+- Default / AllPositions / WithDelay
+- Controls で操作可能</span></div>
+    </div>
+    <div>
+      <h3>期待される成果物</h3>
+      <div class="layout-diagram">src/app/components/Tooltip/
+├── tooltip.component.ts  ← 新規
+├── tooltip.stories.ts   ← 新規
+└── index.ts             ← 新規</div>
+      <div class="highlight-box mt-16">コンポーネントとストーリーを同時に作ることで、最初からStorybookで確認しながら開発できる</div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 12: 効率的なプロンプトの書き方 -->
+<div class="slide" data-slide="12">
+  <h2>ストーリー生成プロンプトのコツ</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="border-left: 4px solid var(--danger); margin-bottom: 16px;">
+        <h4 style="color: var(--danger);">効果が低い</h4>
+        <div class="code-block" style="font-size: 13px; padding: 12px;">Storybookのストーリーを作って</div>
+        <p>どのコンポーネントか不明。最低限のストーリーしか生成されない</p>
+      </div>
+      <div class="card" style="border-left: 4px solid var(--warning);">
+        <h4 style="color: var(--warning);">やや良い</h4>
+        <div class="code-block" style="font-size: 13px; padding: 12px;">Buttonのストーリーを作って。全バリアントを含めて</div>
+        <p>コンポーネント名はあるが、具体的な構成が不明</p>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="border-left: 4px solid var(--accent3);">
+        <h4 style="color: var(--accent3);">効果が高い</h4>
+        <div class="code-block" style="font-size: 13px; padding: 12px;"><span class="cm">button.component.ts を読んで、
+以下の構成でストーリーを作成:
+- Default: variant='primary'
+- AllVariants: 横並び表示
+- Loading / Disabled 状態
+Controls で全 @Input を操作可能に</span></div>
+        <p>コンポーネント実装を読ませ、具体的な構成を指示</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 13: Storybook 導入のベストプラクティス -->
+<div class="slide" data-slide="13">
+  <h2>Storybook 導入 5つのベストプラクティス</h2>
+  <ol>
+    <li><span class="font-bold">Default + AllVariants を必ず作る</span><br><span class="sub-text">最低限の2ストーリーで全状態を網羅</span></li>
+    <li><span class="font-bold">Controls で全 @Input を操作可能にする</span><br><span class="sub-text">手動テストの効率が劇的に向上</span></li>
+    <li><span class="font-bold">Actions で @Output を確認する</span><br><span class="sub-text">イベント発火の動作確認が容易に</span></li>
+    <li><span class="font-bold">実際のユースケースに近いデータを使う</span><br><span class="sub-text">"Lorem ipsum" ではなく業務データ</span></li>
+    <li><span class="font-bold">play function でインタラクションテストを追加</span><br><span class="sub-text">手動確認の自動化</span></li>
+  </ol>
+</div>
+
+<!-- Slide 14: トラブルシューティング -->
+<div class="slide" data-slide="14">
+  <h2>よくあるトラブルと対処法</h2>
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>Storybook が起動しない</h4>
+      <p>キャッシュクリア:</p>
+      <div class="code-block" style="font-size: 12px; padding: 10px;">rm -rf node_modules/.cache/storybook</div>
+      <p>診断コマンド:</p>
+      <div class="code-block" style="font-size: 12px; padding: 10px;">npx storybook@latest doctor</div>
+    </div>
+    <div class="card">
+      <h4>Tailwind が適用されない</h4>
+      <p>.storybook/preview.ts に styles.css をインポート:</p>
+      <div class="code-block" style="font-size: 12px; padding: 10px;">import '../src/styles.css';</div>
+    </div>
+    <div class="card">
+      <h4>ストーリーが表示されない</h4>
+      <p>.storybook/main.ts の stories パターンを確認</p>
+      <p>Meta の component が正しく指定されているか</p>
+    </div>
+    <div class="card">
+      <h4>@Output が Actions に表示されない</h4>
+      <p>argTypes で action を定義しているか</p>
+      <p>addon-essentials がインストールされているか</p>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 15: 所要時間と進め方 -->
+<div class="slide" data-slide="15">
+  <h2>所要時間の目安</h2>
+  <table>
+    <thead>
+      <tr><th>ステップ</th><th>内容</th><th>所要時間</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Step 0</td><td>プロジェクト確認</td><td>5分</td></tr>
+      <tr><td>Step 1</td><td>Storybook導入</td><td>10分</td></tr>
+      <tr><td>Step 2</td><td>最初のストーリー（Button）</td><td>10分</td></tr>
+      <tr><td>Step 3</td><td>残り5コンポーネント一括生成</td><td>15分</td></tr>
+      <tr><td>Step 4</td><td>ストーリーカスタマイズ</td><td>15分</td></tr>
+      <tr><td>Step 5</td><td>新コンポーネント＋ストーリー同時作成</td><td>15分</td></tr>
+      <tr style="font-weight: 700;"><td></td><td>合計</td><td>約70分</td></tr>
+    </tbody>
+  </table>
+  <div class="highlight-box mt-16">各ステップの検証チェックポイントを必ず確認してから次に進んでください</div>
+</div>
+
+<!-- Slide 16: まとめ -->
+<div class="slide" data-slide="16">
+  <h2>まとめ</h2>
+  <div class="two-col">
+    <div>
+      <h3>このハンズオンで学んだこと</h3>
+      <ol>
+        <li><span class="font-bold">Storybook の導入方法</span><br><span class="sub-text">Angular プロジェクトへの @storybook/angular のセットアップ</span></li>
+        <li><span class="font-bold">ストーリーの書き方</span><br><span class="sub-text">Meta / StoryObj / Args / Controls パターン</span></li>
+        <li><span class="font-bold">効率的なストーリー生成</span><br><span class="sub-text">Claude Code を使った一括生成テクニック</span></li>
+        <li><span class="font-bold">高度な機能</span><br><span class="sub-text">Decorators / Play Functions / Docs</span></li>
+        <li><span class="font-bold">同時開発ワークフロー</span><br><span class="sub-text">コンポーネントとストーリーの並行作成</span></li>
+      </ol>
+    </div>
+    <div>
+      <h3>次のステップ</h3>
+      <ul class="compact-sm">
+        <li>ハンズオン03で既存Storybookの活用方法を学ぶ</li>
+        <li>チームのデザインシステムにStorybookを導入する</li>
+        <li>CLAUDE.md にコンポーネント一覧を記載してAI生成精度を上げる</li>
+        <li>CI/CD に Storybook のビルドテストを組み込む</li>
+      </ul>
+      <div class="highlight-box mt-16">Key Takeaway: Claude Code + Storybook = コンポーネント駆動開発の加速</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let currentSlide = 0;
+
+  function showSlide(index) {
+    if (index < 0 || index >= totalSlides) return;
+    slides[currentSlide].classList.remove('active');
+    currentSlide = index;
+    slides[currentSlide].classList.add('active');
+    document.getElementById('slideNumber').textContent = `${currentSlide + 1} / ${totalSlides}`;
+    document.getElementById('progressBar').style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      showSlide(currentSlide + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      showSlide(currentSlide - 1);
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      showSlide(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      showSlide(totalSlides - 1);
+    }
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? showSlide(currentSlide + 1) : showSlide(currentSlide - 1);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('a, button, input, code')) return;
+    e.clientX > window.innerWidth / 2 ? showSlide(currentSlide + 1) : showSlide(currentSlide - 1);
+  });
+
+  showSlide(0);
+</script>
+
+</body>
+</html>
