@@ -7,3 +7,6 @@ dist/
 .env.local
 .playwright-mcp/
 .DS_Store
+# Presentation build artifacts
+presentation-assets/*.b64
+presentation-assets/kadai-temp.html
