@@ -51,7 +51,7 @@ import { FormsModule } from '@angular/forms';
     input[type=checkbox] { accent-color: #2c6abd; width: 12px; height: 12px; }
   `],
   template: `
-    <div style="width: 100%; min-width: 960px; background: #fff; box-sizing: border-box;">
+    <div style="width: 100%; min-width: 960px; min-height: 100vh; background: #fff; box-sizing: border-box; display: flex; flex-direction: column;">
 
       <!-- ===== HEADER ===== -->
       <header>
