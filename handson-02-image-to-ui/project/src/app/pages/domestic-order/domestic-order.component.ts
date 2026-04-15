@@ -7,25 +7,32 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   styles: [`
-    :host { display: block; font-family: 'Noto Sans JP', 'メイリオ', Meiryo, sans-serif; font-size: 13px; color: #333; background: #fff; }
+    :host { display: block; width: 100%; font-family: 'Noto Sans JP', 'メイリオ', Meiryo, sans-serif; font-size: 13px; color: #333; background: #fff; }
     .nav-main { background: #fff; border-bottom: 1px solid #ccc; }
     .nav-sub { background: #f5f5f5; border-bottom: 1px solid #ccc; }
-    .form-label-cell { background: #d9eaf8; border-right: 1px solid #bcd0e6; font-weight: bold; width: 110px; padding: 6px 8px; vertical-align: middle; font-size: 12px; }
-    .form-input-cell { background: #fff; padding: 5px 8px; vertical-align: middle; font-size: 12px; }
-    .form-row { border-bottom: 1px solid #d0d8e0; }
+    .form-label-cell { background: #f4f6f8; border-right: 1px solid #d4dce4; font-weight: bold; width: 118px; padding: 7px 10px; vertical-align: middle; font-size: 12px; color: #333; }
+    .form-input-cell { background: #fff; padding: 6px 10px; vertical-align: middle; font-size: 12px; }
+    .form-row { border-bottom: 1px solid #dde3ea; }
     .btn-primary { background: #e86310; color: #fff; border: none; cursor: pointer; font-weight: bold; }
     .btn-primary:hover { background: #d05800; }
     .btn-outline { background: #fff; border: 1px solid #999; cursor: pointer; }
     .btn-outline:hover { background: #f0f0f0; }
-    .btn-order-type { border: 1px solid #e86310; cursor: pointer; padding: 3px 12px; font-size: 12px; }
-    .btn-order-type.active { background: #e86310; color: #fff; }
-    .btn-order-type:not(.active) { background: #fff; color: #e86310; }
-    .btn-expiry { border: 1px solid #ccc; cursor: pointer; padding: 2px 10px; font-size: 12px; background: #fff; }
-    .btn-expiry.active { background: #e86310; color: #fff; border-color: #e86310; }
-    .step-line { height: 2px; background: #0066cc; flex: 1; }
+    /* Selection button: blue active with checkmark, radio-circle for inactive */
+    .btn-sel { display: inline-flex; align-items: center; border: none; cursor: pointer; font-size: 12px; white-space: nowrap; margin-right: 6px; background: transparent; }
+    .btn-sel.active { background: #2c6abd; color: #fff; padding: 4px 12px; border-radius: 2px; gap: 5px; }
+    .btn-sel.active::before { content: '✓'; font-size: 11px; }
+    .btn-sel:not(.active) { color: #444; padding: 4px 4px; gap: 5px; }
+    .btn-sel:not(.active)::before { content: ''; display: inline-block; width: 13px; height: 13px; border: 1.5px solid #aaa; border-radius: 50%; flex-shrink: 0; }
+    /* Buy/Sell special buttons */
+    .btn-buysell { border: none; cursor: pointer; font-size: 12px; white-space: nowrap; padding: 4px 14px; margin-right: 4px; border-radius: 2px; }
+    .btn-buysell.buy-active { background: #e06450; color: #fff; }
+    .btn-buysell.sell-active { background: #2c6abd; color: #fff; }
+    .btn-buysell:not(.buy-active):not(.sell-active) { background: #f0f0f0; color: #555; }
+    .help-icon { color: #999; font-size: 10px; font-weight: normal; margin-left: 3px; cursor: help; vertical-align: middle; }
+    .step-line { height: 2px; background: #2c6abd; flex: 1; }
     .step-line.inactive { background: #ccc; }
     .step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; }
-    .step-circle.active { background: #0066cc; color: #fff; }
+    .step-circle.active { background: #2c6abd; color: #fff; }
     .step-circle.inactive { background: #ccc; color: #fff; }
     .side-panel { border-left: 1px solid #ddd; }
     .tab-btn { border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; padding: 4px 8px; font-size: 11px; white-space: nowrap; }
@@ -40,9 +47,11 @@ import { FormsModule } from '@angular/forms';
     .caution-box { background: #fff8e1; border: 1px solid #f0c040; border-left: 3px solid #e08000; }
     .price-table td { padding: 2px 4px; font-size: 11px; border: 1px solid #e0e8f0; }
     .price-label { color: #555; background: #f0f5fa; font-size: 11px; width: 90px; }
+    input[type=radio] { accent-color: #2c6abd; width: 14px; height: 14px; cursor: pointer; vertical-align: middle; }
+    input[type=checkbox] { accent-color: #2c6abd; width: 12px; height: 12px; }
   `],
   template: `
-    <div style="min-width: 960px; background: #fff;">
+    <div style="width: 100%; min-width: 960px; background: #fff; box-sizing: border-box;">
 
       <!-- ===== HEADER ===== -->
       <header>
@@ -140,10 +149,10 @@ import { FormsModule } from '@angular/forms';
       </header>
 
       <!-- ===== MAIN CONTENT ===== -->
-      <div class="flex">
+      <div class="flex" style="width: 100%;">
 
         <!-- ===== LEFT: Order Form ===== -->
-        <div class="flex-1 px-4 pt-3 pb-6" style="min-width: 0; max-width: 760px;">
+        <div class="flex-1 px-4 pt-3 pb-6" style="min-width: 0;">
 
           <!-- Page title + flags -->
           <div class="flex items-center justify-between mb-2" style="border-left: 3px solid #0066cc; padding-left: 8px;">
@@ -185,21 +194,19 @@ import { FormsModule } from '@angular/forms';
 
                 <!-- 売買 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">売買</td>
+                  <td class="form-label-cell">売買<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
                     <div class="flex items-center gap-1">
-                      <button class="btn-order-type" [class.active]="buySell==='buy'" (click)="buySell='buy'">買付</button>
-                      <button class="btn-order-type" [class.active]="buySell==='sell'" (click)="buySell='sell'"
-                        style="border-color: #0066cc;"
-                        [style.background]="buySell==='sell' ? '#0066cc' : '#fff'"
-                        [style.color]="buySell==='sell' ? '#fff' : '#0066cc'">売付</button>
+                      <button class="btn-buysell" [class.buy-active]="buySell==='buy'" (click)="buySell='buy'">買付</button>
+                      <button class="btn-buysell" [class.sell-active]="buySell==='sell'" (click)="buySell='sell'">売付</button>
+                      <span style="display: inline-block; border: 1px solid #ccc; font-size: 11px; padding: 2px 8px; color: #555; margin-left: 6px; background: #fafafa;">現物株式</span>
                     </div>
                   </td>
                 </tr>
 
                 <!-- 銘柄名 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">銘柄名</td>
+                  <td class="form-label-cell">銘柄名<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
                     <div class="flex items-center gap-2 flex-wrap">
                       <div>
@@ -217,19 +224,19 @@ import { FormsModule } from '@angular/forms';
 
                 <!-- 口座 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">口座</td>
+                  <td class="form-label-cell">口座<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
-                    <div class="flex items-center gap-1">
-                      <button class="btn-expiry" [class.active]="account==='toku'" (click)="account='toku'">特定口座</button>
-                      <button class="btn-expiry" [class.active]="account==='ippan'" (click)="account='ippan'">一般口座</button>
-                      <button class="btn-expiry" [class.active]="account==='nisa'" (click)="account='nisa'">NISA口座</button>
+                    <div class="flex items-center">
+                      <button class="btn-sel" [class.active]="account==='toku'" (click)="account='toku'">主口座</button>
+                      <button class="btn-sel" [class.active]="account==='ippan'" (click)="account='ippan'">一般口座</button>
+                      <button class="btn-sel" [class.active]="account==='nisa'" (click)="account='nisa'">NISA口座</button>
                     </div>
                   </td>
                 </tr>
 
                 <!-- 注文数量 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">注文数量</td>
+                  <td class="form-label-cell">注文数量<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
                     <div class="flex items-center gap-2">
                       <span class="text-gray-400 px-1 border border-gray-300" style="font-size: 14px;">─</span>
@@ -242,19 +249,19 @@ import { FormsModule } from '@angular/forms';
 
                 <!-- 注文条件 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">注文条件</td>
+                  <td class="form-label-cell">注文条件<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
-                    <div class="flex items-center gap-1">
-                      <button class="btn-order-type" [class.active]="orderType==='sashine'" (click)="orderType='sashine'">指値</button>
-                      <button class="btn-order-type" [class.active]="orderType==='nariyuki'" (click)="orderType='nariyuki'">成行</button>
-                      <button class="btn-order-type" [class.active]="orderType==='dual'" (click)="orderType='dual'" style="font-size: 11px;">デュアル板寄</button>
+                    <div class="flex items-center">
+                      <button class="btn-sel" [class.active]="orderType==='sashine'" (click)="orderType='sashine'">指値</button>
+                      <button class="btn-sel" [class.active]="orderType==='nariyuki'" (click)="orderType='nariyuki'">成行</button>
+                      <button class="btn-sel" [class.active]="orderType==='dual'" (click)="orderType='dual'" style="font-size: 11px;">←デュアル板寄せ</button>
                     </div>
                   </td>
                 </tr>
 
                 <!-- 注文単価 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">注文単価</td>
+                  <td class="form-label-cell">注文単価<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
                     <div class="flex items-center gap-2 flex-wrap">
                       <input type="text"
@@ -272,76 +279,58 @@ import { FormsModule } from '@angular/forms';
 
                 <!-- SOR条件 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">SOR条件</td>
+                  <td class="form-label-cell">SOR条件<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
-                    <div class="flex items-center gap-1">
-                      <button class="btn-expiry" [class.active]="sorCondition==='yes'" (click)="sorCondition='yes'">する</button>
-                      <button class="btn-expiry" [class.active]="sorCondition==='no'" (click)="sorCondition='no'">しない</button>
+                    <div class="flex items-center">
+                      <button class="btn-sel" [class.active]="sorCondition==='yes'" (click)="sorCondition='yes'">する</button>
+                      <button class="btn-sel" [class.active]="sorCondition==='no'" (click)="sorCondition='no'">しない</button>
                     </div>
                   </td>
                 </tr>
 
                 <!-- 執行条件 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">執行条件</td>
+                  <td class="form-label-cell">執行条件<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
-                    <div class="flex items-center gap-1 flex-wrap">
-                      <label class="flex items-center gap-1 cursor-pointer text-xs">
-                        <input type="radio" name="trade" value="none" [(ngModel)]="tradeCondition" />
-                        <span>なし</span>
-                      </label>
-                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-2">
-                        <input type="radio" name="trade" value="yoritsuke" [(ngModel)]="tradeCondition" />
-                        <span>寄付</span>
-                      </label>
-                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-2">
-                        <input type="radio" name="trade" value="hike" [(ngModel)]="tradeCondition" />
-                        <span>引成</span>
-                      </label>
-                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-2">
-                        <input type="radio" name="trade" value="funari" [(ngModel)]="tradeCondition" />
-                        <span>不成</span>
-                      </label>
+                    <div class="flex items-center">
+                      <button class="btn-sel" [class.active]="tradeCondition==='none'" (click)="tradeCondition='none'">なし</button>
+                      <button class="btn-sel" [class.active]="tradeCondition==='yoritsuke'" (click)="tradeCondition='yoritsuke'">寄付</button>
+                      <button class="btn-sel" [class.active]="tradeCondition==='hike'" (click)="tradeCondition='hike'">引成</button>
+                      <button class="btn-sel" [class.active]="tradeCondition==='funari'" (click)="tradeCondition='funari'">不成</button>
                     </div>
                   </td>
                 </tr>
 
                 <!-- 有効期間 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">有効期間</td>
+                  <td class="form-label-cell">有効期限<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <button class="btn-expiry" [class.active]="expiry==='today'" (click)="expiry='today'">当日</button>
-                      <button class="btn-expiry" [class.active]="expiry==='specify'" (click)="expiry='specify'">期間指定</button>
+                    <div class="flex items-center flex-wrap gap-1">
+                      <button class="btn-sel" [class.active]="expiry==='today'" (click)="expiry='today'">当日</button>
+                      <button class="btn-sel" [class.active]="expiry==='specify'" (click)="expiry='specify'">期間指定</button>
                       <input type="date" *ngIf="expiry==='specify'" [(ngModel)]="expiryDate"
-                        class="px-2 py-0.5 border border-gray-400 text-xs" />
-                      <span class="text-xs text-gray-400" *ngIf="expiry==='today'">訂正前まで有効</span>
+                        class="px-2 py-0.5 border border-gray-400 text-xs ml-1" />
+                      <span class="text-xs text-gray-400 ml-1" *ngIf="expiry==='today'">訂正前まで有効</span>
                     </div>
                   </td>
                 </tr>
 
                 <!-- 連続注文 -->
                 <tr class="form-row">
-                  <td class="form-label-cell">連続注文</td>
+                  <td class="form-label-cell">連続注文<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
-                    <div class="flex items-center gap-1">
-                      <label class="flex items-center gap-1 cursor-pointer text-xs">
-                        <input type="radio" name="continuous" value="none" [(ngModel)]="continuousOrder" />
-                        <span>しない</span>
-                      </label>
-                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-3">
-                        <input type="radio" name="continuous" value="yes" [(ngModel)]="continuousOrder" />
-                        <span>する</span>
-                      </label>
+                    <div class="flex items-center">
+                      <button class="btn-sel" [class.active]="continuousOrder==='none'" (click)="continuousOrder='none'">しない</button>
+                      <button class="btn-sel" [class.active]="continuousOrder==='yes'" (click)="continuousOrder='yes'">する</button>
                     </div>
                   </td>
                 </tr>
 
                 <!-- 買付概算金額 -->
                 <tr>
-                  <td class="form-label-cell">{{ buySell === 'buy' ? '買付' : '売付' }}概算金額</td>
+                  <td class="form-label-cell">{{ buySell === 'buy' ? '買付' : '売付' }}概算金額<span class="help-icon">②</span></td>
                   <td class="form-input-cell">
-                    <span class="font-bold" style="font-size: 15px; color: #333;">{{ estimatedAmount | number }}円</span>
+                    <span class="font-bold" style="font-size: 15px; color: #e86310;">{{ estimatedAmount | number }}円</span>
                   </td>
                 </tr>
 
