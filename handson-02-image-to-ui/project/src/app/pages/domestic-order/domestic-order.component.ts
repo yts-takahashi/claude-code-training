@@ -7,706 +7,767 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   styles: [`
-    :host {
-      display: block;
-      font-size: 12px;
-      font-family: 'Meiryo', 'MS PGothic', 'Noto Sans JP', sans-serif;
-      color: #333;
-      background: #fff;
-    }
-    /* フォームラベルセル - 日本金融系サイト特有の青灰色 */
-    .form-label {
-      background-color: #C0CEDF;
-      border-right: 1px solid #9AAABE;
-      font-weight: bold;
-      white-space: nowrap;
-      width: 88px;
-      padding: 5px 6px;
-      font-size: 11px;
-      vertical-align: middle;
-    }
-    .form-cell {
-      padding: 4px 6px;
-      font-size: 11px;
-      vertical-align: middle;
-    }
-    .form-row {
-      border-bottom: 1px solid #9AAABE;
-    }
-    .form-table {
-      border-collapse: collapse;
-      width: 100%;
-      border: 1px solid #9AAABE;
-    }
-    /* ===== モバイル: フォームを縦積みレイアウトに ===== */
-    @media (max-width: 1023px) {
-      .form-table,
-      .form-table tbody,
-      .form-table tr,
-      .form-table td {
-        display: block;
-        width: 100%;
-        box-sizing: border-box;
-      }
-      .form-label {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #9AAABE;
-        padding: 4px 8px;
-        white-space: normal;
-      }
-      .form-cell {
-        padding: 6px 8px;
-        background: #fff;
-      }
-      .form-row {
-        border-bottom: 2px solid #9AAABE;
-        margin-bottom: 0;
-      }
-    }
-    /* サイドバー */
-    .sidebar-section-header {
-      background-color: #3366CC;
-      color: white;
-      font-weight: bold;
-      font-size: 11px;
-      padding: 2px 6px;
-      margin-bottom: 2px;
-    }
-    .sidebar-table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 10px;
-    }
-    .sidebar-table th {
-      background-color: #C0CEDF;
-      border: 1px solid #9AAABE;
-      padding: 2px 4px;
-      text-align: left;
-    }
-    .sidebar-table td {
-      border: 1px solid #C8C8C8;
-      padding: 2px 4px;
-    }
-    .sidebar-table tr:nth-child(even) td {
-      background-color: #F0F4F8;
-    }
-    /* セクションヘッダー（ご注意事項等） */
-    .section-header {
-      background-color: #3366CC;
-      color: white;
-      font-weight: bold;
-      font-size: 11px;
-      padding: 2px 6px;
-      margin-bottom: 4px;
-    }
-    /* ランキングテーブル */
-    .ranking-table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 10px;
-    }
-    .ranking-table td {
-      border: 1px solid #C8C8C8;
-      padding: 2px 4px;
-    }
-    .ranking-table tr:nth-child(even) td {
-      background-color: #F5F5F5;
-    }
-    @media (min-width: 1024px) {
-      .sidebar-area {
-        width: 295px;
-        flex-shrink: 0;
-        border-top: none !important;
-        border-left: 1px solid #9AAABE;
-      }
-    }
+    :host { display: block; font-family: 'Noto Sans JP', 'メイリオ', Meiryo, sans-serif; font-size: 13px; color: #333; background: #fff; }
+    .nav-main { background: #fff; border-bottom: 1px solid #ccc; }
+    .nav-sub { background: #f5f5f5; border-bottom: 1px solid #ccc; }
+    .form-label-cell { background: #d9eaf8; border-right: 1px solid #bcd0e6; font-weight: bold; width: 110px; padding: 6px 8px; vertical-align: middle; font-size: 12px; }
+    .form-input-cell { background: #fff; padding: 5px 8px; vertical-align: middle; font-size: 12px; }
+    .form-row { border-bottom: 1px solid #d0d8e0; }
+    .btn-primary { background: #e86310; color: #fff; border: none; cursor: pointer; font-weight: bold; }
+    .btn-primary:hover { background: #d05800; }
+    .btn-outline { background: #fff; border: 1px solid #999; cursor: pointer; }
+    .btn-outline:hover { background: #f0f0f0; }
+    .btn-order-type { border: 1px solid #e86310; cursor: pointer; padding: 3px 12px; font-size: 12px; }
+    .btn-order-type.active { background: #e86310; color: #fff; }
+    .btn-order-type:not(.active) { background: #fff; color: #e86310; }
+    .btn-expiry { border: 1px solid #ccc; cursor: pointer; padding: 2px 10px; font-size: 12px; background: #fff; }
+    .btn-expiry.active { background: #e86310; color: #fff; border-color: #e86310; }
+    .step-line { height: 2px; background: #0066cc; flex: 1; }
+    .step-line.inactive { background: #ccc; }
+    .step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; }
+    .step-circle.active { background: #0066cc; color: #fff; }
+    .step-circle.inactive { background: #ccc; color: #fff; }
+    .side-panel { border-left: 1px solid #ddd; }
+    .tab-btn { border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; padding: 4px 8px; font-size: 11px; white-space: nowrap; }
+    .tab-btn.active { background: #fff; border-bottom-color: #fff; font-weight: bold; color: #0066cc; border-bottom: 2px solid #0066cc; }
+    .ita-table td, .ita-table th { border: 1px solid #ddd; padding: 2px 6px; font-size: 11px; text-align: right; }
+    .ita-sell { background: #ffe8e8; }
+    .ita-buy { background: #e8f0ff; }
+    .ita-current { background: #ffffcc; font-weight: bold; }
+    .chart-area { background: #fafafa; border: 1px solid #ddd; }
+    .notice-section { background: #fff; border-top: 3px solid #0066cc; }
+    .notice-link { color: #0066cc; text-decoration: underline; cursor: pointer; }
+    .caution-box { background: #fff8e1; border: 1px solid #f0c040; border-left: 3px solid #e08000; }
+    .price-table td { padding: 2px 4px; font-size: 11px; border: 1px solid #e0e8f0; }
+    .price-label { color: #555; background: #f0f5fa; font-size: 11px; width: 90px; }
   `],
   template: `
-    <div class="min-h-screen">
+    <div style="min-width: 960px; background: #fff;">
 
       <!-- ===== HEADER ===== -->
       <header>
-        <!-- トップバー -->
-        <div class="flex items-center justify-between px-2" style="background-color: #DD3020; color: white; font-size: 11px; padding-top: 3px; padding-bottom: 3px;">
-          <div class="flex items-center gap-1">
-            <span style="font-size: 16px; font-weight: bold; letter-spacing: 1px;">大阪証券</span>
-            <span style="margin-left: 8px; font-size: 10px;">ログアウト</span>
-            <span style="margin: 0 4px; color: #ffbbbb;">|</span>
-            <span style="font-size: 10px;">口座番号: 1234567890</span>
+        <!-- Top bar: small navy logo + white utility bar -->
+        <div class="flex items-center" style="background: #fff; border-bottom: 1px solid #ddd; min-height: 34px;">
+          <!-- 大和証券 logo box (wider to match original) -->
+          <div style="background: #002b6b; padding: 4px 16px 4px 12px; min-height: 34px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; flex-shrink: 0; min-width: 130px;">
+            <span class="text-white font-bold" style="font-size: 15px; letter-spacing: 0.08em; line-height: 1.2;">大和証券</span>
+            <span class="text-white" style="font-size: 9px; opacity: 0.8; letter-spacing: 0.05em;">Daiwa Securities</span>
           </div>
-          <div class="flex items-center gap-1" style="font-size: 10px;">
-            <span>お客様の氏名: 山田 太郎 様</span>
-            <span style="margin: 0 4px; color: #ffbbbb;">|</span>
-            <span>2024/04/15 10:30</span>
-            <span style="margin: 0 4px; color: #ffbbbb;">|</span>
-            <a href="#" style="color: #ffe0e0; text-decoration: underline;">ヘルプ</a>
-            <span style="margin: 0 4px; color: #ffbbbb;">|</span>
-            <a href="#" style="color: #ffe0e0; text-decoration: underline;">お問い合わせ</a>
+          <!-- Utility links -->
+          <div class="flex items-center flex-1 px-3 gap-2" style="font-size: 11px; color: #555;">
+            <span class="px-1.5 py-0.5 border border-gray-400 cursor-pointer text-gray-600" style="font-size: 11px;">1400※HD ▼</span>
+            <span class="text-gray-500" style="font-size: 11px;">画面サイズ: 1,880</span>
+            <span class="text-gray-400 mx-1">|</span>
+            <span class="text-gray-500 flex items-center gap-0.5 cursor-pointer" style="font-size: 11px;">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+              100%
+            </span>
+          </div>
+          <div class="flex items-center gap-2 pr-3" style="font-size: 11px;">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+            <a href="#" class="text-blue-700 hover:underline" style="font-size: 11px;">口座情報</a>
+            <a href="#" class="text-blue-700 hover:underline" style="font-size: 11px;">よくあるご質問</a>
+            <a href="#" class="text-blue-700 hover:underline flex items-center gap-0.5" style="font-size: 11px;">ヘルプ&amp;マニュアル
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </a>
+            <a href="#" class="text-blue-700 hover:underline flex items-center gap-0.5" style="font-size: 11px;">旧サイトへ
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            </a>
+            <a href="#" class="text-gray-600 hover:underline" style="font-size: 11px;">ログアウト</a>
           </div>
         </div>
 
-        <!-- メインナビゲーション -->
-        <div style="background-color: #BB2010; padding: 0; display: flex; align-items: stretch;">
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">トップ</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: #BB2010; background: white; font-size: 11px; padding: 4px 10px; font-weight: bold; text-decoration: none; border-top: 2px solid #888;">国内株式</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">外国株式</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">投資信託</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">債券</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">FX</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">口座管理</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">資産確認</a>
-          <span style="color: #dd6050; align-self: center;">|</span>
-          <a href="#" style="color: white; font-size: 11px; padding: 4px 8px; text-decoration: none;">マーケット</a>
-        </div>
-
-        <!-- サブナビゲーション（国内株式内のリンク群） -->
-        <div style="background-color: #666; padding: 3px 8px; display: flex; flex-wrap: wrap; gap: 0; align-items: center;">
-          <a href="#" style="color: #EEE; font-size: 11px; text-decoration: none; padding: 1px 4px;">注文・訂正・取消</a>
-          <span style="color: #999; margin: 0 2px; font-size: 10px;">›</span>
-          <a href="#" style="color: #EEE; font-size: 11px; text-decoration: none; padding: 1px 4px;">注文照会</a>
-          <span style="color: #999; margin: 0 2px; font-size: 10px;">›</span>
-          <a href="#" style="color: #EEE; font-size: 11px; text-decoration: none; padding: 1px 4px;">約定照会</a>
-          <span style="color: #999; margin: 0 2px; font-size: 10px;">›</span>
-          <a href="#" style="color: #EEE; font-size: 11px; text-decoration: none; padding: 1px 4px;">保有株式一覧</a>
-          <span style="color: #999; margin: 0 2px; font-size: 10px;">›</span>
-          <a href="#" style="color: #EEE; font-size: 11px; text-decoration: none; padding: 1px 4px;">株式相場</a>
-          <span style="color: #999; margin: 0 2px; font-size: 10px;">›</span>
-          <a href="#" style="color: #EEE; font-size: 11px; text-decoration: none; padding: 1px 4px;">ランキング</a>
-          <span style="color: #999; margin: 0 2px; font-size: 10px;">›</span>
-          <a href="#" style="color: #EEE; font-size: 11px; text-decoration: none; padding: 1px 4px;">銘柄検索</a>
-        </div>
-
-        <!-- パンくずリスト＋遅延表示 -->
-        <div style="background-color: #EEEEEE; border-bottom: 1px solid #BBBBBB; padding: 3px 8px; display: flex; justify-content: space-between; align-items: center;">
-          <div style="font-size: 11px; color: #555;">
-            <a href="#" style="color: #0033CC; text-decoration: none;">ホーム</a>
-            <span style="margin: 0 3px; color: #888;">›</span>
-            <a href="#" style="color: #0033CC; text-decoration: none;">国内株式</a>
-            <span style="margin: 0 3px; color: #888;">›</span>
-            <span>注文入力</span>
+        <!-- Main navigation -->
+        <nav class="nav-main flex items-center px-2 py-0" style="border-bottom: 1px solid #ddd;">
+          <a href="#" class="flex items-center gap-1 px-2 py-2 text-xs text-gray-600 hover:text-blue-700 border-b-2 border-transparent" style="font-size: 12px;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" /></svg>
+            <span>ホーム</span>
+          </a>
+          <a href="#" class="flex items-center gap-1 px-2 py-2 text-xs font-bold border-b-2" style="font-size: 12px; color: #0066cc; border-bottom-color: #0066cc;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0" /></svg>
+            <span>お取引</span>
+          </a>
+          <a href="#" class="flex items-center gap-1 px-2 py-2 text-xs text-gray-600 hover:text-blue-700 border-b-2 border-transparent" style="font-size: 12px;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+            <span>マーケット情報</span>
+          </a>
+          <a href="#" class="flex items-center gap-1 px-2 py-2 text-xs text-gray-600 hover:text-blue-700 border-b-2 border-transparent" style="font-size: 12px;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
+            <span>登録銘柄・ツール</span>
+          </a>
+          <a href="#" class="flex items-center gap-1 px-2 py-2 text-xs text-gray-600 hover:text-blue-700 border-b-2 border-transparent" style="font-size: 12px;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" /></svg>
+            <span>残高情報</span>
+          </a>
+          <a href="#" class="flex items-center gap-1 px-2 py-2 text-xs text-gray-600 hover:text-blue-700 border-b-2 border-transparent" style="font-size: 12px;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+            <span>お手続き・サポート</span>
+          </a>
+          <a href="#" class="flex items-center gap-1 px-2 py-2 text-xs text-gray-600 hover:text-blue-700 border-b-2 border-transparent" style="font-size: 12px;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>
+            <span>法人口座</span>
+          </a>
+          <div class="ml-auto flex items-center gap-2">
+            <span class="px-1.5 py-0.5 border border-gray-400 text-gray-500" style="font-size: 11px;">NISA開設不可 ▼</span>
+            <a href="#" class="flex items-center gap-0.5 text-gray-600 hover:text-blue-700" style="font-size: 11px;">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /></svg>
+              Myメニュー設定
+            </a>
           </div>
-          <div style="font-size: 10px; color: #888;">現在値は15分遅延表示です</div>
-        </div>
+        </nav>
+
+        <!-- Sub navigation: product categories -->
+        <nav class="nav-sub flex items-center px-3 py-0 flex-wrap" style="font-size: 12px;">
+          <a href="#" class="px-2 py-1 text-gray-800 font-bold" style="border-bottom: 2px solid #e86310; font-size: 12px;">国内株式（現物取引）</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">国内株式（信用取引）</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">IPO（新規公開株式）</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">PO（公募・売出株式）</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">米国株</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">株式累積投資</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">公開買付</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">中国株</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">投資信託</a>
+          <a href="#" class="px-2 py-1 text-blue-700 hover:underline" style="font-size: 12px;">外貨MMF</a>
+        </nav>
+
+        <!-- Order type tabs -->
+        <nav class="flex items-end px-3" style="border-bottom: 2px solid #e86310; background: #fff;">
+          <a href="#" class="px-3 py-1.5 text-sm font-bold" style="color: #e86310; border-bottom: 3px solid #e86310; margin-bottom: -2px; background: #fff; font-size: 13px;">買付注文</a>
+          <a href="#" class="px-3 py-1.5 text-sm text-gray-600 hover:text-orange-600" style="font-size: 13px;">売付注文</a>
+          <a href="#" class="px-3 py-1.5 text-sm text-gray-600 hover:text-orange-600" style="font-size: 13px;">注文・約定照会（取消・訂正）</a>
+        </nav>
       </header>
 
-      <!-- ===== MAIN 2カラムレイアウト ===== -->
-      <div class="flex flex-col lg:flex-row" style="min-height: 700px; align-items: flex-start;">
+      <!-- ===== MAIN CONTENT ===== -->
+      <div class="flex">
 
-        <!-- ===== 左カラム: 注文フォーム ===== -->
-        <div class="flex-1" style="min-width: 0; padding: 6px 8px 20px; border-right: 1px solid #AAAAAA;">
+        <!-- ===== LEFT: Order Form ===== -->
+        <div class="flex-1 px-4 pt-3 pb-6" style="min-width: 0; max-width: 760px;">
 
-          <!-- ページタイトル -->
-          <div style="font-size: 13px; font-weight: bold; color: #CC3300; border-left: 4px solid #DD3020; padding-left: 6px; margin-bottom: 6px;">
-            【注文入力】
-          </div>
-
-          <!-- 注文フォームテーブル -->
-          <table class="form-table">
-            <tbody>
-
-              <!-- 銘柄グループ -->
-              <tr class="form-row">
-                <td class="form-label">銘柄グループ</td>
-                <td class="form-cell">
-                  <select style="font-size: 11px; padding: 1px 3px; border: 1px solid #888; width: 190px;" [(ngModel)]="stockGroup">
-                    <option value="">-- 選択してください --</option>
-                    <option value="1">保有株式から選択</option>
-                    <option value="2">お気に入りから選択</option>
-                  </select>
-                  <span style="font-size: 10px; color: #888; margin-left: 6px;">※銘柄グループから選択できます</span>
-                </td>
-              </tr>
-
-              <!-- 銘柄 -->
-              <tr class="form-row">
-                <td class="form-label" style="vertical-align: top; padding-top: 5px;">銘柄</td>
-                <td class="form-cell">
-                  <div style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap;">
-                    <input type="text" [(ngModel)]="stockCode" placeholder="コード" style="font-size: 11px; padding: 1px 3px; border: 1px solid #888; width: 55px;" />
-                    <select style="font-size: 11px; padding: 1px 3px; border: 1px solid #888;" [(ngModel)]="market">
-                      <option value="t">東証プライム</option>
-                      <option value="ts">東証スタンダード</option>
-                      <option value="tg">東証グロース</option>
-                      <option value="o">大証</option>
-                      <option value="n">名証</option>
-                    </select>
-                    <button style="font-size: 11px; background-color: #336699; color: white; padding: 1px 8px; border: 1px solid #224477; cursor: pointer;">銘柄検索</button>
-                  </div>
-                  <div *ngIf="stockCode" style="margin-top: 3px; font-size: 11px;">
-                    <span style="font-weight: bold; color: #0033CC;">{{ stockName }}</span>
-                    <span style="margin-left: 6px;">現在値:</span>
-                    <span style="font-weight: bold; color: #CC0000; margin-left: 3px;">{{ currentPrice | number }}</span>
-                    <span>円</span>
-                    <span style="color: #CC0000; margin-left: 10px;">前日比: +45円 (+1.45%)</span>
-                  </div>
-                  <div *ngIf="stockCode" style="margin-top: 2px; font-size: 10px; color: #666;">
-                    出来高: 12,345,678株　高値: 3,150円　安値: 3,080円
-                  </div>
-                </td>
-              </tr>
-
-              <!-- 売買区分 -->
-              <tr class="form-row">
-                <td class="form-label">売買区分</td>
-                <td class="form-cell">
-                  <label style="margin-right: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
-                    <input type="radio" name="orderSide" value="buy" [(ngModel)]="orderSide" />
-                    <span style="font-weight: bold; color: #CC0000;">買い注文</span>
-                  </label>
-                  <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 3px;">
-                    <input type="radio" name="orderSide" value="sell" [(ngModel)]="orderSide" />
-                    <span style="font-weight: bold; color: #0055AA;">売り注文</span>
-                  </label>
-                </td>
-              </tr>
-
-              <!-- 株数 -->
-              <tr class="form-row">
-                <td class="form-label">株数</td>
-                <td class="form-cell">
-                  <input type="number" [(ngModel)]="quantity" style="font-size: 11px; padding: 1px 3px; border: 1px solid #888; width: 65px; text-align: right;" />
-                  <span style="margin-left: 3px; font-size: 11px;">株</span>
-                  <span style="font-size: 10px; color: #666; margin-left: 6px;">（1単元: 100株）</span>
-                  <span style="margin-left: 8px;">
-                    <button *ngFor="let n of quickQty" (click)="setQuantity(n)"
-                      style="font-size: 10px; margin-right: 2px; padding: 1px 5px; border: 1px solid #888; background: #F5F5F5; cursor: pointer;">{{n}}</button>
-                  </span>
-                </td>
-              </tr>
-
-              <!-- 注文区分 -->
-              <tr class="form-row">
-                <td class="form-label">注文区分</td>
-                <td class="form-cell">
-                  <label *ngFor="let pt of priceTypes" style="margin-right: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-size: 11px;">
-                    <input type="radio" name="priceType" [value]="pt.value" [(ngModel)]="priceType" />
-                    <span>{{ pt.label }}</span>
-                  </label>
-                </td>
-              </tr>
-
-              <!-- 指値価格（成行以外） -->
-              <tr class="form-row" *ngIf="priceType !== 'market'">
-                <td class="form-label">{{ priceType === 'stop_limit' ? '逆指値' : '指値価格' }}</td>
-                <td class="form-cell">
-                  <input type="number" [(ngModel)]="limitPrice" style="font-size: 11px; padding: 1px 3px; border: 1px solid #888; width: 65px; text-align: right;" />
-                  <span style="margin-left: 3px; font-size: 11px;">円</span>
-                  <span *ngIf="currentPrice" style="font-size: 10px; color: #666; margin-left: 8px;">
-                    （現在値: <span style="font-weight: bold;">{{ currentPrice | number }}</span>円）
-                  </span>
-                </td>
-              </tr>
-
-              <!-- 取引区分 -->
-              <tr class="form-row">
-                <td class="form-label">取引区分</td>
-                <td class="form-cell">
-                  <label *ngFor="let tt of tradeTypes" style="margin-right: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-size: 11px;">
-                    <input type="radio" name="tradeType" [value]="tt.value" [(ngModel)]="tradeType" />
-                    <span>{{ tt.label }}</span>
-                  </label>
-                </td>
-              </tr>
-
-              <!-- 有効期限 -->
-              <tr class="form-row">
-                <td class="form-label">有効期限</td>
-                <td class="form-cell">
-                  <label *ngFor="let ex of expiryTypes" style="margin-right: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-size: 11px;">
-                    <input type="radio" name="expiry" [value]="ex.value" [(ngModel)]="expiry" />
-                    <span>{{ ex.label }}</span>
-                  </label>
-                  <span *ngIf="expiry === 'specify'" style="display: inline-flex; align-items: center; gap: 4px;">
-                    <input type="date" [(ngModel)]="expiryDate" style="font-size: 10px; border: 1px solid #888; padding: 1px 3px;" />
-                    <span style="font-size: 11px;">まで</span>
-                  </span>
-                </td>
-              </tr>
-
-              <!-- 口座区分 -->
-              <tr class="form-row">
-                <td class="form-label">口座区分</td>
-                <td class="form-cell">
-                  <label *ngFor="let ac of accountTypes" style="margin-right: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-size: 11px;">
-                    <input type="radio" name="account" [value]="ac.value" [(ngModel)]="account" />
-                    <span>{{ ac.label }}</span>
-                  </label>
-                </td>
-              </tr>
-
-              <!-- 発注数量合計 -->
-              <tr>
-                <td class="form-label" style="border-bottom: none;">発注数量合計</td>
-                <td class="form-cell" style="border-bottom: none;">
-                  <span style="font-weight: bold;">{{ (quantity || 0) | number }}株</span>
-                  <span *ngIf="quantity && priceType !== 'market' && limitPrice" style="font-size: 11px; color: #333; margin-left: 10px;">
-                    概算金額: <span style="font-weight: bold; color: #CC0000;">{{ (quantity * limitPrice) | number }}円</span>
-                    <span style="font-size: 10px; color: #888; margin-left: 4px;">（手数料別）</span>
-                  </span>
-                  <span *ngIf="quantity && priceType === 'market' && currentPrice" style="font-size: 11px; color: #333; margin-left: 10px;">
-                    概算金額: <span style="font-weight: bold; color: #CC0000;">{{ (quantity * currentPrice) | number }}円</span>
-                    <span style="font-size: 10px; color: #888; margin-left: 4px;">（概算・手数料別）</span>
-                  </span>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
-
-          <!-- 注意ボックス -->
-          <div style="margin-top: 8px; padding: 8px 10px; background-color: #FFFBE6; border: 1px solid #DDAA00; border-left: 4px solid #E08000; font-size: 11px;">
-            <div style="font-weight: bold; color: #884400; margin-bottom: 4px;">⚠ ご注意</div>
-            <div style="color: #444; line-height: 1.6;">
-              ・注文内容をご確認のうえ、「{{ orderSide === 'buy' ? '買い注文を発注する' : '売り注文を発注する' }}」ボタンを押してください。<br>
-              ・成行注文は市場の状況によっては予期しない価格で約定する場合があります。<br>
-              ・注文確定後の取消・訂正はできない場合があります。
+          <!-- Page title + flags -->
+          <div class="flex items-center justify-between mb-2" style="border-left: 3px solid #0066cc; padding-left: 8px;">
+            <h1 class="font-bold flex items-center gap-2" style="font-size: 15px; color: #333;">
+              注文入力
+              <span style="color: #ccc; font-size: 14px;">☆</span>
+            </h1>
+            <div class="flex items-center gap-3 text-xs text-gray-500">
+              <label class="flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="showSell" />
+                <span style="display: inline-block; width: 10px; height: 10px; background: #cc3300; margin-right: 2px;"></span>
+                <span>売付</span>
+              </label>
+              <label class="flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="showBuy" />
+                <span style="display: inline-block; width: 10px; height: 10px; background: #00aa66; margin-right: 2px;"></span>
+                <span>買付</span>
+              </label>
+              <span class="text-gray-400">|</span>
+              <label class="flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="showBuyingPower" />
+                <span>買付余力</span>
+              </label>
+              <label class="flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="nisaUnsupported" disabled />
+                <span class="text-gray-400">NISA口座未開設</span>
+              </label>
+              <label class="flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="linkEnabled" />
+                <span>リンク有無</span>
+              </label>
             </div>
           </div>
 
-          <!-- 発注ボタンエリア -->
-          <div style="margin-top: 6px; padding: 10px; text-align: center; background-color: #F8F8F8; border: 1px solid #CCCCCC;">
-            <button
-              (click)="submitOrder()"
-              [style.background-color]="orderSide === 'buy' ? '#DD3020' : '#0055AA'"
-              style="color: white; font-weight: bold; font-size: 13px; padding: 8px 40px; border: none; cursor: pointer; min-width: 200px;">
-              {{ orderSide === 'buy' ? '買い注文を発注する' : '売り注文を発注する' }}
-            </button>
+          <!-- Form table -->
+          <div style="border: 1px solid #bcd0e6; border-radius: 2px;">
+            <table class="w-full" style="border-collapse: collapse;">
+              <tbody>
+
+                <!-- 売買 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">売買</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-1">
+                      <button class="btn-order-type" [class.active]="buySell==='buy'" (click)="buySell='buy'">買付</button>
+                      <button class="btn-order-type" [class.active]="buySell==='sell'" (click)="buySell='sell'"
+                        style="border-color: #0066cc;"
+                        [style.background]="buySell==='sell' ? '#0066cc' : '#fff'"
+                        [style.color]="buySell==='sell' ? '#fff' : '#0066cc'">売付</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 銘柄名 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">銘柄名</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <div>
+                        <span class="text-xs text-gray-500">{{ stockCode }} {{ stockMarket }}</span>
+                        <span class="text-xs text-gray-400 ml-1">②最良執行市場: 東証</span>
+                        <div class="font-bold text-blue-700" style="font-size: 14px;">{{ stockName }}</div>
+                      </div>
+                      <button class="btn-outline px-3 py-1 text-xs ml-2 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+                        銘柄検索
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 口座 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">口座</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-1">
+                      <button class="btn-expiry" [class.active]="account==='toku'" (click)="account='toku'">特定口座</button>
+                      <button class="btn-expiry" [class.active]="account==='ippan'" (click)="account='ippan'">一般口座</button>
+                      <button class="btn-expiry" [class.active]="account==='nisa'" (click)="account='nisa'">NISA口座</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 注文数量 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">注文数量</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-2">
+                      <span class="text-gray-400 px-1 border border-gray-300" style="font-size: 14px;">─</span>
+                      <input type="number" [(ngModel)]="quantity" class="px-2 py-1 border border-gray-400 text-sm text-right" style="width: 80px;" />
+                      <span class="text-sm">株</span>
+                      <span class="text-xs text-gray-500 ml-1">（注文単位:100株）</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 注文条件 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">注文条件</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-1">
+                      <button class="btn-order-type" [class.active]="orderType==='sashine'" (click)="orderType='sashine'">指値</button>
+                      <button class="btn-order-type" [class.active]="orderType==='nariyuki'" (click)="orderType='nariyuki'">成行</button>
+                      <button class="btn-order-type" [class.active]="orderType==='dual'" (click)="orderType='dual'" style="font-size: 11px;">デュアル板寄</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 注文単価 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">注文単価</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <input type="text"
+                        [value]="orderType==='nariyuki' ? '--' : limitPrice"
+                        [disabled]="orderType==='nariyuki'"
+                        (input)="limitPrice = $any($event.target).value"
+                        class="px-2 py-1 border border-gray-400 text-sm text-right"
+                        style="width: 80px;"
+                        [style.background]="orderType==='nariyuki' ? '#f5f5f5' : '#fff'" />
+                      <span class="text-xs text-gray-500">円</span>
+                      <span class="text-xs text-gray-400 ml-1">（制限値幅:2,815円-3,625円）</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- SOR条件 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">SOR条件</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-1">
+                      <button class="btn-expiry" [class.active]="sorCondition==='yes'" (click)="sorCondition='yes'">する</button>
+                      <button class="btn-expiry" [class.active]="sorCondition==='no'" (click)="sorCondition='no'">しない</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 執行条件 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">執行条件</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-1 flex-wrap">
+                      <label class="flex items-center gap-1 cursor-pointer text-xs">
+                        <input type="radio" name="trade" value="none" [(ngModel)]="tradeCondition" />
+                        <span>なし</span>
+                      </label>
+                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-2">
+                        <input type="radio" name="trade" value="yoritsuke" [(ngModel)]="tradeCondition" />
+                        <span>寄付</span>
+                      </label>
+                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-2">
+                        <input type="radio" name="trade" value="hike" [(ngModel)]="tradeCondition" />
+                        <span>引成</span>
+                      </label>
+                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-2">
+                        <input type="radio" name="trade" value="funari" [(ngModel)]="tradeCondition" />
+                        <span>不成</span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 有効期間 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">有効期間</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button class="btn-expiry" [class.active]="expiry==='today'" (click)="expiry='today'">当日</button>
+                      <button class="btn-expiry" [class.active]="expiry==='specify'" (click)="expiry='specify'">期間指定</button>
+                      <input type="date" *ngIf="expiry==='specify'" [(ngModel)]="expiryDate"
+                        class="px-2 py-0.5 border border-gray-400 text-xs" />
+                      <span class="text-xs text-gray-400" *ngIf="expiry==='today'">訂正前まで有効</span>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 連続注文 -->
+                <tr class="form-row">
+                  <td class="form-label-cell">連続注文</td>
+                  <td class="form-input-cell">
+                    <div class="flex items-center gap-1">
+                      <label class="flex items-center gap-1 cursor-pointer text-xs">
+                        <input type="radio" name="continuous" value="none" [(ngModel)]="continuousOrder" />
+                        <span>しない</span>
+                      </label>
+                      <label class="flex items-center gap-1 cursor-pointer text-xs ml-3">
+                        <input type="radio" name="continuous" value="yes" [(ngModel)]="continuousOrder" />
+                        <span>する</span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- 買付概算金額 -->
+                <tr>
+                  <td class="form-label-cell">{{ buySell === 'buy' ? '買付' : '売付' }}概算金額</td>
+                  <td class="form-input-cell">
+                    <span class="font-bold" style="font-size: 15px; color: #333;">{{ estimatedAmount | number }}円</span>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
           </div>
 
-          <!-- 関連リンク -->
-          <div style="margin-top: 6px; font-size: 11px; text-align: center; color: #333;">
-            <a href="#" style="color: #0033CC; text-decoration: underline; margin-right: 10px;">国内株式注文</a>
-            <a href="#" style="color: #0033CC; text-decoration: underline; margin-right: 10px;">現物取引</a>
-            <a href="#" style="color: #0033CC; text-decoration: underline; margin-right: 10px;">外国株式注文</a>
-            <a href="#" style="color: #0033CC; text-decoration: underline; margin-right: 10px;">投資信託注文</a>
-            <a href="#" style="color: #0033CC; text-decoration: underline; margin-right: 10px;">FX取引</a>
-            <a href="#" style="color: #0033CC; text-decoration: underline;">公社債注文</a>
+          <!-- Caution text -->
+          <div class="mt-2 text-xs text-gray-600 leading-relaxed px-1">
+            <p>
+              お取引前に（<a href="#" class="notice-link">売買委託注文の取扱いの停止・注文受付中止・インサイダー取引規制</a>）の情報をご確認した上で、必要事項を選択または入力した後、下記「注文内容を確認」ボタンをクリックしてください。
+            </p>
           </div>
 
-          <!-- ご注意事項（長文） -->
-          <div style="margin-top: 12px;">
-            <div class="section-header">ご注意事項</div>
-            <div style="font-size: 11px; color: #333; line-height: 1.7; padding: 4px 2px;">
-              <p style="margin-bottom: 6px;">
-                当社は、お客様が株式等の取引に関して、以下の点についてご了解の上でご注文いただくことを前提として取引の執行を行います。
+          <!-- Second caution box -->
+          <div class="caution-box mt-2 px-3 py-2 text-xs text-gray-700 leading-relaxed" style="position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <p>
+                特定口座を開設している場合、源泉徴収税分が買付余力から減算されるのは約定日の翌日です。このため、当該商品の売却約定日における買付けの際は買付余力の範囲内の取引であっても、後日不足金が発生する場合があります。また、源泉徴収は外貨決済であっても円貨で行われることにご注意ください。
               </p>
-              <p style="margin-bottom: 6px;">
-                <span style="font-weight: bold; color: #CC0000;">【リスクについて】</span><br>
-                株式等の価格は、需要と供給の関係等の要因により変動します。このため、市場価格が予期せぬ方向に動くことがあります。成行注文を行った場合、最終的な約定価格は、注文時の現在値より大幅に乖離することがあります。また、指値注文の場合でも、相場状況によっては注文が全部または一部約定されないことがあります。
-              </p>
-              <p style="margin-bottom: 6px;">
-                <span style="font-weight: bold; color: #CC0000;">【信用取引について】</span><br>
-                信用取引は、委託保証金を担保として、委託保証金の約3.3倍程度の取引が行えます。株価の変動により、投資額以上の損失を生じる場合があります。追証が発生した場合は、追加の保証金を差し入れていただく必要があります。
-              </p>
-              <p style="margin-bottom: 6px;">
-                お客様の投資判断に基づいてご注文ください。当社は、お客様の取引から生じた損失に対して責任を負いません。
-              </p>
-              <p style="margin-bottom: 6px;">
-                取引手数料については、別途「手数料一覧」をご確認ください。手数料は取引代金により異なります。
-              </p>
-              <p style="margin-bottom: 6px;">
-                注文確定後は、原則として取消・訂正はできません。ただし、未約定の注文については、取引時間内であれば訂正・取消が可能な場合があります。
-              </p>
-              <p style="margin-bottom: 6px;">
-                当社の取引システムは、取引所の取引システムとは独立して動作しています。当社のシステム障害が発生した場合でも、取引所への注文が執行されている場合があります。
-              </p>
-              <p style="margin-bottom: 6px;">
-                お客様が投資判断を行う際には、有価証券報告書、目論見書等の書類をご確認の上、十分にご理解いただくことをお勧めします。
-              </p>
+              <button class="ml-2 flex-shrink-0 text-gray-500 hover:text-gray-700" style="font-size: 16px; line-height: 1;">▼</button>
             </div>
           </div>
 
-          <!-- フッターリンク -->
-          <div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #CCCCCC; font-size: 11px; text-align: center; color: #555;">
-            オンライントレードについてご不明な点はこちら ｜
-            <a href="#" style="color: #0033CC; text-decoration: underline;">よくあるご質問</a> ｜
-            <a href="#" style="color: #0033CC; text-decoration: underline;">操作方法</a> ｜
-            <a href="#" style="color: #0033CC; text-decoration: underline;">お問い合わせ</a>
+          <!-- Action buttons -->
+          <div class="flex items-center justify-center gap-4 mt-4">
+            <button class="btn-outline px-8 py-2 text-sm font-bold" style="min-width: 120px;" (click)="clearForm()">クリア</button>
+            <button class="btn-primary px-8 py-2 text-sm font-bold" style="min-width: 180px; font-size: 14px;" (click)="confirmOrder()">注文内容を確認</button>
           </div>
 
-          <!-- 注意事項ボックス -->
-          <div style="margin-top: 8px; padding: 8px 10px; background-color: #F8F8F8; border: 1px solid #CCCCCC; font-size: 11px;">
-            <div style="font-weight: bold; margin-bottom: 4px;">ご注意事項</div>
-            <div style="color: #555; line-height: 1.6;">
-              当社の株式売買手数料は、1日の約定代金合計額に応じた一律手数料制です。詳細は
-              <a href="#" style="color: #0033CC; text-decoration: underline;">手数料一覧</a>
-              をご覧ください。<br>
-              株式等の売買は、株価の変動等により損失が生じるおそれがあります。上場有価証券等書面および目論見書等の内容を十分にご理解のうえ、ご自身の判断と責任においてご投資ください。<br>
-              ご不明な点は
-              <a href="#" style="color: #0033CC; text-decoration: underline;">カスタマーサポート</a>
-              までお問い合わせください。
+          <!-- Step indicator -->
+          <div class="flex items-center mt-4" style="max-width: 360px; margin: 16px auto 0;">
+            <div class="flex flex-col items-center gap-1">
+              <div class="step-circle active">1</div>
+              <div class="text-xs font-bold" style="color: #0066cc;">入力</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="step-circle inactive">2</div>
+              <div class="text-xs text-gray-400">確認</div>
+            </div>
+            <div class="step-line inactive"></div>
+            <div class="flex flex-col items-center gap-1">
+              <div class="step-circle inactive">3</div>
+              <div class="text-xs text-gray-400">完了</div>
             </div>
           </div>
 
+          <!-- Footer links -->
+          <div class="flex items-center gap-3 mt-4 text-xs flex-wrap" style="border-top: 1px solid #eee; padding-top: 8px;">
+            <a href="#" class="notice-link flex items-center gap-0.5">お取引のご注意 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
+            <a href="#" class="notice-link flex items-center gap-0.5">最良執行方針 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
+            <a href="#" class="notice-link flex items-center gap-0.5">新興企業について <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
+            <a href="#" class="notice-link flex items-center gap-0.5">手数料 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
+            <a href="#" class="notice-link flex items-center gap-0.5">上場有価証券等書面 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></a>
+          </div>
         </div>
 
-        <!-- ===== 右サイドバー: マーケット情報 ===== -->
-        <div class="sidebar-area" style="padding: 6px 6px 20px; font-size: 11px; background: #fff;">
+        <!-- ===== RIGHT: Reference Info Panel ===== -->
+        <div class="side-panel px-3 pt-3 pb-6 shrink-0" style="width: 400px; font-size: 12px;">
 
-          <!-- 概況 -->
-          <div style="margin-bottom: 8px;">
-            <div class="sidebar-section-header">概況</div>
-            <table class="sidebar-table">
-              <thead>
-                <tr>
-                  <th>指標</th>
-                  <th style="text-align: right;">現在値</th>
-                  <th style="text-align: right;">前日比</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let m of marketSummary; let i = index">
-                  <td>{{ m.name }}</td>
-                  <td style="text-align: right; font-weight: bold;">{{ m.value }}</td>
-                  <td style="text-align: right;" [style.color]="m.up ? '#CC0000' : '#0055AA'">
-                    {{ m.up ? '▲' : '▼' }}{{ m.change }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <div style="text-align: right; font-size: 9px; color: #888; margin-top: 2px;">15分遅延 04/15 10:30</div>
-          </div>
-
-          <!-- 保有株式 -->
-          <div style="margin-bottom: 8px;">
-            <div class="sidebar-section-header">保有株式</div>
-            <table class="sidebar-table">
-              <thead>
-                <tr>
-                  <th>銘柄</th>
-                  <th style="text-align: right;">株数</th>
-                  <th style="text-align: right;">現在値</th>
-                  <th style="text-align: right;">評価損益</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let s of holdings">
-                  <td>
-                    <a href="#" style="color: #0033CC; text-decoration: none;">{{ s.code }}</a>
-                  </td>
-                  <td style="text-align: right;">{{ s.qty | number }}</td>
-                  <td style="text-align: right;">{{ s.price | number }}</td>
-                  <td style="text-align: right;" [style.color]="s.pnl >= 0 ? '#CC0000' : '#0055AA'">
-                    {{ s.pnl >= 0 ? '+' : '' }}{{ s.pnl | number }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- チャート -->
-          <div style="margin-bottom: 8px;">
-            <div class="sidebar-section-header">{{ stockCode ? stockName + ' チャート' : '日経平均チャート' }}</div>
-            <div style="border: 1px solid #CCCCCC; background: #fff; height: 90px; overflow: hidden;">
-              <svg width="100%" height="90" viewBox="0 0 285 90" preserveAspectRatio="none">
-                <!-- 水平グリッド -->
-                <line x1="0" y1="22" x2="285" y2="22" stroke="#EEEEEE" stroke-width="0.5"/>
-                <line x1="0" y1="45" x2="285" y2="45" stroke="#EEEEEE" stroke-width="0.5"/>
-                <line x1="0" y1="68" x2="285" y2="68" stroke="#EEEEEE" stroke-width="0.5"/>
-                <!-- 垂直グリッド -->
-                <line x1="57" y1="0" x2="57" y2="90" stroke="#EEEEEE" stroke-width="0.5"/>
-                <line x1="114" y1="0" x2="114" y2="90" stroke="#EEEEEE" stroke-width="0.5"/>
-                <line x1="171" y1="0" x2="171" y2="90" stroke="#EEEEEE" stroke-width="0.5"/>
-                <line x1="228" y1="0" x2="228" y2="90" stroke="#EEEEEE" stroke-width="0.5"/>
-                <!-- チャートライン（右上がり） -->
-                <polyline
-                  points="0,75 15,72 30,70 45,74 60,67 75,63 90,68 105,60 120,63 135,55 150,58 165,50 180,53 195,46 210,49 225,42 240,46 255,38 270,42 285,36"
-                  fill="none"
-                  stroke="#CC3300"
-                  stroke-width="1.2"
-                />
-                <polygon
-                  points="0,75 15,72 30,70 45,74 60,67 75,63 90,68 105,60 120,63 135,55 150,58 165,50 180,53 195,46 210,49 225,42 240,46 255,38 270,42 285,36 285,90 0,90"
-                  fill="rgba(204,51,0,0.06)"
-                />
-                <!-- X軸ラベル -->
-                <text x="2" y="88" font-size="7" fill="#999">1/4</text>
-                <text x="57" y="88" font-size="7" fill="#999">2/1</text>
-                <text x="114" y="88" font-size="7" fill="#999">3/1</text>
-                <text x="171" y="88" font-size="7" fill="#999">4/1</text>
-                <text x="238" y="88" font-size="7" fill="#999">4/15</text>
-              </svg>
+          <!-- Account Balance -->
+          <div class="flex gap-2 mb-1">
+            <div class="flex-1 border border-gray-300 px-2 py-1">
+              <div class="text-xs text-gray-500 mb-0.5">主口座</div>
+              <div class="font-bold text-right" style="font-size: 13px;">1,100,000円</div>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 9px; color: #666; margin-top: 2px; padding: 0 2px;">
-              <span>3,003</span>
-              <span>3,080</span>
-              <span style="color: #CC0000; font-weight: bold;">3,105 ▲45</span>
+            <div class="flex-1 border border-gray-300 px-2 py-1">
+              <div class="text-xs text-gray-500 mb-0.5">NISA口座</div>
+              <div class="font-bold text-right" style="font-size: 12px;">123,456,789,012円</div>
             </div>
           </div>
-
-          <!-- 時系列データ -->
-          <div style="margin-bottom: 8px;">
-            <div class="sidebar-section-header">時系列データ</div>
-            <table class="sidebar-table">
-              <thead>
-                <tr>
-                  <th>日付</th>
-                  <th style="text-align: right;">終値</th>
-                  <th style="text-align: right;">前日比</th>
-                  <th style="text-align: right;">出来高</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let d of stockHistory">
-                  <td>{{ d.dateShort }}</td>
-                  <td style="text-align: right; font-weight: bold;">{{ d.close | number }}</td>
-                  <td style="text-align: right;" [style.color]="d.change >= 0 ? '#CC0000' : '#0055AA'">
-                    {{ d.change >= 0 ? '+' : '' }}{{ d.change }}
-                  </td>
-                  <td style="text-align: right;">{{ d.volumeShort }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="mb-0.5 text-xs" style="color: #cc3300;">
+            <a href="#" style="color: #cc3300; text-decoration: underline;">成長投資枠未利用額: 2,400,000円</a>
+          </div>
+          <div class="mb-1 text-xs">
+            <a href="#" class="notice-link">非課税利用状況を確認する</a>
+          </div>
+          <div class="flex gap-2 mb-2">
+            <button class="btn-outline px-2 py-0.5 text-xs">入金をする</button>
+            <button class="btn-outline px-2 py-0.5 text-xs">買付余力の確認</button>
           </div>
 
-          <!-- 値上がりランキング -->
-          <div style="margin-bottom: 8px;">
-            <div class="sidebar-section-header">値上がりランキング</div>
-            <table class="ranking-table">
-              <tbody>
-                <tr *ngFor="let r of rankingUp; let i = index">
-                  <td style="text-align: center; width: 18px; color: #888;">{{ i + 1 }}</td>
-                  <td><a href="#" style="color: #0033CC; text-decoration: none;">{{ r.name }}</a></td>
-                  <td style="text-align: right;">{{ r.price | number }}</td>
-                  <td style="text-align: right; color: #CC0000;">+{{ r.rate }}%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <!-- Reference Info tabs -->
+          <div style="border: 1px solid #ccc;">
+            <!-- Tab bar -->
+            <div class="flex" style="border-bottom: 1px solid #ccc; background: #f5f5f5;">
+              <button class="tab-btn" [class.active]="infoTab==='ref'" (click)="infoTab='ref'" style="font-size: 11px;">参考株価</button>
+              <button class="tab-btn" [class.active]="infoTab==='summary'" (click)="infoTab='summary'" style="font-size: 11px;">サマリー/株価</button>
+              <button class="tab-btn" [class.active]="infoTab==='news'" (click)="infoTab='news'" style="font-size: 11px;">ニュース</button>
+              <button class="tab-btn" [class.active]="infoTab==='other'" (click)="infoTab='other'" style="font-size: 11px; white-space: nowrap;">その他銘柄情報</button>
+            </div>
 
-          <!-- 値下がりランキング -->
-          <div style="margin-bottom: 8px;">
-            <div class="sidebar-section-header">値下がりランキング</div>
-            <table class="ranking-table">
-              <tbody>
-                <tr *ngFor="let r of rankingDown; let i = index">
-                  <td style="text-align: center; width: 18px; color: #888;">{{ i + 1 }}</td>
-                  <td><a href="#" style="color: #0033CC; text-decoration: none;">{{ r.name }}</a></td>
-                  <td style="text-align: right;">{{ r.price | number }}</td>
-                  <td style="text-align: right; color: #0055AA;">-{{ r.rate }}%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+            <!-- Summary tab content -->
+            <div *ngIf="infoTab==='summary' || infoTab==='ref'" class="p-2">
 
+              <!-- Current price info -->
+              <table class="w-full mb-2 price-table" style="border-collapse: collapse;">
+                <tbody>
+                  <tr>
+                    <td class="price-label" style="border: 1px solid #ddd; padding: 2px 4px; background: #f0f5fa; color: #555; font-size: 11px;" rowspan="2">現在値<br><span style="font-size: 10px; color: #777;">（前日比）</span></td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; font-weight: bold; font-size: 14px;">3,220.0</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 4px; font-size: 10px; color: #777; text-align: right;">2024/11/26 10:21</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; font-size: 11px;" [style.color]="priceChange < 0 ? '#0066cc' : '#cc3300'">
+                      ({{ priceChange | number:'1.1-1' }} {{ priceChangePct }}%)
+                    </td>
+                    <td style="border: 1px solid #ddd; padding: 2px 4px; text-align: right;">
+                      <button class="btn-outline px-2 py-0" style="font-size: 10px;">更新</button>
+                    </td>
+                  </tr>
+                  <tr *ngFor="let row of priceStats">
+                    <td style="border: 1px solid #ddd; padding: 2px 4px; background: #f0f5fa; color: #555; font-size: 11px;">{{ row.label }}</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; font-size: 11px; font-weight: bold;">{{ row.value }}</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 4px; font-size: 10px; color: #777; text-align: right;">2024/11/26 10:21</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- 板 header -->
+              <table class="ita-table w-full mb-0" style="border-collapse: collapse;">
+                <thead>
+                  <tr style="background: #e8f0f8;">
+                    <th style="border: 1px solid #ccc; padding: 2px 6px; font-size: 11px; text-align: center;">売数量</th>
+                    <th style="border: 1px solid #ccc; padding: 2px 6px; font-size: 11px; text-align: center;">
+                      <div>気配値</div>
+                      <div style="font-size: 10px; font-weight: normal; color: #666;">成行</div>
+                    </th>
+                    <th style="border: 1px solid #ccc; padding: 2px 6px; font-size: 11px; text-align: center;">買数量</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="ita-sell" style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; color: #cc3300; font-size: 11px;">99,999,999</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: center; font-weight: bold; font-size: 11px;">OVER</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px;"></td>
+                  </tr>
+                  <tr *ngFor="let row of orderBook.sell">
+                    <td class="ita-sell" style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; color: #cc3300; font-size: 11px;">{{ row.qty | number }}</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: center; font-weight: bold; cursor: pointer; font-size: 11px;" (click)="limitPrice=row.price.toString()">{{ row.price }}</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px;"></td>
+                  </tr>
+                  <tr class="ita-current">
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; font-size: 10px; color: #666;">現在 ↓</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: center; font-weight: bold; font-size: 12px; color: #333; background: #fff3b0;">{{ boardCurrentPrice }}</td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px;"></td>
+                  </tr>
+                  <tr *ngFor="let row of orderBook.buy">
+                    <td style="border: 1px solid #ddd; padding: 2px 6px;"></td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: center; font-weight: bold; cursor: pointer; font-size: 11px;" (click)="limitPrice=row.price.toString()">{{ row.price }}</td>
+                    <td class="ita-buy" style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; color: #0066cc; font-size: 11px;">{{ row.qty | number }}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px;"></td>
+                    <td style="border: 1px solid #ddd; padding: 2px 6px; text-align: center; font-weight: bold; font-size: 11px;">UNDER</td>
+                    <td class="ita-buy" style="border: 1px solid #ddd; padding: 2px 6px; text-align: right; color: #0066cc; font-size: 11px;">123,456,789</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Chart period selector -->
+              <div class="flex items-center gap-0 mt-2 mb-1">
+                <button class="tab-btn" [class.active]="chartPeriod==='5min'" (click)="chartPeriod='5min'" style="font-size: 11px; padding: 2px 8px;">5分足</button>
+                <button class="tab-btn" [class.active]="chartPeriod==='day'" (click)="chartPeriod='day'" style="font-size: 11px; padding: 2px 8px;">日足</button>
+                <button class="tab-btn" [class.active]="chartPeriod==='week'" (click)="chartPeriod='week'" style="font-size: 11px; padding: 2px 8px;">週足</button>
+                <button class="tab-btn" [class.active]="chartPeriod==='month'" (click)="chartPeriod='month'" style="font-size: 11px; padding: 2px 8px;">月足</button>
+              </div>
+
+              <!-- Chart (SVG - candlestick style) -->
+              <div class="chart-area" style="position: relative; overflow: hidden;">
+                <svg width="100%" height="160" viewBox="0 0 370 160" preserveAspectRatio="none" style="display: block;">
+                  <!-- Background -->
+                  <rect x="0" y="0" width="370" height="150" fill="#fff"/>
+                  <!-- Grid lines -->
+                  <line x1="30" y1="20" x2="365" y2="20" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="30" y1="50" x2="365" y2="50" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="30" y1="80" x2="365" y2="80" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="30" y1="110" x2="365" y2="110" stroke="#eee" stroke-width="0.5"/>
+                  <line x1="30" y1="130" x2="365" y2="130" stroke="#eee" stroke-width="0.5"/>
+                  <!-- Y axis labels -->
+                  <text x="0" y="23" font-size="9" fill="#999">350</text>
+                  <text x="0" y="53" font-size="9" fill="#999">300</text>
+                  <text x="0" y="83" font-size="9" fill="#999">250</text>
+                  <text x="0" y="113" font-size="9" fill="#999">200</text>
+                  <text x="0" y="133" font-size="9" fill="#999">150</text>
+                  <!-- Candlestick bars (weekly, gradual uptrend) -->
+                  <!-- Each candle: rect for body, line for wick -->
+                  <!-- Rising candles (red in JP) -->
+                  <line x1="35" y1="138" x2="35" y2="125" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="32" y="130" width="6" height="8" fill="#cc3300"/>
+                  <line x1="48" y1="136" x2="48" y2="120" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="45" y="126" width="6" height="10" fill="#cc3300"/>
+                  <line x1="61" y1="128" x2="61" y2="115" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="58" y="118" width="6" height="10" fill="#0066cc"/>
+                  <line x1="74" y1="125" x2="74" y2="112" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="71" y="116" width="6" height="9" fill="#cc3300"/>
+                  <line x1="87" y1="130" x2="87" y2="118" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="84" y="122" width="6" height="8" fill="#0066cc"/>
+                  <line x1="100" y1="122" x2="100" y2="108" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="97" y="112" width="6" height="10" fill="#cc3300"/>
+                  <line x1="113" y1="118" x2="113" y2="105" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="110" y="109" width="6" height="9" fill="#cc3300"/>
+                  <line x1="126" y1="115" x2="126" y2="100" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="123" y="104" width="6" height="11" fill="#0066cc"/>
+                  <line x1="139" y1="108" x2="139" y2="94" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="136" y="98" width="6" height="10" fill="#cc3300"/>
+                  <line x1="152" y1="105" x2="152" y2="90" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="149" y="94" width="6" height="11" fill="#cc3300"/>
+                  <line x1="165" y1="110" x2="165" y2="96" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="162" y="100" width="6" height="10" fill="#0066cc"/>
+                  <line x1="178" y1="100" x2="178" y2="85" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="175" y="89" width="6" height="11" fill="#cc3300"/>
+                  <line x1="191" y1="96" x2="191" y2="80" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="188" y="84" width="6" height="12" fill="#cc3300"/>
+                  <line x1="204" y1="92" x2="204" y2="76" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="201" y="80" width="6" height="12" fill="#0066cc"/>
+                  <line x1="217" y1="85" x2="217" y2="68" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="214" y="72" width="6" height="13" fill="#cc3300"/>
+                  <line x1="230" y1="88" x2="230" y2="72" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="227" y="76" width="6" height="12" fill="#0066cc"/>
+                  <line x1="243" y1="78" x2="243" y2="62" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="240" y="66" width="6" height="12" fill="#cc3300"/>
+                  <line x1="256" y1="72" x2="256" y2="55" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="253" y="59" width="6" height="13" fill="#cc3300"/>
+                  <line x1="269" y1="78" x2="269" y2="60" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="266" y="64" width="6" height="14" fill="#0066cc"/>
+                  <line x1="282" y1="65" x2="282" y2="48" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="279" y="52" width="6" height="13" fill="#cc3300"/>
+                  <line x1="295" y1="60" x2="295" y2="42" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="292" y="46" width="6" height="14" fill="#cc3300"/>
+                  <line x1="308" y1="65" x2="308" y2="48" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="305" y="52" width="6" height="13" fill="#0066cc"/>
+                  <line x1="321" y1="56" x2="321" y2="38" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="318" y="42" width="6" height="14" fill="#cc3300"/>
+                  <line x1="334" y1="50" x2="334" y2="32" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="331" y="36" width="6" height="14" fill="#cc3300"/>
+                  <line x1="347" y1="45" x2="347" y2="28" stroke="#cc3300" stroke-width="1"/>
+                  <rect x="344" y="32" width="6" height="13" fill="#cc3300"/>
+                  <line x1="360" y1="40" x2="360" y2="22" stroke="#0066cc" stroke-width="1"/>
+                  <rect x="357" y="26" width="6" height="14" fill="#0066cc"/>
+                  <!-- Date labels -->
+                  <text x="28" y="150" font-size="8" fill="#aaa">24/12/23</text>
+                  <text x="88" y="150" font-size="8" fill="#aaa">25/02/03</text>
+                  <text x="148" y="150" font-size="8" fill="#aaa">25/03/17</text>
+                  <text x="208" y="150" font-size="8" fill="#aaa">25/04/28</text>
+                  <text x="268" y="150" font-size="8" fill="#aaa">25/06/09</text>
+                  <text x="328" y="150" font-size="8" fill="#aaa">25/11/24</text>
+                </svg>
+              </div>
+            </div>
+
+            <!-- News tab -->
+            <div *ngIf="infoTab==='news'" class="p-3 text-xs text-gray-500">
+              <p>ニュース情報は現在取得できません。</p>
+            </div>
+
+            <!-- Other info tab -->
+            <div *ngIf="infoTab==='other'" class="p-3 text-xs text-gray-500">
+              <p>その他銘柄情報は現在取得できません。</p>
+            </div>
+          </div>
         </div>
 
       </div>
 
-      <!-- ===== フッター ===== -->
-      <div style="background-color: #DD3020; color: white; text-align: center; font-size: 11px; padding: 6px; font-weight: bold;">
-        Copyright &copy; 2024 大阪証券株式会社 All Rights Reserved.
+      <!-- ===== NOTICE SECTION (full width) ===== -->
+      <div class="notice-section px-6 py-3 mt-0" style="border-top: 2px solid #ddd;">
+        <h2 class="font-bold mb-2" style="font-size: 13px; color: #333; border-left: 3px solid #0066cc; padding-left: 6px;">ご注意事項</h2>
+        <div class="text-xs text-gray-700 leading-relaxed space-y-3" style="max-width: 960px;">
+
+          <div>
+            <p class="font-bold mb-1">【取引方法について】</p>
+            <p>「<a href="#" style="color:#cc3300; text-decoration:underline;">売買委託注文の取扱いの停止・注文受付中止・インサイダー取引規制</a>」の情報をご確認した上で、必要事項を選択または入力した後、下記「注文内容を確認」ボタンをクリックしてください。<br>
+            株注文は（現物・信用取引等）、取消しをする場合は、注文の約定が確認されるまでは取消しを実施してください。日計り取引については、まず売却してから、改めて同銘柄の再発注を行ってください。<br>
+            取引時間中については、取引の状況によっては訂正が実施できない場合があります。</p>
+            <p class="font-bold mt-1" style="color: #cc3300;">信用取引の株注文のため、配当金相当額が控除されて決済されます。また、品貸料・逆日歩が発生した場合、追加コストとして負担が生じます。</p>
+            <p class="mt-1">信用取引の詳細については<a href="#" class="notice-link">信用取引案内</a>をご確認ください。<br>
+            信用取引には「制度信用取引」と「一般信用取引」があります。制度信用取引は取引所の制度に基づく取引です。一般信用取引は当社との間で締結した個別の条件に基づく取引です。<br>
+            1.制度信用取引では、売建の場合は取引所の貸借銘柄であることが必要です。<br>
+            2.一般信用取引では、当社の一般信用取引可能銘柄であることが必要です。</p>
+          </div>
+
+          <div>
+            <p class="font-bold mb-1">【注文内容の確認】</p>
+            <p>1.注文確認書面・注文完了画面についてはご確認し、「<a href="#" class="notice-link">売買委託手数料</a>」をご選択してください。<br>
+            2.取引に関しては、注文が成立した後、注文の取消・訂正はできません。注文内容をよくご確認の上、注文を行ってください。<br>
+            3.注文完了後は「<a href="#" class="notice-link">上場有価証券等書面</a>」をご確認ください。</p>
+          </div>
+
+          <div>
+            <p class="font-bold mb-1">【注文条件・執行条件・有効期限・SOR注文について】</p>
+            <p>1.指値注文の制限は、「<a href="#" class="notice-link">呼び値の単位</a>」及び「<a href="#" class="notice-link">値幅制限</a>」一覧表のとおりに制限されます。<br>
+            2.成行注文は、市場での売買において最も優先される注文方法です。成行注文の場合、以下の有効期限は「当日」のみとなります。<br>
+            &emsp;●成行注文、寄指（寄付指値）注文、引成（引け成行）注文 および「引指（引け指値）」注文<br>
+            &emsp;●Lデュアル板寄せの注文<br>
+            3.SOR注文とは: SOR（スマート・オーダー・ルーティング）は、複数の市場・取引所から最良の執行条件を持つ市場を選択して注文を執行するシステムです。SOR注文を「する」に設定した場合、当社のSORシステムが最良執行先を自動的に選択します。</p>
+          </div>
+
+          <div>
+            <p class="mb-1">当社のSOR注文の執行方法について、<a href="#" class="notice-link">最良執行方針書</a>にて当社のSOR注文の執行方針を詳しく確認できます。当社は、複数の市場・取引所から最良の執行条件を持つ市場を選択して注文を執行するシステムです。市場流動性の状況によっては期待した金額・数量で注文が成立しない場合があります。SOR注文利用時は事前に最良執行方針をご確認ください。</p>
+          </div>
+
+          <div>
+            <p class="font-bold mb-1">【期間指定定義について】</p>
+            <p>期間指定の取引日の営業日のカウントは以下のとおりです。<br>
+            ・現物取引（株式）: 注文の発注日から起算して最長30営業日まで<br>
+            ・信用取引（制度）: 注文の発注日から起算して最長30営業日まで（返済期限超過の場合は不可）<br>
+            ・信用取引（一般）: 注文の発注日から起算して最長30営業日まで（当社が定める期限内）<br>
+            なお、上記期間が経過しても注文が成立しなかった場合は、自動的に失効します。</p>
+          </div>
+
+          <div>
+            <p class="font-bold mb-1">【IOC注文について】</p>
+            <p>以下の注文については、IOC（Immediate or Cancel）条件が適用されます。<br>
+            ・対象注文: 板寄注文のみ<br>
+            ・約定できた数量のみが約定し、残数量は自動的に取り消されます。<br>
+            ・IOC注文は、注文受付時の板状況により約定金額が決定されます。<br>
+            ・対象外注文: 全数量が約定できなかった場合、全数量が取り消されます。</p>
+          </div>
+
+          <div>
+            <p class="font-bold mb-1">【その他の注意事項】</p>
+            <p>・当社の取引システムはメンテナンス等により、一時的に取引ができない場合があります。<br>
+            ・取引所の取引システム障害等により、注文の執行に影響が生じる場合があります。<br>
+            ・相場情報は取引所から提供される情報であり、遅延が生じる場合があります。<br>
+            ・株式の売買に際しては、取引委託手数料のほか、消費税等がかかります。<br>
+            ・当社は、<a href="#" class="notice-link">金融商品取引法</a>等の関係法令および当社の社内規則に従い業務を行っています。<br>
+            ・株式等の取引には価格変動リスクがあります。投資元本が保証されるものではありません。過去の実績は将来の運用成果等を保証するものではありません。<br>
+            ・当社のお取引における個人情報の取り扱いについては、<a href="#" class="notice-link">個人情報保護方針</a>をご確認ください。<br>
+            ・オンライントレードの取引ルールや各種サービスの詳細については、<a href="#" class="notice-link">ご利用規約</a>をご確認ください。</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ===== FOOTER ===== -->
+      <div class="py-3 text-center text-xs text-gray-500" style="border-top: 1px solid #eee; background: #f9f9f9;">
+        <p>© Daiwa Securities Co. Ltd. All Rights Reserved.</p>
       </div>
 
     </div>
   `,
 })
 export class DomesticOrderComponent {
-  stockCode = '7203';
-  stockName = 'トヨタ自動車';
-  stockGroup = '';
-  market = 't';
-  orderSide = 'buy';
-  quantity: number | null = 100;
-  priceType = 'limit';
-  limitPrice: number | null = 3100;
-  tradeType = 'spot';
+  // フォーム状態
+  buySell = 'buy';
+  stockCode = '6758';
+  stockName = 'ソニーグループ';
+  stockMarket = '東証プライム';
+  account = 'toku';
+  quantity: number = 100;
+  orderType = 'sashine';
+  limitPrice = '3220';
+  sorCondition = 'yes';
+  tradeCondition = 'none';
   expiry = 'today';
   expiryDate = '';
-  account = 'tokutei';
-  currentPrice = 3105;
+  continuousOrder = 'none';
 
-  quickQty = [100, 200, 300, 500, 1000];
+  // UI状態
+  showSell = false;
+  showBuy = true;
+  showBuyingPower = true;
+  nisaUnsupported = true;
+  linkEnabled = false;
+  infoTab = 'summary';
+  chartPeriod = 'week';
 
-  priceTypes = [
-    { value: 'market', label: '成行' },
-    { value: 'limit', label: '指値' },
-    { value: 'stop_limit', label: '逆指値' },
-    { value: 'funari', label: '不成' },
-    { value: 'yoritsuki', label: '寄指' },
-    { value: 'hike', label: '引指' },
-  ];
+  // 株価情報
+  currentPrice = 3220.0;
+  priceChange = -24.5;
+  priceChangePct = '-2.36';
+  boardCurrentPrice = 330;
 
-  tradeTypes = [
-    { value: 'spot', label: '現物取引' },
-    { value: 'margin_new', label: '信用新規' },
-    { value: 'margin_close', label: '信用返済' },
-  ];
-
-  expiryTypes = [
-    { value: 'today', label: '当日中' },
-    { value: 'week', label: '今週中' },
-    { value: 'specify', label: '期間指定' },
-  ];
-
-  accountTypes = [
-    { value: 'tokutei', label: '特定口座' },
-    { value: 'ippan', label: '一般口座' },
-    { value: 'nisa', label: 'NISA口座' },
-  ];
-
-  setQuantity(qty: number) {
-    this.quantity = qty;
+  get estimatedAmount(): number {
+    const price = parseFloat(this.limitPrice) || this.currentPrice;
+    return this.quantity * price;
   }
 
-  submitOrder() {
-    if (!this.stockCode) { alert('銘柄を入力してください。'); return; }
-    if (!this.quantity || this.quantity <= 0) { alert('株数を入力してください。'); return; }
-    const side = this.orderSide === 'buy' ? '買い' : '売り';
-    const priceLabel = this.priceType === 'market' ? '成行' : `指値 ${this.limitPrice?.toLocaleString()}円`;
-    alert(`注文を受け付けました。\n${this.stockName}(${this.stockCode}) ${side} ${this.quantity?.toLocaleString()}株 ${priceLabel}`);
+  // 株価統計（参考情報パネル用）
+  priceStats = [
+    { label: '前日終値', value: '1,034.0' },
+    { label: '始値', value: '975.5' },
+    { label: '高値', value: '1024.1' },
+    { label: '安値', value: '961.0' },
+    { label: '出来高', value: '12,186,200' },
+    { label: 'VWAP', value: '12,186,200' },
+  ];
+
+  // 板情報（売: 338-331, 買: 329-323）
+  orderBook = {
+    sell: [
+      { price: 338, qty: 20000 },
+      { price: 337, qty: 20000 },
+      { price: 336, qty: 20000 },
+      { price: 335, qty: 20000 },
+      { price: 334, qty: 20000 },
+      { price: 333, qty: 20000 },
+      { price: 332, qty: 20000 },
+      { price: 331, qty: 20000 },
+    ],
+    buy: [
+      { price: 330, qty: 15000 },
+      { price: 329, qty: 15000 },
+      { price: 328, qty: 15000 },
+      { price: 327, qty: 15000 },
+      { price: 326, qty: 15000 },
+      { price: 325, qty: 15000 },
+      { price: 324, qty: 15000 },
+    ],
+  };
+
+  clearForm() {
+    this.quantity = 100;
+    this.orderType = 'sashine';
+    this.limitPrice = '3220';
+    this.sorCondition = 'yes';
+    this.tradeCondition = 'none';
+    this.expiry = 'today';
+    this.expiryDate = '';
+    this.continuousOrder = 'none';
   }
 
-  marketSummary = [
-    { name: '日経平均', value: '38,157', change: '245', up: true },
-    { name: 'TOPIX', value: '2,684', change: '18', up: true },
-    { name: 'グロース250', value: '654', change: '3', up: false },
-    { name: 'ドル円', value: '151.82', change: '0.34', up: true },
-    { name: 'NYダウ', value: '38,503', change: '125', up: true },
-  ];
-
-  stockHistory = [
-    { dateShort: '04/15', close: 3105, change: 45, volumeShort: '1,234万' },
-    { dateShort: '04/12', close: 3060, change: -15, volumeShort: '987万' },
-    { dateShort: '04/11', close: 3075, change: 20, volumeShort: '1,123万' },
-    { dateShort: '04/10', close: 3055, change: 10, volumeShort: '1,034万' },
-    { dateShort: '04/09', close: 3045, change: -5, volumeShort: '876万' },
-    { dateShort: '04/08', close: 3050, change: 15, volumeShort: '923万' },
-    { dateShort: '04/05', close: 3035, change: 8, volumeShort: '765万' },
-    { dateShort: '04/04', close: 3027, change: -12, volumeShort: '812万' },
-    { dateShort: '04/03', close: 3039, change: 22, volumeShort: '945万' },
-    { dateShort: '04/02', close: 3017, change: 5, volumeShort: '789万' },
-  ];
-
-  holdings = [
-    { code: '7203', name: 'トヨタ', qty: 500, price: 3105, pnl: 52500 },
-    { code: '6758', name: 'ソニーG', qty: 200, price: 12450, pnl: -34000 },
-    { code: '9984', name: 'ソフトバンクG', qty: 100, price: 7890, pnl: 12300 },
-    { code: '8306', name: '三菱UFJ', qty: 1000, price: 1456, pnl: 78000 },
-    { code: '6861', name: 'キーエンス', qty: 50, price: 65400, pnl: -25000 },
-  ];
-
-  rankingUp = [
-    { name: 'テスト電機', price: 1234, rate: '15.3' },
-    { name: 'サンプル薬品', price: 5678, rate: '12.1' },
-    { name: 'モデル食品', price: 890, rate: '9.8' },
-    { name: 'デモ運輸', price: 2345, rate: '8.5' },
-    { name: 'サンプル銀行', price: 3456, rate: '7.2' },
-  ];
-
-  rankingDown = [
-    { name: 'テスト商事', price: 4321, rate: '8.7' },
-    { name: 'サンプル不動産', price: 7654, rate: '6.5' },
-    { name: 'モデル証券', price: 3210, rate: '5.4' },
-    { name: 'デモ電力', price: 1098, rate: '4.8' },
-    { name: 'サンプル自動車', price: 5432, rate: '3.9' },
-  ];
+  confirmOrder() {
+    const side = this.buySell === 'buy' ? '買付' : '売付';
+    const type = this.orderType === 'nariyuki' ? '成行' : `指値 ${this.limitPrice}円`;
+    alert(`注文内容を確認してください。\n${this.stockName} ${side} ${this.quantity}株 ${type}`);
+  }
 }
