@@ -46,34 +46,35 @@ import { FormsModule } from '@angular/forms';
 
       <!-- ===== HEADER ===== -->
       <header>
-        <!-- Top bar: small navy logo + white utility bar -->
-        <div class="flex items-center" style="background: #fff; border-bottom: 1px solid #ddd; min-height: 34px;">
-          <!-- 大和証券 logo box (wider to match original) -->
-          <div style="background: #002b6b; padding: 4px 16px 4px 12px; min-height: 34px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; flex-shrink: 0; min-width: 130px;">
-            <span class="text-white font-bold" style="font-size: 15px; letter-spacing: 0.08em; line-height: 1.2;">大和証券</span>
-            <span class="text-white" style="font-size: 9px; opacity: 0.8; letter-spacing: 0.05em;">Daiwa Securities</span>
+        <!-- Top bar: full-width orange-red #da340a -->
+        <div class="flex items-center" style="background: #da340a; min-height: 28px;">
+          <!-- 大和証券 logo -->
+          <div style="padding: 4px 16px 4px 12px; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;">
+            <span style="color: #fff; font-weight: bold; font-size: 15px; letter-spacing: 0.08em; line-height: 1.2;">大和証券</span>
+            <span style="color: rgba(255,255,255,0.85); font-size: 9px; letter-spacing: 0.05em;">Daiwa Securities</span>
           </div>
-          <!-- Utility links -->
-          <div class="flex items-center flex-1 px-3 gap-2" style="font-size: 11px; color: #555;">
-            <span class="px-1.5 py-0.5 border border-gray-400 cursor-pointer text-gray-600" style="font-size: 11px;">1400※HD ▼</span>
-            <span class="text-gray-500" style="font-size: 11px;">画面サイズ: 1,880</span>
-            <span class="text-gray-400 mx-1">|</span>
-            <span class="text-gray-500 flex items-center gap-0.5 cursor-pointer" style="font-size: 11px;">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
+          <!-- Center utility controls -->
+          <div class="flex items-center flex-1 px-3 gap-2" style="font-size: 11px; color: #fff;">
+            <span style="border: 1px solid rgba(255,255,255,0.6); padding: 1px 6px; cursor: pointer; color: #fff;">1400※HD ▼</span>
+            <span style="color: rgba(255,255,255,0.9);">画面サイズ: 1,880</span>
+            <span style="color: rgba(255,255,255,0.6); margin: 0 2px;">|</span>
+            <span style="color: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 2px; cursor: pointer;">
+              <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
               100%
             </span>
           </div>
-          <div class="flex items-center gap-2 pr-3" style="font-size: 11px;">
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-            <a href="#" class="text-blue-700 hover:underline" style="font-size: 11px;">口座情報</a>
-            <a href="#" class="text-blue-700 hover:underline" style="font-size: 11px;">よくあるご質問</a>
-            <a href="#" class="text-blue-700 hover:underline flex items-center gap-0.5" style="font-size: 11px;">ヘルプ&amp;マニュアル
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+          <!-- Right utility links -->
+          <div class="flex items-center gap-2 pr-3" style="font-size: 11px; color: #fff;">
+            <svg style="width:14px;height:14px;opacity:0.8;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+            <a href="#" style="color: #fff; text-decoration: none;">口座情報</a>
+            <a href="#" style="color: #fff; text-decoration: none;">よくあるご質問</a>
+            <a href="#" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 2px;">ヘルプ&amp;マニュアル
+              <svg style="width:11px;height:11px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
             </a>
-            <a href="#" class="text-blue-700 hover:underline flex items-center gap-0.5" style="font-size: 11px;">旧サイトへ
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+            <a href="#" style="color: #fff; text-decoration: none; display: flex; align-items: center; gap: 2px;">旧サイトへ
+              <svg style="width:11px;height:11px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
             </a>
-            <a href="#" class="text-gray-600 hover:underline" style="font-size: 11px;">ログアウト</a>
+            <a href="#" style="color: rgba(255,255,255,0.9); text-decoration: none;">ログアウト</a>
           </div>
         </div>
 
