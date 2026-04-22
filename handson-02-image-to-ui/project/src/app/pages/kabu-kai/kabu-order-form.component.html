@@ -30,15 +30,16 @@
     <button class="px-4 py-2 text-xs font-bold text-white" style="background-color: var(--cc-primary);">買付</button>
   </div>
 
-  <form [formGroup]="form" class="p-3">
+  <form [formGroup]="form" class="p-0">
 
     <!-- 銘柄名 -->
-    <div class="form-row flex items-start border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs text-gray-600 font-medium flex items-center gap-1" style="min-width: 90px; padding-top: 2px;">
+    <div class="form-row flex items-start border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs text-gray-700 font-medium flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         銘柄名
         <span class="text-gray-400 text-xs cursor-help" title="銘柄を検索して選択できます">?</span>
       </label>
-      <div class="flex-1 flex flex-col gap-1">
+      <div class="flex-1 flex flex-col gap-1 px-2 py-2">
         <span class="text-xs text-gray-500">6758 東証プライム　最良執行市場：東証</span>
         <div class="flex items-center justify-between">
           <span class="font-bold" style="font-size: 15px; color: var(--color_text_default);">ソニーグループ</span>
@@ -50,27 +51,31 @@
     </div>
 
     <!-- 売買 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600" style="min-width: 90px;">売買</label>
-      <div class="flex items-center gap-3">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex-shrink-0 self-stretch flex items-center"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
+        売買
+      </label>
+      <div class="flex items-center gap-3 px-2 py-2">
         <span class="px-3 py-1 text-xs font-bold text-white rounded" style="background-color: var(--cc-primary);">買付</span>
         <span class="text-xs text-gray-500">現物株式</span>
       </div>
     </div>
 
     <!-- 口座 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         口座
         <span class="text-gray-400 text-xs cursor-help" title="お取引を行う口座を主口座/NISA口座より選択いただけます">?</span>
       </label>
-      <div class="flex gap-1">
+      <div class="flex gap-1 px-2 py-2">
         <button type="button" (click)="form.get('koza')?.setValue('main')"
                 [class]="form.get('koza')?.value === 'main'
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('koza')?.value === 'main'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('koza')?.value === 'main'">✓</span>
           <span *ngIf="form.get('koza')?.value !== 'main'">○</span>
@@ -91,12 +96,13 @@
     </div>
 
     <!-- 注文数量 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         注文数量
         <span class="text-gray-400 text-xs cursor-help" title="25万株/口までの注文受付が可能です">?</span>
       </label>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 px-2 py-2">
         <button type="button" (click)="decreaseSuryo()"
                 class="w-6 h-6 flex items-center justify-center text-white text-xs rounded"
                 style="background-color: var(--cc-btn-disable-bg);">−</button>
@@ -112,9 +118,9 @@
     </div>
 
     <!-- 売付可能残高 -->
-    <div class="flex items-center border-b py-1" style="border-color: var(--cc-rule-line);">
-      <div style="min-width: 90px;"></div>
-      <div class="flex-1 text-xs text-gray-500 flex items-center gap-1">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <div class="flex-shrink-0 self-stretch" style="min-width: 100px; width: 100px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);"></div>
+      <div class="flex-1 text-xs text-gray-500 flex items-center gap-1 px-2 py-1">
         <span>売付可能残高</span>
         <span class="text-gray-400 text-xs cursor-help" title="25万株/口までの注文受付が可能です">?</span>
         <span class="ml-2 font-medium" style="color: #333;">100</span>
@@ -123,18 +129,19 @@
     </div>
 
     <!-- 注文条件 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         注文条件
         <span class="text-gray-400 text-xs cursor-help" title="逆指値注文とは条件株価以上になったら買付の注文">?</span>
       </label>
-      <div class="flex gap-1 flex-wrap">
+      <div class="flex gap-1 flex-wrap px-2 py-2">
         <button type="button" (click)="form.get('joken')?.setValue('sashiNe')"
                 [class]="form.get('joken')?.value === 'sashiNe'
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'sashiNe'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'sashiNe'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'sashiNe'">○</span>
@@ -145,7 +152,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'nariyuki'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'nariyuki'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'nariyuki'">○</span>
@@ -156,7 +163,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'gyaku'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'gyaku'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'gyaku'">○</span>
@@ -167,7 +174,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'dual'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'dual'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'dual'">○</span>
@@ -177,12 +184,13 @@
     </div>
 
     <!-- 注文単価 -->
-    <div class="flex items-start border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px; padding-top: 4px;">
+    <div class="flex items-start border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         注文単価
         <span class="text-gray-400 text-xs cursor-help" title="買付可能額の範囲内でのお取引が可能です">?</span>
       </label>
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-1 px-2 py-2">
         <div class="flex items-center gap-1">
           <button type="button" (click)="decreaseTanka()"
                   class="w-6 h-6 flex items-center justify-center text-white text-xs rounded"
@@ -202,18 +210,19 @@
     </div>
 
     <!-- SOR条件 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         SOR条件
         <span class="text-gray-400 text-xs cursor-help" title="東京証券取引所とダイワ・マッチングの価格を自動的に比較し有利な方で執行する仕組みです">?</span>
       </label>
-      <div class="flex gap-1">
+      <div class="flex gap-1 px-2 py-2">
         <button type="button" (click)="form.get('sor')?.setValue('suru')"
                 [class]="form.get('sor')?.value === 'suru'
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('sor')?.value === 'suru'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('sor')?.value === 'suru'">✓</span>
           <span *ngIf="form.get('sor')?.value !== 'suru'">○</span>
@@ -224,7 +233,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('sor')?.value === 'shinai'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('sor')?.value === 'shinai'">✓</span>
           <span *ngIf="form.get('sor')?.value !== 'shinai'">○</span>
@@ -234,18 +243,19 @@
     </div>
 
     <!-- 執行条件 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         執行条件
         <span class="text-gray-400 text-xs cursor-help" title="執行条件については次の3種類を選ぶことができます。1.なし 2.寄付 3.引け">?</span>
       </label>
-      <div class="flex gap-1 flex-wrap">
+      <div class="flex gap-1 flex-wrap px-2 py-2">
         <button type="button" (click)="form.get('shikko')?.setValue('nashi')"
                 [class]="form.get('shikko')?.value === 'nashi'
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'nashi'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'nashi'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'nashi'" style="color: var(--cc-background);">○</span>
@@ -256,7 +266,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'yoritsuki'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'yoritsuki'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'yoritsuki'" style="color: var(--cc-background);">○</span>
@@ -267,7 +277,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'hike'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'hike'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'hike'" style="color: var(--cc-background);">○</span>
@@ -278,7 +288,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'funari'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'funari'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'funari'" style="color: var(--cc-background);">○</span>
@@ -288,18 +298,19 @@
     </div>
 
     <!-- 有効期限 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         有効期限
         <span class="text-gray-400 text-xs cursor-help" title="買付可能額の範囲内でのお取引が可能です">?</span>
       </label>
-      <div class="flex gap-1 flex-wrap items-center">
+      <div class="flex gap-1 flex-wrap items-center px-2 py-2">
         <button type="button" (click)="form.get('yuko')?.setValue('toujitsu')"
                 [class]="form.get('yuko')?.value === 'toujitsu'
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('yuko')?.value === 'toujitsu'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('yuko')?.value === 'toujitsu'">✓</span>
           <span *ngIf="form.get('yuko')?.value !== 'toujitsu'">○</span>
@@ -310,7 +321,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('yuko')?.value === 'kikan'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('yuko')?.value === 'kikan'">✓</span>
           <span *ngIf="form.get('yuko')?.value !== 'kikan'">○</span>
@@ -321,18 +332,19 @@
     </div>
 
     <!-- 連続注文 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line);">
-      <label class="form-label text-xs font-medium text-gray-600 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         連続注文
         <span class="text-gray-400 text-xs cursor-help" title="買付可能額の範囲内でのお取引が可能です">?</span>
       </label>
-      <div class="flex gap-1">
+      <div class="flex gap-1 px-2 py-2">
         <button type="button" (click)="form.get('renzoku')?.setValue('shinai')"
                 [class]="form.get('renzoku')?.value === 'shinai'
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('renzoku')?.value === 'shinai'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('renzoku')?.value === 'shinai'">✓</span>
           <span *ngIf="form.get('renzoku')?.value !== 'shinai'">○</span>
@@ -343,7 +355,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('renzoku')?.value === 'suru'
-                  ? 'background-color: var(--cc-primary);'
+                  ? 'background-color: #1a6eb5;'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('renzoku')?.value === 'suru'">✓</span>
           <span *ngIf="form.get('renzoku')?.value !== 'suru'">○</span>
@@ -353,13 +365,14 @@
     </div>
 
     <!-- 買付概算金額 -->
-    <div class="flex items-center border-b py-2" style="border-color: var(--cc-rule-line); background-color: #fffbf0;">
-      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1" style="min-width: 90px;">
+    <div class="flex items-center border-b" style="border-color: var(--cc-rule-line);">
+      <label class="form-label text-xs font-medium text-gray-700 flex items-center gap-1 flex-shrink-0 self-stretch"
+             style="min-width: 100px; width: 100px; padding: 8px 8px; background-color: var(--cc-background); border-right: 1px solid var(--cc-rule-line);">
         買付概算金額
         <span class="text-gray-400 text-xs cursor-help" title="買付可能額の範囲内でのお取引が可能です">?</span>
       </label>
-      <div class="flex-1 text-right">
-        <span class="font-bold text-base" style="color: var(--color_text_default);">
+      <div class="flex-1 text-right px-2 py-2">
+        <span class="font-bold text-base" style="color: var(--cc-primary);">
           {{ gaisanKingaku | number }}円
         </span>
       </div>
@@ -368,9 +381,15 @@
     <!-- Notice text -->
     <div class="py-2 text-xs text-gray-600 border-b" style="border-color: var(--cc-rule-line);">
       <p>お取引の禁止事項（<a href="#" class="text-blue-600 hover:underline">「不公正取引行為の禁止・差金決済取引の禁止・インサイダー取引規制」</a>）を確認し理解したうえで、必要項目を選択または入力後、「注文内容を確認」をクリックしてください。</p>
-      <div class="mt-1 py-1 px-2 rounded flex items-center justify-between cursor-pointer" style="background-color: var(--cc-light-yellow); border: 1px solid #ffd377;">
-        <span class="text-orange-700 font-medium text-xs">⚠️特定口座を開設し、源泉徴収ありを選択されているお客様へ</span>
-        <span class="text-gray-400 text-xs">▼</span>
+      <!-- Warning banner - expanded by default with close button -->
+      <div class="mt-1 rounded" style="background-color: var(--cc-light-yellow); border: 1px solid #ffd377;">
+        <div class="py-1 px-2 flex items-center justify-between">
+          <span class="text-orange-700 font-medium text-xs">⚠️特定口座を開設し、源泉徴収ありを選択されているお客様へ</span>
+          <span class="text-gray-500 text-xs cursor-pointer hover:text-gray-700">× 閉じる</span>
+        </div>
+        <div class="px-2 pb-2 text-xs text-gray-700" style="line-height: 1.6;">
+          特定口座でお預かりの商品を売却された場合、源泉徴収分が買付余力から減算されるのは約定日の翌日です。このため、当該商品の売却約定日における買付の際は買付余力の範囲内の取引であっても、後日不足金が発生する場合があります。また源泉徴収は外貨決済であっても円貨で行われることにご注意ください。
+        </div>
       </div>
     </div>
 

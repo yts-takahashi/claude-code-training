@@ -54,7 +54,7 @@
 
   <!-- 参考株価 panel -->
   <div class="stock-price-panel border rounded" style="border-color: #ccc; background-color: white;">
-    <!-- Header with title, tabs, and 更新 button all in one row -->
+    <!-- Header with title and tabs -->
     <div class="flex items-center px-2 py-1 gap-1" style="border-bottom: 1px solid #ccc; background-color: white;">
       <div class="flex items-center gap-1 mr-2">
         <span class="font-bold text-xs">参考株価</span>
@@ -83,20 +83,35 @@
           <span>≡</span> その他銘柄情報
         </button>
       </div>
-      <button class="ml-auto flex items-center gap-1 text-xs px-2 py-1 border rounded whitespace-nowrap" style="background-color: white; border-color: #aaa;">
-        <span>↻</span> 更新
-      </button>
     </div>
 
     <div *ngIf="activeTab === 'summary'" class="p-2">
 
-      <!-- Stock quote table -->
-      <table class="w-full text-xs border-collapse mb-2">
+      <!-- Stock quote table: label column with gray bg, value column, date column -->
+      <table class="w-full text-xs border-collapse mb-2" style="border: 1px solid #e0e0e0;">
         <tbody>
-          <tr *ngFor="let q of stockQuotes" class="border-b" style="border-color: var(--cc-rule-line);">
-            <td class="py-1 pr-2 text-gray-500 whitespace-nowrap" style="width: 70px; background-color: var(--cc-background); font-size: 11px;">{{ q.label }}</td>
-            <td class="py-1" [ngClass]="q.valueClass || ''" [style]="q.label === '現在値' ? 'font-size: 18px; font-weight: bold;' : 'font-size: 12px;'">{{ q.value }}</td>
-            <td class="py-1 text-gray-400 text-right" style="font-size: 10px;">{{ q.date }}</td>
+          <!-- 現在値 row - merged label cell spanning 現在値 and (前日比) -->
+          <tr style="border-bottom: none;">
+            <td class="py-1 px-2 text-gray-600 text-center font-medium whitespace-nowrap" rowspan="2"
+                style="width: 70px; background-color: #eef0f5; border-right: 1px solid #ddd; font-size: 11px; vertical-align: middle;">
+              現在値<br><span style="font-size: 10px;">(前日比)</span>
+            </td>
+            <td class="py-1 px-2 font-bold text-red-600" style="font-size: 16px;">3,220.0</td>
+            <td class="py-1 px-2 text-gray-400 text-right whitespace-nowrap" style="font-size: 10px;">2024/11/26 10:21</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e0e0e0;">
+            <td class="py-1 px-2 text-red-600" style="font-size: 12px;">(-24.5　-2.36%)</td>
+            <td class="py-1 px-2 text-right whitespace-nowrap" style="font-size: 10px;">
+              <button class="flex items-center gap-0.5 text-xs px-1.5 py-0.5 border rounded ml-auto" style="background-color: white; border-color: #aaa; color: #555; font-size: 10px;">
+                <span>↻</span> 更新
+              </button>
+            </td>
+          </tr>
+          <!-- Other rows -->
+          <tr *ngFor="let q of stockQuotes.slice(2)" class="border-b" style="border-color: #e0e0e0;">
+            <td class="py-1 px-2 text-gray-600 text-center whitespace-nowrap" style="width: 70px; background-color: #eef0f5; border-right: 1px solid #ddd; font-size: 11px;">{{ q.label }}</td>
+            <td class="py-1 px-2" [ngClass]="q.valueClass || ''" style="font-size: 12px;">{{ q.value }}</td>
+            <td class="py-1 px-2 text-gray-400 text-right whitespace-nowrap" style="font-size: 10px;">{{ q.date }}</td>
           </tr>
         </tbody>
       </table>
