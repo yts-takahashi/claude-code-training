@@ -1,0 +1,147 @@
+<div class="stock-info-panel" style="font-family: var(--font_default); font-size: 12px; color: var(--color_text_default);">
+
+  <!-- 買付余力 panel -->
+  <div class="buying-power-panel mb-2 border rounded" style="border-color: #ccc; background-color: white;">
+    <!-- Header row with checkboxes -->
+    <div class="flex items-center justify-between px-3 py-1" style="border-bottom: 1px solid #ccc;">
+      <div class="flex items-center gap-1">
+        <span class="font-bold text-xs">買付余力</span>
+        <span class="text-gray-400 text-xs cursor-help" title="買付可能額の範囲内でのお取引が可能です">?</span>
+      </div>
+      <div class="flex items-center gap-3 text-xs">
+        <label class="flex items-center gap-1 cursor-pointer">
+          <input type="checkbox" class="accent-orange-600">
+          <span>NISA口座未開設</span>
+        </label>
+        <label class="flex items-center gap-1 cursor-pointer">
+          <input type="checkbox" class="accent-orange-600">
+          <span>リンク有無</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex gap-2 p-2">
+      <!-- Main account: warm yellow background -->
+      <div class="flex-1 border rounded" style="background-color: var(--cc-orange-bg); border-color: #ffd377; min-width: 0;">
+        <div class="px-2 py-1" style="border-bottom: 1px solid #ffd377;">
+          <span class="text-xs font-medium text-gray-700">主口座</span>
+        </div>
+        <div class="px-2 py-1">
+          <div class="font-bold text-right" style="font-size: 13px;">1,100,000円</div>
+          <div class="flex flex-col gap-0.5 mt-1">
+            <a href="#" class="text-blue-600 hover:underline text-xs text-right block">入金をする</a>
+            <a href="#" class="text-blue-600 hover:underline text-xs text-right block">買付余力の確認</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- NISA account: light blue/gray background -->
+      <div class="flex-1 border rounded" style="background-color: var(--cc-detail2); border-color: #ccc; min-width: 0;">
+        <div class="px-2 py-1" style="border-bottom: 1px solid #ccc;">
+          <span class="text-xs px-1 py-0.5 rounded font-bold text-white" style="background-color: var(--cc-nisa); font-size: 10px;">NISA口座</span>
+        </div>
+        <div class="px-2 py-1">
+          <div class="font-bold text-right" style="font-size: 13px;">123,456,789,012円</div>
+          <div class="text-xs text-gray-500 text-right">成長投資枠未利用額：2,400,000円</div>
+          <div class="flex flex-col gap-0.5 mt-1">
+            <a href="#" class="text-blue-600 hover:underline text-xs text-right block">金銭振替をする</a>
+            <a href="#" class="text-blue-600 hover:underline text-xs text-right block">非課税枠利用状況を確認する</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 参考株価 panel -->
+  <div class="stock-price-panel border rounded" style="border-color: #ccc; background-color: white;">
+    <!-- Header with title, tabs, and 更新 button all in one row -->
+    <div class="flex items-center px-2 py-1 gap-1" style="border-bottom: 1px solid #ccc; background-color: white;">
+      <div class="flex items-center gap-1 mr-2">
+        <span class="font-bold text-xs">参考株価</span>
+        <span class="text-gray-400 text-xs cursor-help" title="参考株価">?</span>
+      </div>
+      <div class="flex flex-1 items-center">
+        <button (click)="activeTab = 'summary'"
+                class="px-2 py-1 text-xs border rounded mr-1 whitespace-nowrap"
+                [style]="activeTab === 'summary'
+                  ? 'background-color: white; border-color: #aaa; font-weight: bold;'
+                  : 'background-color: white; border-color: #ddd; color: #666;'">
+          サマリー/株価
+        </button>
+        <button (click)="activeTab = 'news'"
+                class="px-2 py-1 text-xs border rounded mr-1 whitespace-nowrap"
+                [style]="activeTab === 'news'
+                  ? 'background-color: white; border-color: #aaa; font-weight: bold;'
+                  : 'background-color: white; border-color: #ddd; color: #666;'">
+          ニュース
+        </button>
+        <button (click)="activeTab = 'other'"
+                class="px-2 py-1 text-xs border rounded whitespace-nowrap flex items-center gap-1"
+                [style]="activeTab === 'other'
+                  ? 'background-color: white; border-color: #aaa; font-weight: bold;'
+                  : 'background-color: white; border-color: #ddd; color: #666;'">
+          <span>≡</span> その他銘柄情報
+        </button>
+      </div>
+      <button class="ml-auto flex items-center gap-1 text-xs px-2 py-1 border rounded whitespace-nowrap" style="background-color: white; border-color: #aaa;">
+        <span>↻</span> 更新
+      </button>
+    </div>
+
+    <div *ngIf="activeTab === 'summary'" class="p-2">
+
+      <!-- Stock quote table -->
+      <table class="w-full text-xs border-collapse mb-2">
+        <tbody>
+          <tr *ngFor="let q of stockQuotes" class="border-b" style="border-color: var(--cc-rule-line);">
+            <td class="py-1 pr-2 text-gray-500 whitespace-nowrap" style="width: 70px; background-color: var(--cc-background);">{{ q.label }}</td>
+            <td class="py-1 font-medium" [ngClass]="q.valueClass || ''">{{ q.value }}</td>
+            <td class="py-1 text-gray-400 text-right">{{ q.date }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Order book -->
+      <div class="order-book mt-1">
+        <table class="w-full text-xs border-collapse" style="font-size: 11px;">
+          <thead>
+            <tr style="background-color: var(--cc-detail);">
+              <th class="py-1 px-2 text-center font-medium border" style="border-color: #ccc;">売数量</th>
+              <th class="py-1 px-2 text-center font-medium border" style="border-color: #ccc;">気配値</th>
+              <th class="py-1 px-2 text-center font-medium border" style="border-color: #ccc;">買数量</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of orderBook"
+                [style]="row.isCurrentPrice
+                  ? 'background-color: var(--cc-light-blue);'
+                  : (row.isSpecial ? 'background-color: var(--cc-detail2);' : '')">
+              <td class="py-0.5 px-2 text-right border" style="border-color: #ddd; color: #666;">{{ row.sellQty }}</td>
+              <td class="py-0.5 px-2 text-center border font-medium" style="border-color: #ddd;"
+                  [style.color]="row.isCurrentPrice ? '#3B82F6' : ''">{{ row.price }}</td>
+              <td class="py-0.5 px-2 text-right border" style="border-color: #ddd; color: #333;">{{ row.buyQty }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Simplified chart -->
+      <div class="chart-area mt-2 p-2" style="background-color: #f9f9f9; border: 1px solid #eee; border-radius: 2px; height: 80px; position: relative; overflow: hidden;">
+        <div class="flex items-end h-full gap-px">
+          <div *ngFor="let h of chartBars"
+               class="flex-1"
+               [style]="'height: ' + h + '%; background-color: #e05050; opacity: 0.7;'">
+          </div>
+        </div>
+        <div class="absolute bottom-1 right-1 text-gray-400" style="font-size: 9px;">チャート</div>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab === 'news'" class="p-4 text-xs text-gray-500 text-center">
+      ニュース情報がここに表示されます
+    </div>
+    <div *ngIf="activeTab === 'other'" class="p-4 text-xs text-gray-500 text-center">
+      その他銘柄情報がここに表示されます
+    </div>
+  </div>
+</div>

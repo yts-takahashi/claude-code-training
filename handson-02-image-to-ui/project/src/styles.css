@@ -16,3 +16,76 @@ app-root {
   width: 100%;
   min-height: 100%;
 }
+
+/* ===== Bubble CSS Variables (from rendered-styles.css) ===== */
+:root {
+  --cc-alert: rgba(255, 40, 0, 1);
+  --cc-primary: rgba(217, 52, 10, 1);
+  --cc-success: rgba(59, 130, 246, 1);
+  --cc-surface: rgba(204, 204, 204, 1);
+  --cc-background: rgba(245, 245, 245, 1);
+  --cc-destructive: rgba(191, 46, 9, 1);
+  --cc-primary_contrast: rgba(255, 255, 255, 1);
+  --cc-accent_color: rgba(40, 104, 191, 1);
+  --cc-green: rgba(17, 123, 66, 1);
+  --cc-bg2: rgba(233, 233, 233, 1);
+  --cc-light-yellow: rgba(255, 255, 235, 1);
+  --cc-light-red: rgba(252, 239, 238, 1);
+  --cc-light-blue: rgba(235, 244, 255, 1);
+  --cc-orange-bg: rgba(255, 244, 221, 1);
+  --cc-gray-text: rgba(85, 85, 85, 1);
+  --cc-detail2: rgba(241, 244, 247, 1);
+  --cc-btn-red-border: rgba(168, 40, 8, 1);
+  --cc-btn-disable-bg: rgba(156, 163, 175, 1);
+  --cc-btn-disable-border: rgba(102, 111, 127, 1);
+  --cc-gray-btn: rgba(212, 215, 221, 1);
+  --cc-rule-line: rgba(229, 231, 235, 1);
+  --cc-detail: rgba(202, 214, 224, 1);
+  --cc-gray-bg: rgba(249, 249, 249, 1);
+  --cc-orange: rgba(249, 139, 63, 1);
+  --cc-btn-blue-border: rgba(11, 99, 243, 1);
+  --cc-btn-blue-bg: rgba(59, 130, 246, 1);
+  --cc-btn-navy-bg: rgba(40, 104, 191, 1);
+  --cc-btn-navy-border: rgba(31, 81, 149, 1);
+  --cc-btn-orange-bg: rgba(250, 139, 62, 1);
+  --cc-btn-orange-border: rgba(224, 95, 6, 1);
+  --cc-nisa: rgba(63, 160, 134, 1);
+  --cc-mid-gray: rgba(238, 238, 238, 1);
+}
+
+/* ===== Bubble CSS Variables ===== */
+:root {
+  --color_primary_default: rgba(217,52,10,1);
+  --color_primary_contrast_default: rgba(255,255,255,1);
+  --color_text_default: rgba(17,34,51,1);
+  --color_text_default_rgb: 17,34,51;
+  --color_surface_default: rgba(204,204,204,1);
+  --color_background_default: rgba(245,245,245,1);
+  --color_bVXKD0_default: rgba(255,255,255,1);
+  --font_default: "Meiryo", "メイリオ", "Noto Sans JP", sans-serif;
+}
+:root{--cf-app-font: "meiryo:::custom"; --cc-alert: rgba(255, 40, 0, 1); --cc-primary: rgba(217,52,10,1); --cc-success: rgba(59,130,246,1); --cc-surface: rgba(204, 204, 204, 1); --cc-background: rgba(245, 245, 245, 1); --cc-destructive: rgba(191, 46, 9, 1); --cc-primary_contrast: rgba(255, 255, 255, 1); --cc-accent_color: rgba(40,104,191,1); --cc-nisa: rgba(63,160,134,1); }
+
+/* ===== Bubble Core Layout CSS ===== */
+.bubble-element { overflow: hidden; box-sizing: border-box; }
+div.bubble-element.main-page,
+div.bubble-element.Group,
+div.bubble-element.CustomElement,
+div.bubble-element.FloatingGroup,
+div.bubble-element.group-item { overflow: visible; }
+.bubble-element.Text { overflow: visible; word-break: break-word; }
+.bubble-element.Icon { padding: 0; text-align: center; background: none; border: none; cursor: inherit; overflow: hidden; }
+.bubble-element.Button { padding: 0; border: none; cursor: inherit; background: none; text-align: left; }
+.bubble-element.Button.flex-aligned-button { display: flex; }
+.bubble-r-container { display: block; }
+.bubble-r-container.flex { display: flex; }
+.bubble-r-container.flex.row { flex-direction: row; }
+.bubble-r-container.flex.column { flex-direction: column; }
+.bubble-r-container-wrapper > .bubble-r-container { display: flex; }
+.floating-group { position: absolute; }
+.floating-group.relative { position: relative; }
+.clickable-element { cursor: pointer; }
+.bubble-rg { display: grid; }
+.bubble-rg.bubble-r-container.flex { display: grid; }
+input.bubble-element { display: inline-block; box-sizing: border-box; }
+.main-page { min-height: 100vh; font-family: var(--font_default); }
