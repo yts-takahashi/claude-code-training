@@ -75,7 +75,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('koza')?.value === 'main'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-accent_color);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('koza')?.value === 'main'">✓</span>
           <span *ngIf="form.get('koza')?.value !== 'main'">○</span>
@@ -141,7 +141,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'sashiNe'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'sashiNe'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'sashiNe'">○</span>
@@ -152,7 +152,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'nariyuki'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'nariyuki'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'nariyuki'">○</span>
@@ -163,7 +163,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'gyaku'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'gyaku'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'gyaku'">○</span>
@@ -174,7 +174,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('joken')?.value === 'dual'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('joken')?.value === 'dual'">✓</span>
           <span *ngIf="form.get('joken')?.value !== 'dual'">○</span>
@@ -222,7 +222,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('sor')?.value === 'suru'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('sor')?.value === 'suru'">✓</span>
           <span *ngIf="form.get('sor')?.value !== 'suru'">○</span>
@@ -233,7 +233,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('sor')?.value === 'shinai'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('sor')?.value === 'shinai'">✓</span>
           <span *ngIf="form.get('sor')?.value !== 'shinai'">○</span>
@@ -255,7 +255,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'nashi'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'nashi'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'nashi'" style="color: var(--cc-background);">○</span>
@@ -266,7 +266,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'yoritsuki'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'yoritsuki'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'yoritsuki'" style="color: var(--cc-background);">○</span>
@@ -277,7 +277,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'hike'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'hike'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'hike'" style="color: var(--cc-background);">○</span>
@@ -288,7 +288,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-500'"
                 [style]="form.get('shikko')?.value === 'funari'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: var(--cc-background); border-color: #ccc;'">
           <span *ngIf="form.get('shikko')?.value === 'funari'">✓</span>
           <span *ngIf="form.get('shikko')?.value !== 'funari'" style="color: var(--cc-background);">○</span>
@@ -310,7 +310,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('yuko')?.value === 'toujitsu'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('yuko')?.value === 'toujitsu'">✓</span>
           <span *ngIf="form.get('yuko')?.value !== 'toujitsu'">○</span>
@@ -321,7 +321,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('yuko')?.value === 'kikan'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('yuko')?.value === 'kikan'">✓</span>
           <span *ngIf="form.get('yuko')?.value !== 'kikan'">○</span>
@@ -344,7 +344,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('renzoku')?.value === 'shinai'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('renzoku')?.value === 'shinai'">✓</span>
           <span *ngIf="form.get('renzoku')?.value !== 'shinai'">○</span>
@@ -355,7 +355,7 @@
                   ? 'flex items-center gap-1 px-2 py-1 text-xs rounded text-white font-bold'
                   : 'flex items-center gap-1 px-2 py-1 text-xs rounded border text-gray-600'"
                 [style]="form.get('renzoku')?.value === 'suru'
-                  ? 'background-color: #1a6eb5;'
+                  ? 'background-color: var(--cc-primary);'
                   : 'background-color: white; border-color: #ccc;'">
           <span *ngIf="form.get('renzoku')?.value === 'suru'">✓</span>
           <span *ngIf="form.get('renzoku')?.value !== 'suru'">○</span>
@@ -381,15 +381,10 @@
     <!-- Notice text -->
     <div class="py-2 text-xs text-gray-600 border-b" style="border-color: var(--cc-rule-line);">
       <p>お取引の禁止事項（<a href="#" class="text-blue-600 hover:underline">「不公正取引行為の禁止・差金決済取引の禁止・インサイダー取引規制」</a>）を確認し理解したうえで、必要項目を選択または入力後、「注文内容を確認」をクリックしてください。</p>
-      <!-- Warning banner - expanded by default with close button -->
-      <div class="mt-1 rounded" style="background-color: var(--cc-light-yellow); border: 1px solid #ffd377;">
-        <div class="py-1 px-2 flex items-center justify-between">
-          <span class="text-orange-700 font-medium text-xs">⚠️特定口座を開設し、源泉徴収ありを選択されているお客様へ</span>
-          <span class="text-gray-500 text-xs cursor-pointer hover:text-gray-700">× 閉じる</span>
-        </div>
-        <div class="px-2 pb-2 text-xs text-gray-700" style="line-height: 1.6;">
-          特定口座でお預かりの商品を売却された場合、源泉徴収分が買付余力から減算されるのは約定日の翌日です。このため、当該商品の売却約定日における買付の際は買付余力の範囲内の取引であっても、後日不足金が発生する場合があります。また源泉徴収は外貨決済であっても円貨で行われることにご注意ください。
-        </div>
+      <!-- Warning banner - collapsed accordion -->
+      <div class="mt-1 py-1 px-2 rounded flex items-center justify-between cursor-pointer" style="background-color: var(--cc-light-yellow); border: 1px solid #ffd377;">
+        <span class="text-orange-700 font-medium text-xs">⚠️特定口座を開設し、源泉徴収ありを選択されているお客様へ</span>
+        <span class="text-gray-400 text-xs">▼</span>
       </div>
     </div>
 
