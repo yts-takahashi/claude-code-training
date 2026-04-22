@@ -60,26 +60,26 @@
         <span class="font-bold text-xs">参考株価</span>
         <span class="text-gray-400 text-xs cursor-help" title="参考株価">?</span>
       </div>
-      <div class="flex flex-1 items-center">
+      <div class="flex flex-1 items-center gap-1">
         <button (click)="activeTab = 'summary'"
-                class="px-2 py-1 text-xs border rounded mr-1 whitespace-nowrap"
+                class="px-2 py-1 text-xs border rounded whitespace-nowrap"
                 [style]="activeTab === 'summary'
-                  ? 'background-color: white; border-color: #aaa; font-weight: bold;'
-                  : 'background-color: white; border-color: #ddd; color: #666;'">
+                  ? 'background-color: white; border-color: #888; color: #333; font-weight: bold;'
+                  : 'background-color: white; border-color: #ddd; color: #888;'">
           サマリー/株価
         </button>
         <button (click)="activeTab = 'news'"
-                class="px-2 py-1 text-xs border rounded mr-1 whitespace-nowrap"
+                class="px-2 py-1 text-xs border rounded whitespace-nowrap"
                 [style]="activeTab === 'news'
-                  ? 'background-color: white; border-color: #aaa; font-weight: bold;'
-                  : 'background-color: white; border-color: #ddd; color: #666;'">
+                  ? 'background-color: white; border-color: #888; color: #333; font-weight: bold;'
+                  : 'background-color: white; border-color: #ddd; color: #888;'">
           ニュース
         </button>
         <button (click)="activeTab = 'other'"
                 class="px-2 py-1 text-xs border rounded whitespace-nowrap flex items-center gap-1"
                 [style]="activeTab === 'other'
-                  ? 'background-color: white; border-color: #aaa; font-weight: bold;'
-                  : 'background-color: white; border-color: #ddd; color: #666;'">
+                  ? 'background-color: white; border-color: #888; color: #333; font-weight: bold;'
+                  : 'background-color: white; border-color: #ddd; color: #888;'">
           <span>≡</span> その他銘柄情報
         </button>
       </div>
@@ -94,9 +94,9 @@
       <table class="w-full text-xs border-collapse mb-2">
         <tbody>
           <tr *ngFor="let q of stockQuotes" class="border-b" style="border-color: var(--cc-rule-line);">
-            <td class="py-1 pr-2 text-gray-500 whitespace-nowrap" style="width: 70px; background-color: var(--cc-background);">{{ q.label }}</td>
-            <td class="py-1 font-medium" [ngClass]="q.valueClass || ''">{{ q.value }}</td>
-            <td class="py-1 text-gray-400 text-right">{{ q.date }}</td>
+            <td class="py-1 pr-2 text-gray-500 whitespace-nowrap" style="width: 70px; background-color: var(--cc-background); font-size: 11px;">{{ q.label }}</td>
+            <td class="py-1" [ngClass]="q.valueClass || ''" [style]="q.label === '現在値' ? 'font-size: 18px; font-weight: bold;' : 'font-size: 12px;'">{{ q.value }}</td>
+            <td class="py-1 text-gray-400 text-right" style="font-size: 10px;">{{ q.date }}</td>
           </tr>
         </tbody>
       </table>
@@ -114,26 +114,48 @@
           <tbody>
             <tr *ngFor="let row of orderBook"
                 [style]="row.isCurrentPrice
-                  ? 'background-color: var(--cc-light-blue);'
+                  ? 'background-color: #fff3cd; border-left: 2px solid #d9340a;'
                   : (row.isSpecial ? 'background-color: var(--cc-detail2);' : '')">
               <td class="py-0.5 px-2 text-right border" style="border-color: #ddd; color: #666;">{{ row.sellQty }}</td>
-              <td class="py-0.5 px-2 text-center border font-medium" style="border-color: #ddd;"
-                  [style.color]="row.isCurrentPrice ? '#3B82F6' : ''">{{ row.price }}</td>
+              <td class="py-0.5 px-2 text-center border font-bold" style="border-color: #ddd;"
+                  [style.color]="row.isCurrentPrice ? '#d9340a' : (row.isSpecial ? '#333' : '')">{{ row.price }}</td>
               <td class="py-0.5 px-2 text-right border" style="border-color: #ddd; color: #333;">{{ row.buyQty }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Simplified chart -->
-      <div class="chart-area mt-2 p-2" style="background-color: #f9f9f9; border: 1px solid #eee; border-radius: 2px; height: 80px; position: relative; overflow: hidden;">
-        <div class="flex items-end h-full gap-px">
-          <div *ngFor="let h of chartBars"
-               class="flex-1"
-               [style]="'height: ' + h + '%; background-color: #e05050; opacity: 0.7;'">
-          </div>
-        </div>
-        <div class="absolute bottom-1 right-1 text-gray-400" style="font-size: 9px;">チャート</div>
+      <!-- Line chart (SVG) -->
+      <div class="chart-area mt-2" style="background-color: white; border: 1px solid #ddd; border-radius: 2px; position: relative; overflow: hidden;">
+        <svg width="100%" height="100" viewBox="0 0 480 100" preserveAspectRatio="none" style="display: block;">
+          <!-- 背景 -->
+          <rect x="0" y="0" width="480" height="100" fill="#fafafa"/>
+          <!-- 水平グリッドライン -->
+          <line x1="40" y1="10" x2="470" y2="10" stroke="#eee" stroke-width="0.7"/>
+          <line x1="40" y1="30" x2="470" y2="30" stroke="#eee" stroke-width="0.7"/>
+          <line x1="40" y1="50" x2="470" y2="50" stroke="#eee" stroke-width="0.7"/>
+          <line x1="40" y1="70" x2="470" y2="70" stroke="#eee" stroke-width="0.7"/>
+          <!-- 垂直グリッドライン -->
+          <line x1="120" y1="5" x2="120" y2="85" stroke="#eee" stroke-width="0.7"/>
+          <line x1="200" y1="5" x2="200" y2="85" stroke="#eee" stroke-width="0.7"/>
+          <line x1="280" y1="5" x2="280" y2="85" stroke="#eee" stroke-width="0.7"/>
+          <line x1="360" y1="5" x2="360" y2="85" stroke="#eee" stroke-width="0.7"/>
+          <!-- Y軸ラベル -->
+          <text x="36" y="13" text-anchor="end" font-size="7" fill="#999">340</text>
+          <text x="36" y="33" text-anchor="end" font-size="7" fill="#999">335</text>
+          <text x="36" y="53" text-anchor="end" font-size="7" fill="#999">330</text>
+          <text x="36" y="73" text-anchor="end" font-size="7" fill="#999">325</text>
+          <!-- 株価ラインチャート（赤線） -->
+          <polyline [attr.points]="chartPoints"
+                    fill="none" stroke="#d9340a" stroke-width="1.5" stroke-linejoin="round"/>
+          <!-- X軸ラベル -->
+          <text x="45" y="97" text-anchor="middle" font-size="7" fill="#999">9:00</text>
+          <text x="120" y="97" text-anchor="middle" font-size="7" fill="#999">10:00</text>
+          <text x="200" y="97" text-anchor="middle" font-size="7" fill="#999">11:00</text>
+          <text x="280" y="97" text-anchor="middle" font-size="7" fill="#999">12:00</text>
+          <text x="360" y="97" text-anchor="middle" font-size="7" fill="#999">13:00</text>
+          <text x="460" y="97" text-anchor="middle" font-size="7" fill="#999">14:00</text>
+        </svg>
       </div>
     </div>
 

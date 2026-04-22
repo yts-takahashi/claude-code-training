@@ -1,17 +1,21 @@
 <div class="order-form-panel" style="font-family: var(--font_default); font-size: 13px; color: var(--color_text_default); background-color: white; border: 1px solid #ccc; border-radius: 4px; min-width: 440px; max-width: 520px;">
 
   <!-- Panel header: 注文入力 -->
-  <div class="flex items-center justify-between px-3 py-2" style="background-color: var(--cc-primary); border-radius: 4px 4px 0 0;">
-    <span class="font-bold text-white" style="font-size: 14px;">注文入力</span>
-    <div class="flex items-center gap-3">
-      <label class="flex items-center gap-1 cursor-pointer text-white text-xs">
-        <input type="checkbox" class="accent-orange-600" style="background-color:white">
-        <span>案2(表示項目)</span>
-      </label>
-      <label class="flex items-center gap-1 cursor-pointer text-white text-xs">
-        <input type="checkbox" class="accent-orange-600" style="background-color:white">
-        <span>売付</span>
-      </label>
+  <div class="flex items-center justify-between px-3 py-2" style="background-color: white; border-bottom: 1px solid #ddd;">
+    <div class="flex items-center gap-2">
+      <span class="font-bold" style="font-size: 14px; color: #333;">注文入力</span>
+      <span style="color: #ccc; font-size: 13px; cursor: pointer;">☆</span>
+    </div>
+    <div class="flex items-center gap-2" style="font-size: 11px; color: #555;">
+      <input type="checkbox" class="accent-orange-600">
+      <span>売付</span>
+      <!-- カラーインジケーター群 -->
+      <div style="width: 14px; height: 14px; background-color: #e05050; border-radius: 2px; display: inline-block;"></div>
+      <div style="width: 14px; height: 14px; background-color: #aaa; border-radius: 2px; display: inline-block;"></div>
+      <div style="width: 14px; height: 14px; background-color: #d9340a; border-radius: 2px; display: inline-block; position: relative; text-align:center; line-height:14px; color:white; font-size:10px;">✓</div>
+      <div style="width: 14px; height: 14px; background-color: #555; border-radius: 2px; display: inline-block;"></div>
+      <div style="width: 14px; height: 14px; background-color: #2e7d32; border-radius: 2px; display: inline-block;"></div>
+      <div style="width: 14px; height: 14px; background-color: #bbb; border-radius: 2px; display: inline-block;"></div>
     </div>
   </div>
 
@@ -108,11 +112,13 @@
     </div>
 
     <!-- 売付可能残高 -->
-    <div class="flex items-start border-b py-1" style="border-color: var(--cc-rule-line);">
+    <div class="flex items-center border-b py-1" style="border-color: var(--cc-rule-line);">
       <div style="min-width: 90px;"></div>
       <div class="flex-1 text-xs text-gray-500 flex items-center gap-1">
         <span>売付可能残高</span>
         <span class="text-gray-400 text-xs cursor-help" title="25万株/口までの注文受付が可能です">?</span>
+        <span class="ml-2 font-medium" style="color: #333;">100</span>
+        <span>株（売買単位:100株/口）</span>
       </div>
     </div>
 
@@ -181,9 +187,10 @@
           <button type="button" (click)="decreaseTanka()"
                   class="w-6 h-6 flex items-center justify-center text-white text-xs rounded"
                   style="background-color: var(--cc-btn-disable-bg);">−</button>
-          <input type="number" formControlName="tanka"
+          <input type="text" formControlName="tanka"
                  class="border rounded px-2 py-1 text-xs text-right"
-                 style="width: 90px; border-color: #ccc;">
+                 style="width: 90px; border-color: #ccc;"
+                 placeholder="3,220">
           <button type="button" (click)="increaseTanka()"
                   class="w-6 h-6 flex items-center justify-center text-white text-xs rounded"
                   style="background-color: var(--cc-btn-disable-bg);">＋</button>
@@ -368,15 +375,15 @@
     </div>
 
     <!-- Buttons -->
-    <div class="flex gap-3 py-3 justify-center">
+    <div class="flex gap-3 py-3 justify-center items-center">
       <button type="button" (click)="onClear()"
-              class="px-8 py-2 text-sm font-medium border rounded"
-              style="border-color: #999; background-color: #f5f5f5; color: #333;">
+              class="py-2 text-sm font-medium border rounded"
+              style="min-width: 80px; padding: 6px 20px; border-color: #999; background-color: #f5f5f5; color: #333;">
         クリア
       </button>
       <button type="button" (click)="onConfirm()"
-              class="px-8 py-2 text-sm font-bold text-white rounded"
-              style="background-color: var(--cc-primary); border: 2px solid var(--cc-btn-red-border);">
+              class="py-2 text-sm font-bold text-white rounded"
+              style="min-width: 160px; padding: 8px 28px; background-color: var(--cc-primary); border: 2px solid var(--cc-btn-red-border);">
         注文内容を確認
       </button>
     </div>

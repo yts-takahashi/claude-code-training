@@ -19,7 +19,7 @@ export class KabuOrderFormComponent implements OnInit {
       koza: ['main'],
       suryo: [100],
       joken: ['sashiNe'],
-      tanka: [3220],
+      tanka: ['3,220'],
       sor: ['suru'],
       shikko: ['nashi'],
       yuko: ['toujitsu'],
@@ -28,7 +28,8 @@ export class KabuOrderFormComponent implements OnInit {
   }
 
   get gaisanKingaku(): number {
-    const tanka = this.form.get('tanka')?.value || 0;
+    const tankaStr = this.form.get('tanka')?.value || '0';
+    const tanka = parseFloat(String(tankaStr).replace(/,/g, '')) || 0;
     const suryo = this.form.get('suryo')?.value || 0;
     return tanka * suryo;
   }
@@ -46,15 +47,19 @@ export class KabuOrderFormComponent implements OnInit {
   }
 
   decreaseTanka(): void {
-    const current = this.form.get('tanka')?.value || 0;
+    const tankaStr = this.form.get('tanka')?.value || '0';
+    const current = parseFloat(String(tankaStr).replace(/,/g, '')) || 0;
     if (current > 1) {
-      this.form.get('tanka')?.setValue(current - 1);
+      const newVal = current - 1;
+      this.form.get('tanka')?.setValue(newVal.toLocaleString('ja-JP'));
     }
   }
 
   increaseTanka(): void {
-    const current = this.form.get('tanka')?.value || 0;
-    this.form.get('tanka')?.setValue(current + 1);
+    const tankaStr = this.form.get('tanka')?.value || '0';
+    const current = parseFloat(String(tankaStr).replace(/,/g, '')) || 0;
+    const newVal = current + 1;
+    this.form.get('tanka')?.setValue(newVal.toLocaleString('ja-JP'));
   }
 
   onClear(): void {
@@ -63,7 +68,7 @@ export class KabuOrderFormComponent implements OnInit {
       koza: 'main',
       suryo: 100,
       joken: 'sashiNe',
-      tanka: 3220,
+      tanka: '3,220',
       sor: 'suru',
       shikko: 'nashi',
       yuko: 'toujitsu',

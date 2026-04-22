@@ -26,14 +26,14 @@ export class KabuStockInfoComponent {
   activeTab: 'summary' | 'news' | 'other' = 'summary';
 
   stockQuotes: StockQuote[] = [
-    { label: '現在値', value: '3,192.0', date: '2024/11/26 10:21', valueClass: 'font-bold text-red-600 text-xl' },
-    { label: '(前日比)', value: '-24.5  -2.36%', date: '2024/11/26 10:21', valueClass: 'text-red-600' },
+    { label: '現在値', value: '3,220.0', date: '2024/11/26 10:21', valueClass: 'font-bold text-red-600' },
+    { label: '(前日比)', value: '-24.5  -2.96%', date: '2024/11/26 10:21', valueClass: 'text-red-600' },
     { label: '前日終値', value: '1,034.0', date: '2024/11/26 10:21' },
     { label: '始値', value: '975.5', date: '2024/11/26 10:21' },
     { label: '高値', value: '1,024.1', date: '2024/11/26 10:21' },
     { label: '安値', value: '961.0', date: '2024/11/26 10:21' },
-    { label: '出来高', value: '12,186,200', date: '2024/11/26 10:21' },
-    { label: 'VWAP', value: '12,186,200', date: '2024/11/26 10:21' },
+    { label: '出来高', value: '12,146,200', date: '2024/11/26 10:21' },
+    { label: 'VWAP', value: '12,146,200', date: '2024/11/26 10:21' },
   ];
 
   orderBook: OrderBook[] = [
@@ -59,10 +59,21 @@ export class KabuStockInfoComponent {
     { sellQty: '', price: 'UNDER', buyQty: '123,456,789', isSpecial: true },
   ];
 
-  // Simplified sparkline chart data
-  chartBars = Array.from({ length: 30 }, (_, i) =>
-    30 + Math.sin(i * 0.4) * 10 + Math.random() * 8
-  );
+  // SVG line chart data points (Y-axis: 325-340 range mapped to 70-10)
+  get chartPoints(): string {
+    const prices = [336, 338, 337, 340, 339, 337, 335, 334, 336, 337, 335, 333, 334, 333, 332, 331, 333, 332, 330, 331, 330, 329, 330, 331, 330, 329, 328, 330, 329, 328];
+    const minPrice = 324;
+    const maxPrice = 342;
+    const chartMinX = 42;
+    const chartMaxX = 468;
+    const chartMinY = 72;
+    const chartMaxY = 10;
+    return prices.map((p, i) => {
+      const x = chartMinX + (i / (prices.length - 1)) * (chartMaxX - chartMinX);
+      const y = chartMinY + ((maxPrice - p) / (maxPrice - minPrice)) * (chartMaxY - chartMinY);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  }
 
   buyingPower = {
     mainAccount: '1,100,000円',
