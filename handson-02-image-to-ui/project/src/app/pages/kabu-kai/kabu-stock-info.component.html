@@ -129,19 +129,28 @@
           <tbody>
             <tr *ngFor="let row of orderBook"
                 [style]="row.isCurrentPrice
-                  ? 'background-color: #fff3cd; border-left: 2px solid #d9340a;'
+                  ? 'background-color: #fff3cd;'
                   : (row.isSpecial ? 'background-color: var(--cc-detail2);' : '')">
-              <td class="py-0.5 px-2 text-right border" style="border-color: #ddd; color: #666;">{{ row.sellQty }}</td>
+              <td class="py-0.5 px-2 text-right border" style="border-color: #ddd;"
+                  [style.color]="row.isCurrentPrice ? '#d9340a' : '#d9340a'">{{ row.sellQty }}</td>
               <td class="py-0.5 px-2 text-center border font-bold" style="border-color: #ddd;"
-                  [style.color]="row.isCurrentPrice ? '#d9340a' : (row.isSpecial ? '#333' : '')">{{ row.price }}</td>
-              <td class="py-0.5 px-2 text-right border" style="border-color: #ddd; color: #333;">{{ row.buyQty }}</td>
+                  [style.color]="row.isCurrentPrice ? '#d9340a' : (row.isSpecial ? '#333' : '#333')">{{ row.price }}</td>
+              <td class="py-0.5 px-2 text-right border" style="border-color: #ddd; color: #2563eb;">{{ row.buyQty }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
+      <!-- Chart time tabs -->
+      <div class="flex items-center gap-3 mt-2 mb-1" style="font-size: 11px;">
+        <span class="cursor-pointer" style="color: #555;">5分足</span>
+        <span class="cursor-pointer" style="color: #555;">日足</span>
+        <span class="cursor-pointer font-bold" style="color: #d9340a; border-bottom: 2px solid #d9340a; padding-bottom: 1px;">週足</span>
+        <span class="cursor-pointer" style="color: #555;">月足</span>
+      </div>
+
       <!-- Line chart (SVG) -->
-      <div class="chart-area mt-2" style="background-color: white; border: 1px solid #ddd; border-radius: 2px; position: relative; overflow: hidden;">
+      <div class="chart-area" style="background-color: white; border: 1px solid #ddd; border-radius: 2px; position: relative; overflow: hidden;">
         <svg width="100%" height="100" viewBox="0 0 480 100" preserveAspectRatio="none" style="display: block;">
           <!-- 背景 -->
           <rect x="0" y="0" width="480" height="100" fill="#fafafa"/>

@@ -32,13 +32,13 @@ import { KabuPageFooterComponent } from './kabu-page-footer.component';
       <main class="flex-1 px-4 py-3" style="max-width: 1400px; margin: 0 auto; width: 100%;">
         <div class="flex gap-4 items-start">
 
-          <!-- Left: Order form (約40%) -->
-          <div class="flex-shrink-0" style="width: 42%; min-width: 440px; max-width: 560px;">
+          <!-- Left: Order form (約65%) -->
+          <div class="flex-shrink-0" style="width: 65%; min-width: 600px; max-width: 850px;">
             <app-kabu-order-form />
           </div>
 
-          <!-- Right: Stock info (約60%) -->
-          <div class="flex-1 min-w-0">
+          <!-- Right: Stock info (約35%) -->
+          <div class="flex-1 min-w-0" style="min-width: 280px;">
             <app-kabu-stock-info />
           </div>
         </div>
