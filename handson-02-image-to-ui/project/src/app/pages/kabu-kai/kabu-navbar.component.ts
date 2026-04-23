@@ -11,8 +11,7 @@ import { CommonModule } from '@angular/common';
       <div class="flex items-center" style="background-color: #d9340a; color: white; min-height: 30px; font-size: 12px; padding: 0 12px;">
         <!-- Logo -->
         <div class="flex items-center" style="min-width: 180px;">
-          <span class="font-bold text-white" style="font-size: 18px; letter-spacing: 0.3px;">大和証券</span>
-          <span style="font-size: 9px; opacity: 0.7; margin-left: 4px; margin-top: 6px;">Daiwa Securities</span>
+          <img src="assets/logo.svg" alt="大和証券 Daiwa Securities" style="height: 28px; width: auto;">
         </div>
 
         <!-- Screen size selector (dev tool) -->
