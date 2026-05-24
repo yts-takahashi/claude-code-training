@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Team ハンズオン — Claude Code</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2533;
+    --border: #2a3347;
+    --accent: #4f9eff;
+    --accent2: #7c6bff;
+    --green: #3dd68c;
+    --yellow: #f5c842;
+    --red: #ff6b6b;
+    --text: #e2e8f0;
+    --text2: #8899aa;
+    --radius: 10px;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── ヘッダー ── */
+  header {
+    background: linear-gradient(135deg, #1a2540 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  header .badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+
+  header h1 { font-size: 20px; font-weight: 700; }
+  header .subtitle { color: var(--text2); font-size: 13px; margin-left: auto; }
+
+  /* ── 実験的バッジ ── */
+  .exp-badge {
+    background: rgba(245,200,66,0.15);
+    border: 1px solid var(--yellow);
+    color: var(--yellow);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* ── チーム図 ── */
+  .team-diagram {
+    background: #0a0e17;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .team-leader-box {
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+    background: rgba(79,158,255,0.07);
+    margin-bottom: 8px;
+  }
+
+  .team-member-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 8px 0;
+  }
+
+  .team-member-box {
+    border: 1px solid var(--accent2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    text-align: center;
+    background: rgba(124,107,255,0.07);
+    font-size: 13px;
+  }
+
+  .bidirectional-arrow {
+    text-align: center;
+    color: var(--accent2);
+    font-size: 14px;
+    margin: 4px 0;
+    font-weight: 700;
+  }
+
+  /* ── レイアウト ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 77px);
+  }
+
+  /* ── サイドバー ── */
+  nav {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 77px;
+    height: calc(100vh - 77px);
+    overflow-y: auto;
+  }
+
+  nav .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text2);
+    padding: 0 20px 8px;
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+
+  nav .section-label:first-child { margin-top: 0; }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13.5px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+
+  nav a:hover { color: var(--text); background: rgba(79,158,255,0.05); }
+  nav a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(79,158,255,0.08); }
+  nav a .num { font-size: 11px; color: var(--text2); min-width: 18px; }
+  nav a.done .num { color: var(--green); }
+
+  /* ── メインコンテンツ ── */
+  main {
+    padding: 40px 48px;
+    max-width: 860px;
+  }
+
+  /* ── チャプターヘッダー ── */
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+
+  .chapter-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chapter-num {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .chapter-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .chapter-desc {
+    color: var(--text2);
+    font-size: 15px;
+  }
+
+  /* ── セクション ── */
+  .section {
+    margin-bottom: 40px;
+  }
+
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 14px; color: var(--text); }
+
+  /* ── コードブロック ── */
+  .code-block {
+    background: #0a0e17;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    background: var(--bg3);
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--text2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-header .lang { color: var(--accent); font-weight: 600; }
+
+  .copy-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+
+  code { font-family: var(--font-mono); }
+
+  /* インラインコード */
+  p code, li code {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ── シンタックスカラー ── */
+  .kw { color: #c678dd; }
+  .str { color: #98c379; }
+  .cm { color: #5c6370; font-style: italic; }
+  .fn { color: #61afef; }
+  .prop { color: #e06c75; }
+  .num { color: #d19a66; }
+  .tag { color: #e06c75; }
+  .attr { color: #d19a66; }
+  .val { color: #98c379; }
+
+  /* ── ステップカード ── */
+  .step-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .step-card::before {
+    content: attr(data-step);
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  /* ── コールアウト ── */
+  .callout {
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .callout.info { background: rgba(79,158,255,0.08); border-left: 3px solid var(--accent); }
+  .callout.tip { background: rgba(61,214,140,0.08); border-left: 3px solid var(--green); }
+  .callout.warn { background: rgba(245,200,66,0.08); border-left: 3px solid var(--yellow); }
+  .callout.danger { background: rgba(255,107,107,0.08); border-left: 3px solid var(--red); }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; }
+  .callout-body { flex: 1; }
+  .callout-body strong { display: block; margin-bottom: 4px; }
+
+  /* ── 比較テーブル ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  th {
+    background: var(--bg3);
+    color: var(--text2);
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  /* ── アーキテクチャ図 ── */
+  .arch-diagram {
+    background: #0a0e17;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin: 20px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .arch-box {
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 16px;
+    text-align: center;
+    margin-bottom: 4px;
+    background: rgba(79,158,255,0.05);
+  }
+
+  .arch-box.sub { border-color: var(--accent2); background: rgba(124,107,255,0.05); }
+  .arch-box.tool { border-color: var(--border); background: var(--bg3); }
+  .arch-row { display: flex; gap: 12px; justify-content: center; margin: 8px 0; }
+  .arch-arrow { text-align: center; color: var(--text2); font-size: 18px; margin: 4px 0; }
+
+  /* ── エクササイズ ── */
+  .exercise {
+    background: linear-gradient(135deg, rgba(79,158,255,0.04), rgba(124,107,255,0.04));
+    border: 1px solid rgba(79,158,255,0.25);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .exercise-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .exercise-title { font-size: 16px; font-weight: 700; }
+
+  .checklist {
+    list-style: none;
+    margin: 12px 0;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  .checklist li::before {
+    content: '☐';
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── ナビゲーションボタン ── */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    border: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ── プログレスバー ── */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    margin-bottom: 24px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.3s;
+  }
+
+  /* ── モデル選択チャート ── */
+  .model-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .model-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .model-card.recommended { border-color: var(--accent); }
+  .model-name { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .model-role { color: var(--accent); font-size: 11px; font-weight: 600; margin-bottom: 8px; }
+  .model-desc { font-size: 12px; color: var(--text2); }
+
+  /* ── タグ ── */
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .tag {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .tag.good { border-color: var(--green); color: var(--green); }
+  .tag.bad { border-color: var(--red); color: var(--red); }
+
+  ul, ol { padding-left: 20px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; }
+
+  /* ── スクロールバー ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="badge">HANDS-ON</span>
+  <h1>Agent Team — Claude Code 実践ガイド</h1>
+  <span class="subtitle">開発経験者向け · 推定90分</span>
+</header>
+
+<div class="layout">
+  <!-- サイドナビ -->
+  <nav id="sidebar">
+    <div class="section-label">はじめに</div>
+    <a href="#" onclick="showChapter(0)" class="active" id="nav-0">
+      <span class="num">00</span> このガイドの使い方
+    </a>
+
+    <div class="section-label">基礎編</div>
+    <a href="#" onclick="showChapter(1)" id="nav-1">
+      <span class="num">01</span> Agent Teamとは何か
+    </a>
+    <a href="#" onclick="showChapter(2)" id="nav-2">
+      <span class="num">02</span> エージェントを定義する
+    </a>
+
+    <div class="section-label">実践編</div>
+    <a href="#" onclick="showChapter(3)" id="nav-3">
+      <span class="num">03</span> 専門エージェントを設計する
+    </a>
+    <a href="#" onclick="showChapter(4)" id="nav-4">
+      <span class="num">04</span> 並列エージェント実行
+    </a>
+    <a href="#" onclick="showChapter(5)" id="nav-5">
+      <span class="num">05</span> SKILL.mdで自動化する
+    </a>
+
+    <div class="section-label">発展編</div>
+    <a href="#" onclick="showChapter(6)" id="nav-6">
+      <span class="num">06</span> Agent Teams（実験的機能）
+    </a>
+
+    <div class="section-label">総まとめ</div>
+    <a href="#" onclick="showChapter(7)" id="nav-7">
+      <span class="num">07</span> 実践課題
+    </a>
+  </nav>
+
+  <!-- メインコンテンツ -->
+  <main>
+
+    <!-- ── Chapter 0: はじめに ── -->
+    <div class="chapter active" id="chapter-0">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 00</div>
+        <div class="chapter-title">このガイドの使い方</div>
+        <div class="chapter-desc">Claude Code を手元で動かしながら、Agent Team の全体像を学びます。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+
+      <div class="section">
+        <h2>🎯 学習目標</h2>
+        <p>このハンズオンを終えると、以下ができるようになります：</p>
+        <ul>
+          <li>Claude Code でサブエージェントを定義・呼び出しできる</li>
+          <li>専門性の異なる複数エージェントを設計できる</li>
+          <li><strong>並列実行</strong>で作業を高速化できる</li>
+          <li>SKILL.md を使って Agent Team パターンを自動化できる</li>
+          <li><strong>Sub-agents と Agent Teams の違い</strong>を説明・使い分けできる</li>
+          <li>Agent Teams（実験的機能）でチームメンバー間 P2P 通信を体験できる</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>📦 必要なもの</h2>
+        <table>
+          <tr><th>ツール</th><th>バージョン</th><th>確認コマンド</th></tr>
+          <tr><td>Claude Code CLI</td><td>v2.1 以上</td><td><code>claude --version</code></td></tr>
+          <tr><td>Anthropic API キー</td><td>—</td><td><code>echo $ANTHROPIC_API_KEY</code></td></tr>
+          <tr><td>Node.js（任意）</td><td>v18 以上</td><td><code>node --version</code></td></tr>
+        </table>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <strong>API キーの設定</strong>
+            <code>export ANTHROPIC_API_KEY="sk-ant-..."</code> を .zshrc / .bashrc に追加しておくと便利です。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📁 デモプロジェクトの準備</h2>
+        <p>このガイドに付属の <code>demo-project/</code> を作業ディレクトリとして使います。</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm"># このハンズオンのディレクトリに移動</span>
+<span class="fn">cd</span> handson-07-agent-team/demo-project
+
+<span class="cm"># Claude Code を起動</span>
+<span class="fn">claude</span></pre>
+        </div>
+
+        <p>これで準備完了です。では Chapter 01 から始めましょう！</p>
+      </div>
+
+      <div class="nav-buttons">
+        <span></span>
+        <button class="btn btn-primary" onclick="showChapter(1)">Chapter 01 へ →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 1: Agent Teamとは ── -->
+    <div class="chapter" id="chapter-1">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 01</div>
+        <div class="chapter-title">Agent Team とは何か</div>
+        <div class="chapter-desc">マルチエージェントの概念とアーキテクチャを理解します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:16%"></div></div>
+
+      <div class="section">
+        <h2>🤔 なぜマルチエージェントが必要か</h2>
+        <p>Claude Code（シングルエージェント）には限界があります：</p>
+
+        <table>
+          <tr><th>問題</th><th>詳細</th></tr>
+          <tr><td>コンテキスト上限</td><td>1回の会話で扱える情報量に上限がある。大きなコードベースは全部見られない</td></tr>
+          <tr><td>処理速度</td><td>複数の作業を<strong>順番に</strong>こなすため、時間がかかる</td></tr>
+          <tr><td>集中力の分散</td><td>セキュリティも品質も同時に考えると、どちらも浅くなる</td></tr>
+        </table>
+
+        <p>解決策は「<strong>専門家チームに分けて並列で動かす</strong>」こと、それが Agent Team です。</p>
+      </div>
+
+      <div class="section">
+        <h2>🏗️ アーキテクチャ — 3層構造</h2>
+
+        <div class="arch-diagram">
+          <div class="arch-box">
+            🎯 <strong>オーケストレーター（あなたが対話するClaude）</strong><br>
+            <small>タスクを分解・委任・結果を統合する司令塔</small>
+          </div>
+          <div class="arch-arrow">↓ 指示・委任</div>
+          <div class="arch-row">
+            <div class="arch-box sub" style="flex:1">
+              🔒 <strong>セキュリティ担当</strong><br>
+              <small>security-reviewer</small>
+            </div>
+            <div class="arch-box sub" style="flex:1">
+              📐 <strong>品質担当</strong><br>
+              <small>code-quality-reviewer</small>
+            </div>
+            <div class="arch-box sub" style="flex:1">
+              📝 <strong>ドキュメント担当</strong><br>
+              <small>doc-writer</small>
+            </div>
+          </div>
+          <div class="arch-arrow">↓ 結果のみを返す</div>
+          <div class="arch-box tool">
+            🛠️ <strong>ツール</strong> — Read / Grep / Bash / Write / ブラウザ / MCP
+          </div>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-body">
+            <strong>重要なポイント</strong>
+            各サブエージェントは<strong>独自のコンテキストウィンドウ</strong>を持ちます。互いの作業内容を知らないため、不要な情報が混入せず深い分析ができます。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📊 3大メリット</h2>
+
+        <div class="step-card" data-step="メリット①">
+          <h3>並列化 → 速度向上</h3>
+          <p>独立したタスクを同時実行。直列の <strong>1/N 倍</strong> の時間で完了。<br>
+          例：3エージェント並列 → <strong>3倍速</strong></p>
+        </div>
+
+        <div class="step-card" data-step="メリット②">
+          <h3>コンテキスト分離 → 精度向上</h3>
+          <p>各エージェントが専門領域だけに集中。不要な情報が混入せず、<strong>深い分析</strong>ができる。</p>
+        </div>
+
+        <div class="step-card" data-step="メリット③">
+          <h3>権限の分離 → 安全性向上</h3>
+          <p>エージェントごとに使えるツールを制限。<strong>読み取り専用</strong>エージェントと書き込みOKエージェントを使い分けられる。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔍 Sub-agents vs Agent Teams — 何が違うのか</h2>
+        <p>Claude Code には2種類のマルチエージェントがあります。このガイドの Chapter 02〜05 は <strong>Sub-agents</strong>、Chapter 06 は <strong>Agent Teams</strong>（実験的機能）を扱います。</p>
+
+        <table>
+          <tr><th></th><th>Sub-agents（Chapter 02〜05）</th><th>Agent Teams <span class="exp-badge">⚗ 実験的</span>（Chapter 06）</th></tr>
+          <tr>
+            <td><strong>コンテキスト</strong></td>
+            <td>独自のウィンドウ。結果はリーダーに返される</td>
+            <td>独自のウィンドウ。完全に独立</td>
+          </tr>
+          <tr>
+            <td><strong>通信</strong></td>
+            <td>リーダーにのみ結果を報告（一方向）</td>
+            <td>チームメンバー間で直接メッセージ送受信（P2P）</td>
+          </tr>
+          <tr>
+            <td><strong>調整</strong></td>
+            <td>リーダーがすべての作業を管理</td>
+            <td>共有タスクリストで自己調整</td>
+          </tr>
+          <tr>
+            <td><strong>最適な用途</strong></td>
+            <td>結果のみが重要な焦点を絞ったタスク</td>
+            <td>議論・協力・相互検証が必要な複雑な作業</td>
+          </tr>
+          <tr>
+            <td><strong>トークンコスト</strong></td>
+            <td>低い：結果が要約されてリーダーに返る</td>
+            <td>高い：各メンバーが独立した Claude インスタンス</td>
+          </tr>
+          <tr>
+            <td><strong>有効化</strong></td>
+            <td>デフォルトで使える</td>
+            <td>環境変数 <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> が必要</td>
+          </tr>
+        </table>
+
+        <div class="callout info">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-body">
+            <strong>使い分けの基準</strong>
+            ワーカーが互いに通信する必要がない → <strong>Sub-agents</strong><br>
+            チームメンバーが調査結果を共有・相互検証・直接対話する必要がある → <strong>Agent Teams</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(0)">← Chapter 00</button>
+        <button class="btn btn-primary" onclick="showChapter(2)">Chapter 02 へ →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 2: エージェントを定義する ── -->
+    <div class="chapter" id="chapter-2">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 02</div>
+        <div class="chapter-title">エージェントを定義する</div>
+        <div class="chapter-desc">Markdown ファイル 1 枚でサブエージェントを作る方法を学びます。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
+
+      <div class="section">
+        <h2>📄 エージェント定義ファイルの構造</h2>
+        <p>サブエージェントは <code>.claude/agents/</code> に置いた Markdown ファイルで定義します。</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>プロジェクト/
+└── .claude/
+    └── agents/
+        ├── security-reviewer.md   <span class="cm">← エージェント定義</span>
+        ├── code-quality-reviewer.md
+        └── doc-writer.md</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">markdown</span>
+            <span>基本テンプレート</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm">---
+name: エージェント名（英小文字・ハイフン）
+description: |
+  いつこのエージェントを使うか。
+  具体的なトリガーフレーズも書く。
+model: claude-haiku-4-5-20251001
+tools:
+  - Read
+  - Grep
+---</span>
+
+<span class="str">ここにシステムプロンプトを書く。
+エージェントの専門性・出力形式・注意点など。</span></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔑 description が最重要</h2>
+        <p>オーケストレーターは <code>description</code> を読んで<strong>どのエージェントを使うか自動で判断</strong>します。</p>
+
+        <div class="step-card" data-step="❌ 弱い description">
+          <div class="code-block" style="margin:0">
+            <pre><span class="prop">description:</span> <span class="str">コードを確認します。</span></pre>
+          </div>
+          <p style="margin-top:12px;color:var(--text2)">→「確認」が何を意味するか不明。いつ使えばいいか曖昧。</p>
+        </div>
+
+        <div class="step-card" data-step="✅ 強い description">
+          <div class="code-block" style="margin:0">
+            <pre><span class="prop">description:</span> <span class="str">|
+  コードのセキュリティレビューを行います。
+  「セキュリティを確認して」「脆弱性を調べて」と
+  言われたとき、またはPRレビューの際に使います。
+  SQLインジェクション・XSS・認証バイパスを重点的に確認し、
+  ファイル名・行番号・修正案を含む報告書を作成します。</span></pre>
+          </div>
+          <p style="margin-top:12px;color:var(--text2)">→ いつ・何を・どうするかが明確。オーケストレーターが迷わない。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>⚙️ モデルの選び方</h2>
+        <p>エージェントごとに最適なモデルを選ぶことでコストと速度を最適化できます。</p>
+
+        <div class="model-grid">
+          <div class="model-card">
+            <div class="model-name">Opus 4.7</div>
+            <div class="model-role">オーケストレーター向け</div>
+            <div class="model-desc">最高精度。複雑な判断・設計に最適</div>
+          </div>
+          <div class="model-card recommended">
+            <div class="model-name">Sonnet 4.6 ⭐</div>
+            <div class="model-role">汎用サブエージェント向け</div>
+            <div class="model-desc">バランス良好。コード生成・実装に</div>
+          </div>
+          <div class="model-card">
+            <div class="model-name">Haiku 4.5</div>
+            <div class="model-role">軽量タスク向け</div>
+            <div class="model-desc">高速・低コスト。検索・確認作業に</div>
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <strong>コスト削減のヒント</strong>
+            検索・確認・定型処理は Haiku に委ねるだけで<strong>コストを大幅削減</strong>できます。複雑な判断が必要なエージェントだけ Sonnet/Opus を使いましょう。
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <span class="exercise-badge">EXERCISE 2-1</span>
+          <span class="exercise-title">最初のエージェントを呼び出す</span>
+        </div>
+        <p>デモプロジェクトには既に3つのエージェントが定義されています。Claude Code で呼び出してみましょう。</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm"># demo-project/ で Claude Code を起動済みの状態で</span>
+<span class="cm"># 以下を Claude Code のプロンプトに入力してください：</span>
+
+src/user-auth.js のセキュリティを確認してください</pre>
+        </div>
+
+        <ul class="checklist">
+          <li>Claude Code が <code>security-reviewer</code> エージェントを自動で選んで起動することを確認する</li>
+          <li>レポートにファイル名・行番号・修正案が含まれることを確認する</li>
+          <li>どのエージェントが選ばれたか Claude に確認してみる（「どのエージェントを使いましたか？」）</li>
+        </ul>
+
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <strong>エージェントが選ばれない場合</strong>
+            <code>Shift + Tab</code> でエージェント一覧を開き、手動で選択することもできます。
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(1)">← Chapter 01</button>
+        <button class="btn btn-primary" onclick="showChapter(3)">Chapter 03 へ →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 3: 専門エージェントを設計する ── -->
+    <div class="chapter" id="chapter-3">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 03</div>
+        <div class="chapter-title">専門エージェントを設計する</div>
+        <div class="chapter-desc">subagent_type の種類と、良いエージェント設計のパターンを学びます。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+
+      <div class="section">
+        <h2>🤖 ビルトインエージェントタイプ</h2>
+        <p>Claude Code には汎用の専門エージェントが組み込まれています：</p>
+
+        <table>
+          <tr><th>タイプ</th><th>得意なこと</th><th>使うべき場面</th></tr>
+          <tr>
+            <td><code>Explore</code></td>
+            <td>コードベースの高速探索</td>
+            <td>「〇〇が定義されているファイルを探して」「〇〇を参照している箇所は？」</td>
+          </tr>
+          <tr>
+            <td><code>Plan</code></td>
+            <td>実装計画の設計</td>
+            <td>「この機能をどう実装すればいい？」「アーキテクチャを考えて」</td>
+          </tr>
+          <tr>
+            <td><code>claude</code></td>
+            <td>汎用（デフォルト）</td>
+            <td>上記に当てはまらないすべてのタスク</td>
+          </tr>
+        </table>
+
+        <p>さらに、<code>.claude/agents/</code> に自分でエージェントを追加することで専門性を拡張できます。</p>
+      </div>
+
+      <div class="section">
+        <h2>🎯 良いエージェント設計の原則</h2>
+
+        <div class="step-card" data-step="原則①">
+          <h3>単一責任 — 1エージェント = 1つの専門領域</h3>
+          <p>「セキュリティも品質もドキュメントも見る」エージェントは作らない。<br>
+          役割を絞ることでプロンプトが短くなり、精度が上がる。</p>
+          <div class="tag-list">
+            <span class="tag good">✅ security-reviewer</span>
+            <span class="tag good">✅ code-quality-reviewer</span>
+            <span class="tag bad">❌ all-in-one-reviewer</span>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="原則②">
+          <h3>ツールは必要最小限に絞る</h3>
+          <p>読み取りだけのエージェントに <code>Write</code> を与えない。<br>
+          権限を絞ることで誤操作のリスクが下がり、エージェントも迷わない。</p>
+          <div class="code-block" style="margin:0">
+            <pre><span class="cm"># 読み取り専用エージェント</span>
+<span class="prop">tools:</span>
+  - <span class="str">Read</span>
+  - <span class="str">Grep</span>
+
+<span class="cm"># 書き込みが必要なエージェント</span>
+<span class="prop">tools:</span>
+  - <span class="str">Read</span>
+  - <span class="str">Grep</span>
+  - <span class="str">Write</span>
+  - <span class="str">Edit</span></pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="原則③">
+          <h3>出力形式を明示する</h3>
+          <p>「どんな形式で返してほしいか」をシステムプロンプトに書く。<br>
+          オーケストレーターが複数エージェントの結果を統合しやすくなる。</p>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <span class="exercise-badge">EXERCISE 3-1</span>
+          <span class="exercise-title">新しい専門エージェントを作る</span>
+        </div>
+        <p>パフォーマンス分析専門のエージェントを作ってみましょう。</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm"># ファイルを作成</span>
+<span class="fn">touch</span> .claude/agents/performance-analyzer.md</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">markdown</span>
+            <span>.claude/agents/performance-analyzer.md</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm">---
+name: performance-analyzer
+description: |
+  コードのパフォーマンス問題を分析します。
+  「パフォーマンスを確認して」「速度改善の提案をして」「N+1問題を探して」
+  と言われたとき、またはパフォーマンスチューニングの際に使います。
+  計算量・データベースクエリ・メモリ使用量を確認し、改善案を報告します。
+model: claude-haiku-4-5-20251001
+tools:
+  - Read
+  - Grep
+---</span>
+
+<span class="str">あなたはパフォーマンスエンジニアです。
+依頼されたコードを以下の観点で分析し、改善提案をしてください。
+
+## 確認観点
+
+1. **N+1クエリ問題** — ループ内でクエリが実行されていないか
+2. **計算量** — O(n²) 以上のアルゴリズムが使われていないか
+3. **不要な処理の重複** — 同じ計算が何度も実行されていないか
+4. **メモリ効率** — 大量データをメモリに全件読み込んでいないか
+5. **インデックス不足** — 頻繁に検索するカラムにインデックスがないか
+
+## 報告形式
+
+問題ごとに以下を明記してください：
+- 場所（ファイル:行番号）
+- 現在の計算量（例: O(n²)）
+- 改善後の計算量（例: O(n)）
+- 具体的な修正コード</span></pre>
+        </div>
+
+        <ul class="checklist">
+          <li>ファイルを保存する</li>
+          <li>Claude Code で「パフォーマンスを確認して」と入力し、新しいエージェントが選ばれることを確認する</li>
+          <li>description を変えてみて、呼ばれるトリガーが変わることを試す</li>
+        </ul>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(2)">← Chapter 02</button>
+        <button class="btn btn-primary" onclick="showChapter(4)">Chapter 04 へ →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 4: 並列エージェント実行 ── -->
+    <div class="chapter" id="chapter-4">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 04</div>
+        <div class="chapter-title">並列エージェント実行</div>
+        <div class="chapter-desc">複数のエージェントを同時に起動して、作業を大幅に高速化します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:66%"></div></div>
+
+      <div class="section">
+        <h2>⚡ 並列実行 vs 直列実行</h2>
+
+        <table>
+          <tr><th></th><th>直列実行（デフォルト）</th><th>並列実行</th></tr>
+          <tr><td>実行順序</td><td>A → B → C（順番に）</td><td>A + B + C（同時に）</td></tr>
+          <tr><td>所要時間</td><td>各タスクの合計時間</td><td>最も時間のかかるタスクの時間</td></tr>
+          <tr><td>3タスク例</td><td>30秒 × 3 = <strong>90秒</strong></td><td>最長30秒 = <strong>30秒</strong></td></tr>
+          <tr><td>適した場面</td><td>タスクが互いに依存する場合</td><td>タスクが独立している場合</td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>✍️ 並列実行を指示する書き方</h2>
+        <p>「同時に」「並列で」「一度に」というキーワードで並列実行を促せます。</p>
+
+        <div class="step-card" data-step="❌ 直列になりやすい書き方">
+          <div class="code-block" style="margin:0">
+            <pre>user-auth.js をセキュリティレビューして、
+次に品質レビューして、
+最後にドキュメントを確認して。</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="✅ 並列になる書き方">
+          <div class="code-block" style="margin:0">
+            <pre>user-auth.js を以下の3つを<strong>同時に並列で</strong>実行してください：
+1. security-reviewer でセキュリティ確認
+2. code-quality-reviewer でコード品質確認
+3. doc-writer でドキュメント不足の確認
+
+全て完了したら結果をまとめて報告してください。</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔄 バックグラウンド実行</h2>
+        <p>大きなタスクをバックグラウンドで動かしながら別の作業ができます。</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm"># 現在のセッションをバックグラウンドに送る</span>
+/bg
+
+<span class="cm"># バックグラウンドセッション一覧を確認</span>
+claude agents
+
+<span class="cm"># セッションに戻る（一覧から選択）</span>
+<span class="cm"># ↑/↓ キーで選択 → Enter でアタッチ</span></pre>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-body">
+            <strong>Agent View（v2.1.139 以降）</strong>
+            <code>claude agents</code> を開くと複数セッションの状態をまとめて確認できます。「入力待ち」「作業中」「完了」でグループ化され、返答が必要なセッションが上部にピン留めされます。
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <span class="exercise-badge">EXERCISE 4-1</span>
+          <span class="exercise-title">3エージェント並列レビュー</span>
+        </div>
+        <p><code>src/user-auth.js</code> を3つのエージェントで同時にレビューさせましょう。</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <span>Claude Code のプロンプトに入力</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>src/user-auth.js を以下の3つを同時に並列実行してください：
+
+1. security-reviewer エージェントでセキュリティ問題を確認
+2. code-quality-reviewer エージェントでコード品質・設計を確認
+3. doc-writer エージェントでドキュメントの不足を確認
+
+全エージェントの完了後、以下の形式で統合レポートを作成してください：
+
+# コードレビューレポート: user-auth.js
+
+## 🔒 セキュリティ
+（security-reviewerの結果）
+
+## 📐 コード品質
+（code-quality-reviewerの結果）
+
+## 📝 ドキュメント
+（doc-writerの結果）
+
+## 🎯 優先修正リスト（トップ5）
+（3つの結果を踏まえた修正優先順位）</pre>
+        </div>
+
+        <ul class="checklist">
+          <li>3つのエージェントが並列で起動されることを確認する</li>
+          <li>直列実行と比べて速いかどうか体感する</li>
+          <li>統合レポートの品質を確認する</li>
+        </ul>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(3)">← Chapter 03</button>
+        <button class="btn btn-primary" onclick="showChapter(5)">Chapter 05 へ →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 5: SKILL.md で自動化する ── -->
+    <div class="chapter" id="chapter-5">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 05</div>
+        <div class="chapter-title">SKILL.md で自動化する</div>
+        <div class="chapter-desc">Agent Team パターンを SKILL.md に定義して、ワンコマンドで呼び出せるようにします。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:83%"></div></div>
+
+      <div class="section">
+        <h2>📋 SKILL.md とは</h2>
+        <p>Claude Code の「カスタムスラッシュコマンド」です。<code>.claude/commands/</code> に置いた Markdown ファイルが <code>/ファイル名</code> コマンドとして使えます。</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>プロジェクト/
+└── .claude/
+    ├── agents/          <span class="cm">← エージェント定義</span>
+    └── commands/
+        └── review.md    <span class="cm">← /review コマンドになる</span></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔧 並列レビュースキルを作る</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>mkdir -p .claude/commands
+touch .claude/commands/review.md</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">markdown</span>
+            <span>.claude/commands/review.md</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="str"># /review — 並列コードレビュー
+
+引数で渡されたファイルを3エージェントで並列レビューします。
+引数がない場合は、直近で変更されたファイルを対象にします。
+
+## 実行手順
+
+1. 対象ファイルを特定する（引数 $ARGUMENTS またはgit diffで確認）
+2. 以下を**同時に並列実行**する：
+   - security-reviewer エージェントでセキュリティ確認
+   - code-quality-reviewer エージェントでコード品質確認
+   - doc-writer エージェントでドキュメント不足確認
+3. 全エージェントの結果が揃ったら統合レポートを出力する
+
+## 出力形式
+
+# コードレビューレポート: {対象ファイル}
+実行日時: {現在日時}
+
+## 🔒 セキュリティ
+{security-reviewerの結果}
+
+## 📐 コード品質
+{code-quality-reviewerの結果}
+
+## 📝 ドキュメント
+{doc-writerの結果}
+
+## 🎯 優先修正リスト
+{重大度・優先度順に並べた修正リスト}</span></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🚀 スキルの呼び出し方</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm"># 特定ファイルをレビュー</span>
+/review src/user-auth.js
+
+<span class="cm"># 引数なし → 直近の変更ファイルをレビュー</span>
+/review</pre>
+        </div>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <strong>$ARGUMENTS 変数</strong>
+            スキル内で <code>$ARGUMENTS</code> を使うと、コマンド呼び出し時に渡した引数（<code>/review src/auth.js</code> なら <code>src/auth.js</code>）を参照できます。
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <span class="exercise-badge">EXERCISE 5-1</span>
+          <span class="exercise-title">/review スキルを完成させる</span>
+        </div>
+
+        <ul class="checklist">
+          <li><code>.claude/commands/review.md</code> を上記の内容で作成する</li>
+          <li>Claude Code を再起動（または <code>/help</code> でコマンド一覧を確認）</li>
+          <li><code>/review src/user-auth.js</code> を実行する</li>
+          <li>スキルなしで個別に頼むのと比べて便利になったか確認する</li>
+        </ul>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <span class="exercise-badge">EXERCISE 5-2（発展）</span>
+          <span class="exercise-title">自分のユースケース用スキルを作る</span>
+        </div>
+        <p>以下のアイデアから1つ選んでスキルを作ってみましょう：</p>
+        <ul>
+          <li><strong>/standup</strong> — 昨日のコミットを分析してスタンドアップ報告文を生成</li>
+          <li><strong>/pr-ready</strong> — PR前チェック（テスト通過・ドキュメント確認・セキュリティ確認）を並列実行</li>
+          <li><strong>/refactor</strong> — 品質エージェントが問題を洗い出し → 実装エージェントが修正</li>
+        </ul>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(4)">← Chapter 04</button>
+        <button class="btn btn-primary" onclick="showChapter(6)">Chapter 06 へ →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 6: Agent Teams（実験的機能） ── -->
+    <div class="chapter" id="chapter-6">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 06</div>
+        <div class="chapter-title">Agent Teams <span class="exp-badge">⚗ 実験的機能</span></div>
+        <div class="chapter-desc">複数の Claude Code インスタンスがチームとして連携し、P2P通信・共有タスクリストで協調動作します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:87%"></div></div>
+
+      <div class="section">
+        <h2>⚗ Agent Teams とは何が違うのか</h2>
+
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <strong>実験的機能</strong>
+            Agent Teams はデフォルト無効です。使用前に環境変数または settings.json で有効化が必要です。セッション再開・シャットダウン動作などに既知の制限があります。
+          </div>
+        </div>
+
+        <p>Sub-agents では「リーダーがサブに指示 → サブが結果を返す（一方向）」でした。<br>
+        Agent Teams では<strong>チームメンバー同士が直接メッセージを送り合い</strong>、共有タスクリストで自律的に調整します。</p>
+
+        <div class="team-diagram">
+          <div class="team-leader-box">
+            🎯 <strong>チームリーダー</strong>（あなたが対話するセッション）<br>
+            <small>チームを作成・チームメンバーを生成・作業を調整</small>
+          </div>
+          <div class="bidirectional-arrow">↕ メッセージ（双方向）</div>
+          <div class="team-member-row">
+            <div class="team-member-box">🔒 <strong>UX担当</strong><br><small>teammate-1</small></div>
+            <div class="team-member-box">📐 <strong>アーキテクチャ担当</strong><br><small>teammate-2</small></div>
+            <div class="team-member-box">😈 <strong>悪魔の代弁者</strong><br><small>teammate-3</small></div>
+          </div>
+          <div class="bidirectional-arrow">↕ P2P メッセージ（互いに直接通信）</div>
+          <div class="arch-box tool" style="font-size:13px">
+            📋 <strong>共有タスクリスト</strong> — 全メンバーが参照・自己要求・完了マーク
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔧 有効化する</h2>
+
+        <div class="step-card" data-step="方法①：環境変数">
+          <div class="code-block" style="margin:0">
+            <div class="code-header">
+              <span class="lang">bash</span>
+              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+            </div>
+            <pre><span class="cm"># シェルに追加（.zshrc / .bashrc）</span>
+<span class="kw">export</span> CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=<span class="str">1</span></pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="方法②：settings.json">
+          <div class="code-block" style="margin:0">
+            <div class="code-header">
+              <span class="lang">json</span>
+              <span>~/.claude/settings.json</span>
+              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+            </div>
+            <pre>{
+  <span class="prop">"env"</span>: {
+    <span class="prop">"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"</span>: <span class="str">"1"</span>
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-body">
+            <strong>バージョン確認</strong>
+            Agent Teams には Claude Code <strong>v2.1.32 以降</strong>が必要です。<br>
+            <code>claude --version</code> で確認してください。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🚀 最初のチームを起動する</h2>
+        <p>有効化後、Claude に自然言語でチームを作るよう指示するだけです：</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <span>例：並列コードレビュー</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>エージェントチームを作成して、src/user-auth.js をレビューしてください。
+以下の3つの視点でチームメンバーを生成してください：
+- セキュリティの専門家
+- コード品質・設計のレビュアー
+- 悪魔の代弁者（あえて反論する役）
+
+3人が調査結果を共有・相互検証してから、最終レポートを作成してください。</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <span>例：競合仮説でのデバッグ</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>認証後に接続が切れるバグを調査するエージェントチームを作成してください。
+5つの仮説（セッション管理・JWT期限・CORS・DB接続・ネットワーク）を
+それぞれ別のチームメンバーが担当し、お互いの理論を反証しながら
+根本原因を特定してください。</pre>
+        </div>
+
+        <p>Claude がチームを作成し、各メンバーを生成して作業を調整します。<strong>承認なしにチームは作成されません</strong>。</p>
+      </div>
+
+      <div class="section">
+        <h2>🕹️ チームの操作方法</h2>
+
+        <div class="step-card" data-step="表示モード①：In-process（デフォルト）">
+          <p>全チームメンバーがメインターミナル内で動く。追加セットアップ不要。</p>
+          <table style="margin:10px 0">
+            <tr><th>操作</th><th>キー</th></tr>
+            <tr><td>チームメンバーをサイクル</td><td><code>Shift + ↓</code></td></tr>
+            <tr><td>現在のターンを中断</td><td><code>Escape</code></td></tr>
+            <tr><td>タスクリストの切り替え</td><td><code>Ctrl + T</code></td></tr>
+          </table>
+        </div>
+
+        <div class="step-card" data-step="表示モード②：分割ペイン（tmux / iTerm2）">
+          <p>各チームメンバーが独自のペインを持つ。全員の出力を同時に確認できる。</p>
+          <div class="code-block" style="margin:10px 0 0">
+            <div class="code-header">
+              <span class="lang">json</span>
+              <span>~/.claude/settings.json</span>
+              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+            </div>
+            <pre>{
+  <span class="prop">"teammateMode"</span>: <span class="str">"tmux"</span>
+}</pre>
+          </div>
+          <p style="margin-top:10px;font-size:13px;color:var(--text2)">※ tmux または it2 CLI（iTerm2）のインストールが必要</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📋 共有タスクリスト</h2>
+        <p>チームメンバー全員が参照・要求・完了マークできる共有の作業リストです。</p>
+
+        <ul>
+          <li>リーダーがタスクを作成し、チームメンバーが<strong>自己要求</strong>できる</li>
+          <li>タスクには依存関係を設定できる（Aが完了するまでBはブロック）</li>
+          <li>依存タスクが完了すると、ブロックされたタスクが<strong>自動でブロック解除</strong>される</li>
+          <li>ファイルロックで複数メンバーが同じタスクを同時取得するのを防止</li>
+        </ul>
+
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">
+            <strong>適切なタスクサイズ</strong>
+            チームメンバーあたり 5〜6 個のタスクが目安。小さすぎると調整オーバーヘッドが利益を超え、大きすぎるとチェックインなしで長時間動作してしまいます。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔗 チームメンバーと直接通信する</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <span>特定のチームメンバーに指示を出す</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm"># リーダーのプロンプトで：</span>
+セキュリティ担当のチームメンバーに、JWTの実装も確認するよう伝えてください
+
+<span class="cm"># In-process モードで：</span>
+Shift+↓ でそのチームメンバーに切り替えて直接入力</pre>
+        </div>
+
+        <p>チームメンバー同士もお互いにメッセージを送り合えます。これが Sub-agents との最大の違いです。</p>
+      </div>
+
+      <div class="section">
+        <h2>🛑 チームのクリーンアップ</h2>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre><span class="cm"># チームをシャットダウン</span>
+チームメンバーを全員シャットダウンして、チームをクリーンアップしてください</pre>
+        </div>
+
+        <div class="callout danger">
+          <div class="callout-icon">🚫</div>
+          <div class="callout-body">
+            <strong>必ずリーダーからクリーンアップする</strong>
+            チームメンバーにクリーンアップを指示しないでください。リソースが不整合な状態のままになる可能性があります。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔗 Sub-agents 定義をチームメンバーに再利用する</h2>
+        <p><code>.claude/agents/</code> に定義した Sub-agents をチームメンバーとして指定できます：</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>security-reviewer エージェントタイプを使ってチームメンバーを生成し、
+認証モジュールを監査してください。</pre>
+        </div>
+
+        <p>チームメンバーはそのエージェント定義の <code>tools</code> と <code>model</code> を継承します。</p>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <span class="exercise-badge">EXERCISE 6-1</span>
+          <span class="exercise-title">Agent Team を起動してみる</span>
+        </div>
+
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body">
+            <strong>事前準備</strong>
+            <code>export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> を設定してから Claude Code を起動してください。
+          </div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>エージェントチームを作成して、src/user-auth.js の問題を調査してください。
+以下の2つの視点でチームメンバーを生成してください：
+1. セキュリティ専門家（security-reviewer エージェントタイプを使用）
+2. コード品質のレビュアー
+
+2人が調査結果を互いに共有し、相互にレビューしてから最終報告を作成してください。</pre>
+        </div>
+
+        <ul class="checklist">
+          <li>チームが作成され、チームメンバーが生成されることを確認する</li>
+          <li><code>Shift + ↓</code> で各チームメンバーの作業状況を確認する</li>
+          <li>チームメンバー同士がメッセージを送り合っているかを確認する</li>
+          <li>作業完了後に「チームをクリーンアップして」と指示する</li>
+        </ul>
+      </div>
+
+      <div class="exercise">
+        <div class="exercise-header">
+          <span class="exercise-badge">EXERCISE 6-2（発展）</span>
+          <span class="exercise-title">競合仮説デバッグに挑戦</span>
+        </div>
+        <p>以下のプロンプトで、チームメンバーが互いに反証しながら調査する体験をしてみましょう：</p>
+
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang">claude-prompt</span>
+            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+          </div>
+          <pre>user-auth.js のログイン関数が特定の条件でエラーになる原因を
+エージェントチームで調査してください。
+
+3つの仮説を立て、各チームメンバーに担当させてください：
+1. SQLクエリの問題（NULL・特殊文字）
+2. 非同期処理のタイミング問題
+3. エラーハンドリングの欠如
+
+お互いの理論を科学的な議論のように反証し合い、
+最も可能性の高い原因を特定してください。</pre>
+        </div>
+
+        <ul class="checklist">
+          <li>3つのチームメンバーが独立して調査を開始することを確認する</li>
+          <li>チームメンバーが互いにメッセージを送っている様子を観察する</li>
+          <li>Sub-agents の並列実行と何が違うかを言語化してみる</li>
+        </ul>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(5)">← Chapter 05</button>
+        <button class="btn btn-primary" onclick="showChapter(7)">Chapter 07 へ →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 7: 実践課題 ── -->
+    <div class="chapter" id="chapter-7">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 07</div>
+        <div class="chapter-title">実践課題</div>
+        <div class="chapter-desc">Sub-agents と Agent Teams 両方を活かして、実際のユースケースに挑戦します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+
+      <div class="section">
+        <h2>🏆 実践課題一覧</h2>
+
+        <div class="step-card" data-step="Level 1 ★☆☆">
+          <h3>コードレビュー分業（目安：30〜45分）</h3>
+          <p><strong>やること：</strong>デモプロジェクトの <code>user-auth.js</code> の問題点を3エージェントで洗い出し、修正版を作成する</p>
+          <p><strong>ゴール：</strong>統合レビューレポートを生成し、セキュリティ問題を全て修正したファイルを作る</p>
+          <p><strong>学べること：</strong>エージェント定義・並列実行・結果統合の実践</p>
+        </div>
+
+        <div class="step-card" data-step="Level 2 ★★☆">
+          <h3>調査→レポート自動生成（目安：45〜60分）</h3>
+          <p><strong>やること：</strong>情報収集エージェント（Haiku）と執筆エージェント（Sonnet）を連携させ、「Node.js の認証ベストプラクティス」の調査レポートを自動生成する</p>
+          <p><strong>ヒント：</strong>調査エージェントに <code>WebSearch</code> ツールを与えて情報収集させ、結果を執筆エージェントに渡す</p>
+          <p><strong>学べること：</strong>モデルの使い分け・エージェント間の結果受け渡し</p>
+        </div>
+
+        <div class="step-card" data-step="Level 3 ★★★">
+          <h3>/goal で自律タスク実行（目安：60〜90分）</h3>
+          <p><strong>やること：</strong><code>user-auth.js</code> のセキュリティ問題を <code>/goal</code> コマンドで自律修正させる</p>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span class="lang">bash</span>
+              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+            </div>
+            <pre>/goal src/user-auth.js のセキュリティレビューで指摘された
+重大度「高」の問題が全て修正され、
+security-reviewer が「セキュリティ上の問題は見つかりませんでした」
+と報告すること。既存の関数シグネチャは変更しないこと。</pre>
+          </div>
+
+          <p><strong>学べること：</strong>/goal（Outcomes）の使い方・自律エージェントの動きの観察</p>
+        </div>
+
+        <div class="step-card" data-step="Level 4 ★★★ Agent Teams">
+          <h3>Agent Teams で競合仮説デバッグ（目安：60〜90分）<span class="exp-badge" style="margin-left:8px">⚗ 実験的</span></h3>
+          <p><strong>前提：</strong><code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> を設定していること</p>
+          <p><strong>やること：</strong>3つの仮説（SQL・非同期・エラーハンドリング）を担当するチームメンバーを生成し、互いに反証させながら <code>user-auth.js</code> の根本問題を特定する</p>
+
+          <div class="code-block">
+            <div class="code-header">
+              <span class="lang">claude-prompt</span>
+              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+            </div>
+            <pre>エージェントチームを作成して user-auth.js を診断してください。
+以下の3仮説を各チームメンバーに担当させてください：
+1. SQLインジェクション・クエリ構造の問題
+2. 非同期処理・コールバックのタイミング問題
+3. エラーハンドリング・例外の取りこぼし
+
+3人が互いの理論を積極的に反証し合い、
+生き残った仮説を根本原因として最終報告してください。</pre>
+          </div>
+
+          <p><strong>学べること：</strong>P2P通信による相互検証・Sub-agents との違いの体感・Agent Teams の真価</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📚 さらに学ぶ</h2>
+
+        <table>
+          <tr><th>トピック</th><th>キーワード</th></tr>
+          <tr><td>Agent Teams（実験的機能）</td><td>P2P 通信・共有タスクリスト・TeammateIdle フック</td></tr>
+          <tr><td>Managed Agents API</td><td>クラウドホスト型エージェント・Public Beta</td></tr>
+          <tr><td>Dreaming</td><td>セッション間記憶の整理・タスク完了率向上</td></tr>
+          <tr><td>/goal コマンド</td><td>ゴール条件・自律ループ・評価モデル</td></tr>
+        </table>
+
+        <div class="callout tip">
+          <div class="callout-icon">🎉</div>
+          <div class="callout-body">
+            <strong>おつかれさまでした！</strong>
+            Sub-agents から Agent Teams まで学習完了です。「結果だけ必要なら Sub-agents、議論・相互検証が必要なら Agent Teams」という使い分けを日常業務で活かしてみてください。
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(6)">← Chapter 06</button>
+        <button class="btn btn-primary" onclick="showChapter(0)">最初から →</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let currentChapter = 0;
+  const total = 8;
+
+  function showChapter(n) {
+    // 全チャプター非表示
+    document.querySelectorAll('.chapter').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(el => el.classList.remove('active'));
+
+    // 対象チャプターを表示
+    document.getElementById('chapter-' + n).classList.add('active');
+    document.getElementById('nav-' + n).classList.add('active');
+
+    currentChapter = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return false;
+  }
+
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'コピー済み ✓';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'コピー';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
