@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Teams ハンズオン — Claude Code</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2533;
+    --border: #2a3347;
+    --accent: #4f9eff;
+    --accent2: #7c6bff;
+    --green: #3dd68c;
+    --yellow: #f5c842;
+    --red: #ff6b6b;
+    --text: #e2e8f0;
+    --text2: #8899aa;
+    --radius: 10px;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1a2540 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  header .badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+
+  header .exp-badge {
+    background: rgba(245,200,66,0.15);
+    border: 1px solid var(--yellow);
+    color: var(--yellow);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  header h1 { font-size: 20px; font-weight: 700; }
+  header .subtitle { color: var(--text2); font-size: 13px; margin-left: auto; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 77px);
+  }
+
+  nav {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky;
+    top: 77px;
+    height: calc(100vh - 77px);
+    overflow-y: auto;
+  }
+
+  nav .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text2);
+    padding: 0 20px 8px;
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+
+  nav .section-label:first-child { margin-top: 0; }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 20px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13.5px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+
+  nav a:hover { color: var(--text); background: rgba(79,158,255,0.05); }
+  nav a.active { color: var(--accent); border-left-color: var(--accent); background: rgba(79,158,255,0.08); }
+  nav a .num { font-size: 11px; color: var(--text2); min-width: 18px; }
+  nav a.done .num { color: var(--green); }
+
+  main {
+    padding: 40px 48px;
+    max-width: 860px;
+  }
+
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+
+  .chapter-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chapter-num {
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .chapter-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .chapter-desc { color: var(--text2); font-size: 15px; }
+
+  .section { margin-bottom: 40px; }
+
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 14px; color: var(--text); }
+
+  .code-block {
+    background: #0a0e17;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    background: var(--bg3);
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--text2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-header .lang { color: var(--accent); font-weight: 600; }
+
+  .copy-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+
+  code { font-family: var(--font-mono); }
+
+  p code, li code, td code {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  .kw { color: #c678dd; }
+  .str { color: #98c379; }
+  .cm { color: #5c6370; font-style: italic; }
+  .fn { color: #61afef; }
+  .prop { color: #e06c75; }
+  .num { color: #d19a66; }
+
+  .step-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 16px 0;
+    position: relative;
+  }
+
+  .step-card::before {
+    content: attr(data-step);
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 20px;
+  }
+
+  .callout {
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .callout.info { background: rgba(79,158,255,0.08); border-left: 3px solid var(--accent); }
+  .callout.tip { background: rgba(61,214,140,0.08); border-left: 3px solid var(--green); }
+  .callout.warn { background: rgba(245,200,66,0.08); border-left: 3px solid var(--yellow); }
+  .callout.danger { background: rgba(255,107,107,0.08); border-left: 3px solid var(--red); }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; }
+  .callout-body { flex: 1; }
+  .callout-body strong { display: block; margin-bottom: 4px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+
+  th {
+    background: var(--bg3);
+    color: var(--text2);
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .arch-diagram {
+    background: #0a0e17;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin: 20px 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .arch-box {
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 16px;
+    text-align: center;
+    margin-bottom: 4px;
+    background: rgba(79,158,255,0.05);
+  }
+
+  .arch-box.sub { border-color: var(--accent2); background: rgba(124,107,255,0.05); }
+  .arch-box.tool { border-color: var(--border); background: var(--bg3); }
+  .arch-row { display: flex; gap: 12px; justify-content: center; margin: 8px 0; }
+  .arch-arrow { text-align: center; color: var(--text2); font-size: 18px; margin: 4px 0; }
+
+  .exercise {
+    background: linear-gradient(135deg, rgba(79,158,255,0.04), rgba(124,107,255,0.04));
+    border: 1px solid rgba(79,158,255,0.25);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 24px 0;
+  }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .exercise-badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .exercise-title { font-size: 16px; font-weight: 700; }
+
+  .checklist { list-style: none; margin: 12px 0; }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  .checklist li::before {
+    content: '☐';
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .kbd {
+    display: inline-block;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .shortcut-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px 20px;
+    margin: 16px 0;
+    align-items: center;
+  }
+
+  .shortcut-key { white-space: nowrap; }
+  .shortcut-desc { font-size: 14px; color: var(--text2); }
+
+  .team-diagram {
+    background: #0a0e17;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 20px 0;
+  }
+
+  .team-leader-box {
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: center;
+    background: rgba(79,158,255,0.07);
+    margin-bottom: 8px;
+  }
+
+  .team-member-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 8px 0;
+  }
+
+  .team-member-box {
+    border: 1px solid var(--accent2);
+    border-radius: 6px;
+    padding: 10px 12px;
+    text-align: center;
+    background: rgba(124,107,255,0.07);
+    font-size: 13px;
+  }
+
+  .bidirectional-arrow {
+    text-align: center;
+    color: var(--accent2);
+    font-size: 14px;
+    margin: 4px 0;
+    font-weight: 700;
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    border: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    margin-bottom: 24px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.3s;
+  }
+
+  .file-tree {
+    background: #0a0e17;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  .file-tree .dir { color: var(--accent); }
+  .file-tree .file { color: var(--text2); }
+  .file-tree .comment { color: #5c6370; font-style: italic; }
+  .file-tree .highlight { color: var(--yellow); }
+
+  .problem-tag {
+    display: inline-block;
+    background: rgba(255,107,107,0.12);
+    border: 1px solid rgba(255,107,107,0.3);
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  .problem-tag.perf {
+    background: rgba(245,200,66,0.12);
+    border-color: rgba(245,200,66,0.3);
+    color: var(--yellow);
+  }
+
+  .hook-flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+
+  .hook-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .hook-box.event { border-color: var(--accent2); color: var(--accent2); }
+  .hook-box.action { border-color: var(--green); color: var(--green); }
+  .hook-arrow { color: var(--text2); font-size: 16px; }
+
+  ul, ol { padding-left: 20px; margin-bottom: 14px; }
+  li { margin-bottom: 6px; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="badge">HANDS-ON</span>
+  <h1>Agent Teams — Claude Code 実践ガイド</h1>
+  <span class="exp-badge">⚗ 実験的機能</span>
+  <span class="subtitle">開発経験者向け · 推定120分</span>
+</header>
+
+<div class="layout">
+  <nav id="sidebar">
+    <div class="section-label">はじめに</div>
+    <a href="#" onclick="showChapter(0)" class="active" id="nav-0">
+      <span class="num">00</span> 環境準備と概要
+    </a>
+
+    <div class="section-label">概念編</div>
+    <a href="#" onclick="showChapter(1)" id="nav-1">
+      <span class="num">01</span> Agent Teams とは
+    </a>
+
+    <div class="section-label">操作編</div>
+    <a href="#" onclick="showChapter(2)" id="nav-2">
+      <span class="num">02</span> チームを起動する
+    </a>
+    <a href="#" onclick="showChapter(3)" id="nav-3">
+      <span class="num">03</span> チームを操作する
+    </a>
+
+    <div class="section-label">協調編</div>
+    <a href="#" onclick="showChapter(4)" id="nav-4">
+      <span class="num">04</span> P2P通信で協調させる
+    </a>
+    <a href="#" onclick="showChapter(5)" id="nav-5">
+      <span class="num">05</span> プラン承認ワークフロー
+    </a>
+
+    <div class="section-label">発展編</div>
+    <a href="#" onclick="showChapter(6)" id="nav-6">
+      <span class="num">06</span> Hooksで品質ゲートを作る
+    </a>
+
+    <div class="section-label">総まとめ</div>
+    <a href="#" onclick="showChapter(7)" id="nav-7">
+      <span class="num">07</span> ユースケース集と実践課題
+    </a>
+  </nav>
+
+  <main>
+
+    <!-- ── Chapter 0 ── -->
+    <div class="chapter active" id="chapter-0">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 00</div>
+        <div class="chapter-title">環境準備とサンプルプロジェクト紹介</div>
+        <div class="chapter-desc">Agent Teams を動かすための環境を整え、ハンズオンで使うサンプルプロジェクトを把握します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+
+      <div class="section">
+        <h2>🎯 このハンズオンで学ぶこと</h2>
+        <p>Agent Teams は Claude Code の<strong>実験的機能</strong>です。複数の Claude Code インスタンスがチームとして協力し、P2P メッセージング・共有タスクリストを使いながら問題を解決します。このハンズオンを完了すると：</p>
+        <ul>
+          <li>Agent Teams の概念と Sub-agents との違いを説明できる</li>
+          <li>チームを起動・操作・終了できる</li>
+          <li>チームメンバー間の P2P 通信を設計できる</li>
+          <li>プラン承認ワークフローでリスクを制御できる</li>
+          <li>Hooks でチームの品質ゲートを実装できる</li>
+          <li>実務ユースケースにAgent Teams を適用できる</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h2>⚙️ 必要な環境</h2>
+
+        <div class="step-card" data-step="STEP 1">
+          <h3>Claude Code のバージョン確認</h3>
+          <p>Agent Teams は <strong>v2.1.32 以降</strong>で利用可能です。</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>claude --version
+<span class="cm"># 2.1.32 以上であることを確認</span></pre>
+          </div>
+          <p>古い場合はアップデート：</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>npm update -g @anthropic-ai/claude-code</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="STEP 2">
+          <h3>環境変数の設定</h3>
+          <p>Agent Teams は環境変数で有効化します。</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><span class="cm"># セッション内で一時的に有効化</span>
+<span class="kw">export</span> CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+<span class="cm"># 設定の確認</span>
+echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS</pre>
+          </div>
+
+          <div class="callout warn">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-body">
+              <strong>永続化する場合</strong>
+              <code>~/.zshrc</code> や <code>~/.bashrc</code> に追加してください。ただし実験的機能であるため、本番環境への適用は慎重に判断してください。
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="STEP 3">
+          <h3>サンプルプロジェクトへ移動</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>cd handson-08-agent-teams/sample-project
+ls src/</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📁 サンプルプロジェクト: TaskTracker API</h2>
+        <p>このハンズオン専用に設計された Issue/タスク管理 API です。<strong>セキュリティ・パフォーマンス・設計の問題を意図的に含んでいます。</strong>Agent Teams で調査・修正することが目標です。</p>
+
+        <div class="file-tree">
+          <span class="dir">sample-project/</span><br>
+          &nbsp;&nbsp;<span class="dir">src/</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">app.js</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">ルーティング定義</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">db.js</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">DB接続プール（意図的な問題含む）</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight">users.js</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">認証・認可 ← セキュリティ問題10件</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight">issues.js</span> &nbsp;&nbsp;&nbsp;<span class="comment">Issue CRUD ← セキュリティ+パフォーマンス問題</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight">comments.js</span> &nbsp;<span class="comment">コメント管理 ← セキュリティ+パフォーマンス問題</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight">search.js</span> &nbsp;&nbsp;&nbsp;<span class="comment">全文検索 ← パフォーマンス問題10件</span><br>
+          &nbsp;&nbsp;<span class="dir">.claude/</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">agents/</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">security-reviewer.md</span> &nbsp;&nbsp;<span class="comment">セキュリティ専門エージェント定義</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">performance-analyst.md</span> &nbsp;<span class="comment">パフォーマンス専門エージェント定義</span>
+        </div>
+
+        <h3>各モジュールの役割と含まれる問題</h3>
+        <table>
+          <tr>
+            <th>ファイル</th>
+            <th>セキュリティ</th>
+            <th>パフォーマンス</th>
+            <th>設計</th>
+          </tr>
+          <tr>
+            <td><code>users.js</code></td>
+            <td>SQLi, 偽造可能JWT, MD5, 認可不足</td>
+            <td>—</td>
+            <td>ハードコード秘密情報, 権限昇格</td>
+          </tr>
+          <tr>
+            <td><code>issues.js</code></td>
+            <td>SQLi, XSS, 認可不足</td>
+            <td>N+1クエリ, ページネーション欠如</td>
+            <td>物理削除, 競合状態</td>
+          </tr>
+          <tr>
+            <td><code>comments.js</code></td>
+            <td>SQLi, XSS, 認可不足</td>
+            <td>N+1クエリ, ページネーション欠如</td>
+            <td>レート制限なし, 非アトミック処理</td>
+          </tr>
+          <tr>
+            <td><code>search.js</code></td>
+            <td>SQLi (複数箇所)</td>
+            <td>インデックスなしLIKE, OOM, キャッシュ欠如</td>
+            <td>N+1変形, 上限チェックなし</td>
+          </tr>
+        </table>
+
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>なぜ問題を分散させるのか？</strong>
+            セキュリティ問題とパフォーマンス問題を別モジュールに分散することで、専門の異なるエージェントが<em>それぞれ得意な領域を調査し、互いの発見を補完し合う</em>という Agent Teams 本来の協調動作を体験できます。
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <span></span>
+        <button class="btn btn-primary" onclick="showChapter(1)">次へ: Agent Teams とは →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 1 ── -->
+    <div class="chapter" id="chapter-1">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 01</div>
+        <div class="chapter-title">Agent Teams とは</div>
+        <div class="chapter-desc">Sub-agents との違いを理解し、Agent Teams が解決する問題を把握します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:12%"></div></div>
+
+      <div class="section">
+        <h2>🤖 Sub-agents vs Agent Teams</h2>
+        <p>Claude Code には「複数エージェント」機能が 2 種類あります。混同しやすいので、まず違いを整理します。</p>
+
+        <table>
+          <tr>
+            <th></th>
+            <th>Sub-agents（安定版）</th>
+            <th>Agent Teams（実験的）</th>
+          </tr>
+          <tr>
+            <td><strong>起動方法</strong></td>
+            <td>リーダーが <code>Agent</code> ツールで呼ぶ</td>
+            <td>ユーザーが <kbd class="kbd">Shift+↓</kbd> でメンバーを追加</td>
+          </tr>
+          <tr>
+            <td><strong>通信モデル</strong></td>
+            <td>一方向（リーダー→サブ、結果のみ返却）</td>
+            <td>P2P双方向（誰でも誰にでもメッセージ送信可）</td>
+          </tr>
+          <tr>
+            <td><strong>タスク管理</strong></td>
+            <td>各エージェントが独立管理</td>
+            <td>共有タスクリスト（<kbd class="kbd">Ctrl+T</kbd> で確認）</td>
+          </tr>
+          <tr>
+            <td><strong>並行実行</strong></td>
+            <td>コードで並列呼び出し可能</td>
+            <td>メンバーが同時に作業</td>
+          </tr>
+          <tr>
+            <td><strong>エージェント定義</strong></td>
+            <td><code>.claude/agents/*.md</code> を自動参照</td>
+            <td>同ファイルをチームタイプとして利用可能</td>
+          </tr>
+          <tr>
+            <td><strong>プラン承認</strong></td>
+            <td>なし</td>
+            <td>チームメンバーは読み取り専用プランモードで開始、リーダーが承認</td>
+          </tr>
+          <tr>
+            <td><strong>終了担当</strong></td>
+            <td>自動</td>
+            <td>リーダーのみが全員を終了できる</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>📡 アーキテクチャ図</h2>
+
+        <h3>Sub-agents（木構造・一方向）</h3>
+        <div class="arch-diagram">
+          <div class="arch-box" style="max-width:300px;margin:0 auto">
+            👤 ユーザー → リーダー (Claude)
+          </div>
+          <div class="arch-arrow">↙ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↓ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↘</div>
+          <div class="arch-row">
+            <div class="arch-box sub">セキュリティ<br>エージェント</div>
+            <div class="arch-box sub">パフォーマンス<br>エージェント</div>
+            <div class="arch-box sub">ドキュメント<br>エージェント</div>
+          </div>
+          <div class="arch-arrow">↑ 結果のみ返却 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+        </div>
+
+        <h3>Agent Teams（メッシュ・双方向）</h3>
+        <div class="team-diagram">
+          <div class="team-leader-box">
+            👑 リーダー (Claude) — タスク割り当て・最終承認・チーム管理
+          </div>
+          <div class="bidirectional-arrow">
+            ↕ P2Pメッセージング &nbsp; ↕ &nbsp; ↕ P2Pメッセージング
+          </div>
+          <div class="team-member-row">
+            <div class="team-member-box">🔒 security-reviewer<br><small>SQLi/XSS発見</small></div>
+            <div class="team-member-box">⚡ performance-analyst<br><small>N+1/インデックス</small></div>
+            <div class="team-member-box">🔍 third-reviewer<br><small>相互検証</small></div>
+          </div>
+          <div class="bidirectional-arrow">↕ メンバー間でも直接通信 ↕</div>
+          <div class="arch-row">
+            <div class="arch-box tool" style="font-size:12px">📋 共有タスクリスト</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎯 どちらを使うべきか？</h2>
+
+        <table>
+          <tr>
+            <th>ユースケース</th>
+            <th>推奨</th>
+            <th>理由</th>
+          </tr>
+          <tr>
+            <td>コードレビューを3つの観点で並列実行</td>
+            <td>Sub-agents</td>
+            <td>シンプル・安定・結果を集約しやすい</td>
+          </tr>
+          <tr>
+            <td>セキュリティ診断 ↔ パフォーマンス診断の相互補完</td>
+            <td>Agent Teams</td>
+            <td>一方の発見をもう一方が深掘りできる</td>
+          </tr>
+          <tr>
+            <td>長時間の調査作業（途中で方針転換あり）</td>
+            <td>Agent Teams</td>
+            <td>P2P通信で動的に協議・再分担できる</td>
+          </tr>
+          <tr>
+            <td>リスクの高い変更（コード書き換えを含む）</td>
+            <td>Agent Teams</td>
+            <td>プラン承認ワークフローでリスク制御</td>
+          </tr>
+          <tr>
+            <td>単一の専門タスク（翻訳・フォーマット等）</td>
+            <td>Sub-agents</td>
+            <td>Agent Teams のオーバーヘッドが不要</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>⚠️ 既知の制限事項</h2>
+        <div class="callout warn">
+          <span class="callout-icon">⚠️</span>
+          <div class="callout-body">
+            <strong>本番利用前に必ず確認してください</strong>
+            <ul>
+              <li>セッション再開（<code>/resume</code>）は未対応。中断したら最初から</li>
+              <li>タスクステータス更新に数秒の遅延がある場合がある</li>
+              <li>ネストチーム（チームの中のチーム）は非対応</li>
+              <li>分割ペイン表示は tmux / iTerm2 のみ（VS Code, Windows Terminal, Ghostty は未対応）</li>
+              <li>チームクリーンアップはリーダーが必ず行うこと（メンバーは不可）</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(0)">← 前へ</button>
+        <button class="btn btn-primary" onclick="showChapter(2)">次へ: チームを起動する →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 2 ── -->
+    <div class="chapter" id="chapter-2">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 02</div>
+        <div class="chapter-title">最初のチームを起動する</div>
+        <div class="chapter-desc">実際に Agent Teams を起動し、チームメンバーを追加してタスクを割り当てます。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+
+      <div class="section">
+        <h2>🚀 チームの起動方法</h2>
+
+        <p>Agent Teams には 2 つの起動方法があります。まずシンプルな方法から試します。</p>
+
+        <h3>方法 A: インプロセス（デフォルト）</h3>
+        <p>同一ターミナル内でチームが動作します。チームメンバーの会話は現在のセッションに統合されます。</p>
+        <div class="code-block">
+          <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><span class="cm"># 1. sample-project ディレクトリで Claude Code を起動</span>
+<span class="kw">cd</span> handson-08-agent-teams/sample-project
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude</pre>
+        </div>
+
+        <h3>方法 B: 分割ペイン（tmux / iTerm2 のみ）</h3>
+        <div class="code-block">
+          <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><span class="cm"># tmux セッション内で起動した場合、チームメンバーが別ペインに表示される</span>
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude</pre>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div class="callout-body">
+            <strong>今回はインプロセスで進めます</strong>
+            分割ペインは視覚的にわかりやすいですが、tmux/iTerm2 が必要です。インプロセスでも Agent Teams の全機能は体験できます。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>➕ チームメンバーを追加する</h2>
+
+        <div class="step-card" data-step="STEP 1">
+          <h3>定義済みエージェントをメンバーに追加</h3>
+          <p>Claude Code が起動したら、<kbd class="kbd">Shift+↓</kbd> を押します。メンバー追加の UI が表示されます。</p>
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div class="callout-body">
+              <code>.claude/agents/</code> にあるエージェント定義（<code>security-reviewer</code>, <code>performance-analyst</code>）がリストに表示されます。選択するとそのシステムプロンプトを持つメンバーが追加されます。
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="STEP 2">
+          <h3>security-reviewer を追加</h3>
+          <p><kbd class="kbd">Shift+↓</kbd> → <code>security-reviewer</code> を選択 → <kbd class="kbd">Enter</kbd></p>
+          <p>追加後、チームメンバーとして認識されたことを確認します。</p>
+        </div>
+
+        <div class="step-card" data-step="STEP 3">
+          <h3>performance-analyst を追加</h3>
+          <p>もう一度 <kbd class="kbd">Shift+↓</kbd> → <code>performance-analyst</code> を選択 → <kbd class="kbd">Enter</kbd></p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📋 共有タスクリストを確認する</h2>
+        <p><kbd class="kbd">Ctrl+T</kbd> を押すと、共有タスクリストが表示されます。まだタスクがないことを確認します。</p>
+
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div class="callout-body">
+            <strong>共有タスクリストとは？</strong>
+            全チームメンバーが閲覧・更新できる共通の作業リストです。誰がどのタスクを担当しているか、どこまで完了したかが一目でわかります。Sub-agents にはない Agent Teams 固有の機能です。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎯 最初のタスクを依頼する</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">EXERCISE 2-1</span>
+            <span class="exercise-title">チームで users.js を調査する</span>
+          </div>
+
+          <p>Claude Code（リーダー）に以下のプロンプトを入力してください：</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt（リーダーへの指示）</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>チームメンバーと協力して src/users.js を調査してください。
+security-reviewer はセキュリティ問題を、
+performance-analyst はパフォーマンス問題を調べてください。
+発見した問題は共有タスクリストに追加して、互いの発見を共有してください。</pre>
+          </div>
+
+          <h3>観察ポイント</h3>
+          <ul class="checklist">
+            <li>リーダーがチームメンバーにタスクを割り振るのを確認できたか？</li>
+            <li><kbd class="kbd">Ctrl+T</kbd> でタスクリストに項目が追加されるのを確認できたか？</li>
+            <li>各エージェントが自分の専門分野の問題を発見しているか？</li>
+            <li>エージェント間でメッセージが交換されているか？</li>
+          </ul>
+
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div class="callout-body">
+              <strong>security-reviewer が発見すべき主要問題</strong>
+              ハードコードされた管理者トークン（<code>ADMIN_TOKEN = 'admin-secret-2024'</code>）、MD5 パスワードハッシュ、偽造可能な JWT（Base64エンコードのみ）
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔚 チームを終了する</h2>
+        <div class="callout danger">
+          <span class="callout-icon">🚨</span>
+          <div class="callout-body">
+            <strong>必ずリーダーが終了すること</strong>
+            チームの終了はリーダー（最初のClaude Codeインスタンス）から行います。メンバーのウィンドウを閉じるだけでは不完全です。
+          </div>
+        </div>
+        <p>リーダーのセッションに戻り、<code>/exit</code> または <code>exit</code> を入力するか、<kbd class="kbd">Ctrl+C</kbd> でリーダーを終了します。リーダーが終了するとメンバーも自動的に終了します。</p>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(1)">← 前へ</button>
+        <button class="btn btn-primary" onclick="showChapter(3)">次へ: チームを操作する →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 3 ── -->
+    <div class="chapter" id="chapter-3">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 03</div>
+        <div class="chapter-title">チームを操作する</div>
+        <div class="chapter-desc">キーボードショートカットを使って、チームメンバーの切り替え・タスク確認・中断を行います。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:37%"></div></div>
+
+      <div class="section">
+        <h2>⌨️ キーボードショートカット一覧</h2>
+
+        <div class="shortcut-grid">
+          <div class="shortcut-key"><kbd class="kbd">Shift+↓</kbd></div>
+          <div class="shortcut-desc">チームメンバーを追加する（新規メンバー選択UI を開く）</div>
+
+          <div class="shortcut-key"><kbd class="kbd">Shift+↑</kbd></div>
+          <div class="shortcut-desc">チームメンバーを切り替える（次のメンバーへフォーカス移動）</div>
+
+          <div class="shortcut-key"><kbd class="kbd">Ctrl+T</kbd></div>
+          <div class="shortcut-desc">共有タスクリストを表示・非表示切り替え</div>
+
+          <div class="shortcut-key"><kbd class="kbd">Escape</kbd></div>
+          <div class="shortcut-desc">現在のエージェントの作業を中断する</div>
+
+          <div class="shortcut-key"><kbd class="kbd">Ctrl+C</kbd></div>
+          <div class="shortcut-desc">リーダーのセッションを終了（メンバーも終了）</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔄 メンバー間のフォーカス切り替え</h2>
+
+        <p><kbd class="kbd">Shift+↑</kbd> を押すたびに、フォーカスが次のチームメンバーに移ります。フォーカスしているメンバーに直接メッセージを送ることができます。</p>
+
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div class="callout-body">
+            <strong>フォーカスとメッセージング</strong>
+            フォーカスしていないメンバーもバックグラウンドで作業を継続しています。<kbd class="kbd">Shift+↑</kbd> は「どのメンバーの会話を見るか・誰に話しかけるか」を切り替えるだけです。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🛑 作業の中断と再指示</h2>
+
+        <p>エージェントが誤った方向に進んでいると気づいたら、<kbd class="kbd">Escape</kbd> でそのエージェントの現在の作業を中断できます。その後、新しい指示を送ることができます。</p>
+
+        <div class="step-card" data-step="シナリオ">
+          <h3>性能アナリストが間違ったファイルを調査している場合</h3>
+          <ol>
+            <li><kbd class="kbd">Shift+↑</kbd> で <code>performance-analyst</code> にフォーカスを移す</li>
+            <li><kbd class="kbd">Escape</kbd> で現在の作業を中断</li>
+            <li>正しい指示を入力：<code>src/search.js のパフォーマンス問題を優先して調査してください</code></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📋 タスクリストの読み方</h2>
+
+        <p><kbd class="kbd">Ctrl+T</kbd> で表示されるタスクリストには以下の情報が含まれます：</p>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">タスクリスト表示例</span></div>
+          <pre><span class="cm">── 共有タスクリスト ──────────────────────</span>
+<span class="str">✅ [security-reviewer] users.js SQLインジェクション調査</span>
+<span class="str">✅ [security-reviewer] MD5ハッシュ問題の特定</span>
+<span class="prop">🔄 [performance-analyst] search.js LIKE検索のインデックス分析中...</span>
+<span class="kw">⬜ [leader] 発見した問題のまとめ作成</span>
+<span class="kw">⬜ [leader] 修正方針の策定</span>
+<span class="cm">─────────────────────────────────────────</span></pre>
+        </div>
+
+        <table>
+          <tr>
+            <th>アイコン</th>
+            <th>意味</th>
+          </tr>
+          <tr><td>✅</td><td>完了済み</td></tr>
+          <tr><td>🔄</td><td>作業中</td></tr>
+          <tr><td>⬜</td><td>未着手</td></tr>
+          <tr><td>❌</td><td>失敗・スキップ</td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>🎯 実践: チームを操作しながら調査する</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">EXERCISE 3-1</span>
+            <span class="exercise-title">全モジュールをチームで並列調査する</span>
+          </div>
+
+          <p>以下の手順でチームを操作してください：</p>
+
+          <div class="step-card" data-step="1">
+            <h3>チームを起動してメンバーを追加</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude</pre>
+            </div>
+            <p><kbd class="kbd">Shift+↓</kbd> × 2 で <code>security-reviewer</code> と <code>performance-analyst</code> を追加</p>
+          </div>
+
+          <div class="step-card" data-step="2">
+            <h3>リーダーに調査を依頼</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>src/ 以下の全ファイルを分担して調査してください。
+security-reviewer は users.js と comments.js を、
+performance-analyst は search.js と issues.js を担当してください。
+発見した問題は全て共有タスクリストに追加してください。</pre>
+            </div>
+          </div>
+
+          <div class="step-card" data-step="3">
+            <h3>タスクリストを定期的に確認</h3>
+            <p><kbd class="kbd">Ctrl+T</kbd> を押して、タスクが追加・完了されていくのを観察してください。</p>
+          </div>
+
+          <div class="step-card" data-step="4">
+            <h3>メンバーを切り替えて状況確認</h3>
+            <p><kbd class="kbd">Shift+↑</kbd> で各メンバーにフォーカスを移し、それぞれが何を発見しているか確認してください。</p>
+          </div>
+
+          <h3>確認チェックリスト</h3>
+          <ul class="checklist">
+            <li>2つのエージェントが並列で異なるファイルを調査できたか？</li>
+            <li>タスクリストにメンバー名付きのタスクが追加されたか？</li>
+            <li><kbd class="kbd">Shift+↑</kbd> でメンバーを切り替えられたか？</li>
+            <li>各エージェントが自分の専門分野の問題を優先して発見しているか？</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(2)">← 前へ</button>
+        <button class="btn btn-primary" onclick="showChapter(4)">次へ: P2P通信で協調させる →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 4 ── -->
+    <div class="chapter" id="chapter-4">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 04</div>
+        <div class="chapter-title">P2P通信で協調させる</div>
+        <div class="chapter-desc">チームメンバーが互いにメッセージを送り合い、発見を組み合わせて深い分析を行います。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+
+      <div class="section">
+        <h2>📡 P2P メッセージングとは</h2>
+
+        <p>Agent Teams の最大の特徴が P2P（Peer-to-Peer）メッセージングです。メンバーはリーダーを経由せず、直接他のメンバーにメッセージを送ることができます。</p>
+
+        <div class="arch-diagram">
+          <div style="text-align:center;margin-bottom:16px;">
+            <strong>Sub-agents: リーダー経由（通知のみ）</strong>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+            <div class="arch-box sub" style="width:120px">Sec Agent</div>
+            <div style="color:var(--text2)">→ 結果のみ →</div>
+            <div class="arch-box" style="width:120px">リーダー</div>
+            <div style="color:var(--text2)">→ 転送 →</div>
+            <div class="arch-box sub" style="width:120px">Perf Agent</div>
+          </div>
+          <div style="text-align:center;margin:20px 0 12px;color:var(--green);">
+            <strong>Agent Teams: 直接 P2P 通信</strong>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;">
+            <div class="arch-box sub" style="width:120px">Sec Agent</div>
+            <div style="color:var(--accent2)">⟷ 直接通信 ⟷</div>
+            <div class="arch-box sub" style="width:120px">Perf Agent</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔗 P2P通信が生む相乗効果</h2>
+
+        <p>TaskTracker API の例では、セキュリティとパフォーマンスの問題が同じ箇所に重なっていることがあります。P2P 通信でこれを互いに補完できます。</p>
+
+        <div class="step-card" data-step="実例">
+          <h3>search.js での相乗効果シナリオ</h3>
+          <ol>
+            <li><strong>security-reviewer</strong> が <code>advancedSearch()</code> で SQLインジェクションを発見</li>
+            <li>security-reviewer が performance-analyst に直接メッセージ：「<em>advancedSearch は SQLi があるが、WHERE句のパラメータ化でLIKE検索のインデックスも使えるようになるはず。その観点でも確認してほしい</em>」</li>
+            <li><strong>performance-analyst</strong> が応答：「<em>確認した。現在 title LIKE '%{q}%' でインデックスが使えない。プリペアドステートメント化 + full-text index の追加が最適解</em>」</li>
+            <li>両エージェントが共有タスクリストに連携修正タスクを追加</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>💬 P2P通信を促すプロンプトの書き方</h2>
+
+        <p>リーダーへの指示で、エージェント間の通信を明示的に促せます：</p>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">prompt — P2P通信を促す指示</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>security-reviewer が SQLインジェクションを発見したら、
+その箇所を performance-analyst に共有してください。
+performance-analyst はその情報をもとに、
+パラメータ化クエリ化した場合のインデックス効率も
+合わせて評価してください。
+
+また、N+1クエリを performance-analyst が発見した場合、
+security-reviewer にも通知して、一括フェッチ時の
+認可チェックが適切かどうかを確認してもらってください。</pre>
+        </div>
+
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>P2P通信のデザインポイント</strong>
+            「A が X を発見したら B に伝える」という<em>トリガー→アクション</em>形式で書くと、エージェントが自律的にコミュニケーションを取るようになります。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎯 実践: 相互検証で問題の深掘りをする</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">EXERCISE 4-1</span>
+            <span class="exercise-title">セキュリティとパフォーマンスの交差点を発見する</span>
+          </div>
+
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>src/search.js を2人で協力して調査してください。
+
+security-reviewer は SQLインジェクション・認証・XSS を調査し、
+問題箇所を発見したら performance-analyst にも通知してください。
+
+performance-analyst は LIKE検索・N+1・メモリ効率を調査し、
+security-reviewer が指摘した箇所について
+「パラメータ化クエリ+インデックスで改善できるか」も評価してください。
+
+最終的に「1つの修正で両方の問題を解決できる箇所」をリストアップしてください。</pre>
+          </div>
+
+          <h3>観察ポイント</h3>
+          <ul class="checklist">
+            <li>エージェントが互いにメッセージを送り合う様子が確認できたか？</li>
+            <li>security-reviewer の発見が performance-analyst の分析に影響を与えたか？</li>
+            <li>「1つの修正で両方解決」という発見（SQLi対策 = パラメータ化 = インデックス有効化）が出てきたか？</li>
+          </ul>
+
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <div class="callout-body">
+              <strong>期待される発見</strong>
+              <code>globalSearch()</code> の <code>title LIKE '%${q}%'</code> は SQLi であり、パラメータ化するとインデックスが使えるようになる（<code>title LIKE $1</code> 形式）。1つの修正でセキュリティとパフォーマンスの両方が改善される典型例です。
+            </div>
+          </div>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">EXERCISE 4-2</span>
+            <span class="exercise-title">仮説対決デバッグ</span>
+          </div>
+
+          <p>同じ問題に対して2人が異なる仮説を立て、互いに検証し合います。生き残った仮説が真の根本原因です。</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>src/issues.js の listIssues() が「本番で遅い」という報告があります。
+
+security-reviewer は「認証チェックのオーバーヘッドが原因」という仮説で調査してください。
+performance-analyst は「N+1クエリとページネーション欠如が原因」という仮説で調査してください。
+
+それぞれ自分の仮説を積極的に検証しつつ、
+相手の仮説が正しい根拠も探してください（反証作業）。
+
+最終的にどちらの仮説（あるいは両方）が原因かを
+コードから証明してください。</pre>
+          </div>
+
+          <h3>確認チェックリスト</h3>
+          <ul class="checklist">
+            <li>2つのエージェントが異なる視点から同じ問題を調査したか？</li>
+            <li>反証作業（相手の仮説を確認する作業）が行われたか？</li>
+            <li>N+1クエリとページネーション欠如の両方が確認されたか？</li>
+            <li>どちらが「より根本的な原因」かという議論が生まれたか？</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(3)">← 前へ</button>
+        <button class="btn btn-primary" onclick="showChapter(5)">次へ: プラン承認ワークフロー →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 5 ── -->
+    <div class="chapter" id="chapter-5">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 05</div>
+        <div class="chapter-title">プラン承認ワークフロー</div>
+        <div class="chapter-desc">チームメンバーは読み取り専用のプランモードで開始します。リーダーが承認するまでコード変更が起きません。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div>
+
+      <div class="section">
+        <h2>🔒 プランモードとは</h2>
+
+        <p>Agent Teams では、チームメンバーは最初<strong>読み取り専用のプランモード</strong>で動作します。ファイルを読み、調査し、修正計画を立てますが、実際にファイルを変更したり、コマンドを実行したりはできません。</p>
+
+        <div class="arch-diagram">
+          <div class="arch-box" style="max-width:400px;margin:0 auto 12px">
+            1️⃣ メンバーが調査 → プランを提出（読み取りのみ）
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-box" style="max-width:400px;margin:0 auto 12px;background:rgba(245,200,66,0.05);border-color:var(--yellow)">
+            2️⃣ リーダーがプランを確認・承認
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-box" style="max-width:400px;margin:0 auto;background:rgba(61,214,140,0.05);border-color:var(--green)">
+            3️⃣ メンバーが実際のコード変更を実行
+          </div>
+        </div>
+
+        <div class="callout tip">
+          <span class="callout-icon">💡</span>
+          <div class="callout-body">
+            <strong>なぜプラン承認が重要か</strong>
+            リスクの高いコード変更（DBマイグレーション、認証ロジックの変更等）を複数エージェントが同時に行うと、予期しない競合やデータ破壊が起きる可能性があります。プラン承認ワークフローにより、<em>「何を変更するか」を人間が確認してから「実際に変更する」</em>というガードレールが設けられます。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📝 プランの構成要素</h2>
+
+        <p>メンバーがリーダーに提出するプランには以下が含まれます：</p>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">プラン例（security-reviewer が提出）</span></div>
+          <pre><span class="cm">## security-reviewer の修正プラン</span>
+
+<span class="kw">### 対象</span>: src/users.js
+
+<span class="str">問題1 [高]: SQLインジェクション (line 45, 78, 112)</span>
+  現状: `SELECT * FROM users WHERE username = '${username}'`
+  修正: プリペアドステートメントに変更
+  影響範囲: 認証ロジック全体（テスト必要）
+
+<span class="str">問題2 [高]: MD5パスワードハッシュ (line 23)</span>
+  現状: `crypto.createHash('md5').update(password)`
+  修正: bcrypt (cost factor 12) に変更
+  影響範囲: 既存ユーザーのパスワードは再ハッシュ不可 → 要移行戦略
+
+<span class="str">問題3 [中]: ハードコード管理者トークン (line 8)</span>
+  現状: `const ADMIN_TOKEN = 'admin-secret-2024'`
+  修正: 環境変数 ADMIN_TOKEN に変更
+  影響範囲: デプロイ設定の変更が必要
+
+<span class="kw">承認をお願いします。承認後、上記の順番で修正を実施します。</span></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>✅ リーダーの承認フロー</h2>
+
+        <p>リーダーはプランを受け取り、以下のアクションを取れます：</p>
+
+        <table>
+          <tr>
+            <th>アクション</th>
+            <th>効果</th>
+          </tr>
+          <tr>
+            <td><strong>承認</strong>（「承認します」と返信）</td>
+            <td>メンバーが実際のコード変更を開始</td>
+          </tr>
+          <tr>
+            <td><strong>条件付き承認</strong>（「問題1,2のみ承認」）</td>
+            <td>指定した問題のみ修正を実施、残りは再提出</td>
+          </tr>
+          <tr>
+            <td><strong>差し戻し</strong>（「再検討してください」）</td>
+            <td>メンバーがプランを修正して再提出</td>
+          </tr>
+          <tr>
+            <td><strong>中断</strong>（<kbd class="kbd">Escape</kbd>）</td>
+            <td>メンバーの作業を中断</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>🎯 実践: 安全にコードを修正する</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">EXERCISE 5-1</span>
+            <span class="exercise-title">プラン承認を経て users.js のSQLiを修正する</span>
+          </div>
+
+          <div class="step-card" data-step="1">
+            <h3>調査フェーズ（読み取り専用）</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>security-reviewer: src/users.js の全問題を調査し、
+修正プランを作成してください。
+まだコードは変更せず、プランをリーダー（私）に提出してください。</pre>
+            </div>
+          </div>
+
+          <div class="step-card" data-step="2">
+            <h3>プランの確認と条件付き承認</h3>
+            <p>security-reviewer が提出したプランを確認し、<strong>高リスク問題（SQLi・MD5）のみ</strong>を承認します：</p>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt（リーダーの応答）</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>SQLインジェクション（問題1）とMD5ハッシュ（問題2）の修正を承認します。
+ハードコードトークン（問題3）は別のタスクとして後日対応するので今回はスキップしてください。
+承認した2件の修正を実施してください。</pre>
+            </div>
+          </div>
+
+          <div class="step-card" data-step="3">
+            <h3>修正の実行と確認</h3>
+            <p>security-reviewer が修正を実施します。完了後、リーダーが変更を確認します：</p>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>修正が完了したら、変更内容のサマリーを提供してください。
+また、修正によって新たに影響を受ける可能性のある箇所があれば教えてください。</pre>
+            </div>
+          </div>
+
+          <h3>確認チェックリスト</h3>
+          <ul class="checklist">
+            <li>コード変更前にプランの提出があったか？</li>
+            <li>リーダーが一部だけ承認できたか（条件付き承認）？</li>
+            <li>承認した内容のみが修正されたか（スキップした問題3は変更されていないか）？</li>
+            <li>修正後のサマリーが提供されたか？</li>
+          </ul>
+        </div>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">EXERCISE 5-2</span>
+            <span class="exercise-title">2エージェントの修正を調整する</span>
+          </div>
+
+          <p>2つのエージェントが同じファイルを修正する場合、競合が起きないよう調整が必要です。</p>
+
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>security-reviewer は src/search.js のSQLインジェクションを修正するプランを、
+performance-analyst は src/search.js のインデックス・ページネーション改善プランを
+それぞれ作成してください。
+
+両者のプランを確認してから、修正の順序と競合リスクを教えてください。
+その後、安全な順番で修正を実施してください。</pre>
+          </div>
+
+          <div class="callout warn">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-body">
+              <strong>同一ファイルへの並列変更は危険</strong>
+              2エージェントが同時に同じファイルを編集すると競合が発生します。リーダーが「まず security-reviewer が SQLi を修正してからパフォーマンスを修正」という順序を指示してください。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(4)">← 前へ</button>
+        <button class="btn btn-primary" onclick="showChapter(6)">次へ: Hooksで品質ゲートを作る →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 6 ── -->
+    <div class="chapter" id="chapter-6">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 06</div>
+        <div class="chapter-title">Hooks で品質ゲートを作る</div>
+        <div class="chapter-desc">Agent Teams 専用の Hook イベントを使って、チームの作業を自動監視・制御します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div>
+
+      <div class="section">
+        <h2>🪝 Agent Teams の Hook イベント</h2>
+
+        <p>Agent Teams には 3 つの専用 Hook イベントがあります（通常の Claude Code の Hook に加えて）：</p>
+
+        <table>
+          <tr>
+            <th>イベント名</th>
+            <th>発火タイミング</th>
+            <th>主な用途</th>
+          </tr>
+          <tr>
+            <td><code>TeammateIdle</code></td>
+            <td>チームメンバーが待機状態になった時</td>
+            <td>次のタスクを自動割り当て・進捗通知</td>
+          </tr>
+          <tr>
+            <td><code>TaskCreated</code></td>
+            <td>共有タスクリストに新タスクが追加された時</td>
+            <td>タスクの品質チェック・優先度設定・外部通知</td>
+          </tr>
+          <tr>
+            <td><code>TaskCompleted</code></td>
+            <td>タスクが完了マークされた時</td>
+            <td>成果物の検証・次のタスクのトリガー・レポート</td>
+          </tr>
+        </table>
+
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div class="callout-body">
+            <strong>Hook の終了コード</strong>
+            Hook スクリプトが <code>exit 2</code> を返すと、Claude Code に「フィードバックあり」として stdout の内容が Claude に送られます。<code>exit 0</code> は成功（フィードバックなし）です。
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔁 Hook のフロー図</h2>
+
+        <h3>TaskCompleted Hook の品質ゲート</h3>
+        <div class="hook-flow">
+          <div class="hook-box event">TaskCompleted</div>
+          <span class="hook-arrow">→</span>
+          <div class="hook-box">品質チェックスクリプト</div>
+          <span class="hook-arrow">→</span>
+          <div class="hook-box action">合格: exit 0</div>
+        </div>
+        <div class="hook-flow">
+          <div class="hook-box event">TaskCompleted</div>
+          <span class="hook-arrow">→</span>
+          <div class="hook-box">品質チェックスクリプト</div>
+          <span class="hook-arrow">→</span>
+          <div class="hook-box" style="border-color:var(--red);color:var(--red)">不合格: exit 2 + フィードバック</div>
+          <span class="hook-arrow">→</span>
+          <div class="hook-box action">Claudeが修正・再試行</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📁 Hook の設定ファイル</h2>
+
+        <p>Hook は <code>.claude/settings.json</code> に定義します：</p>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">json — .claude/settings.json</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre>{
+  <span class="prop">"hooks"</span>: {
+    <span class="prop">"TaskCompleted"</span>: [
+      {
+        <span class="prop">"hooks"</span>: [
+          {
+            <span class="prop">"type"</span>: <span class="str">"command"</span>,
+            <span class="prop">"command"</span>: <span class="str">"bash .claude/hooks/task-quality-gate.sh"</span>
+          }
+        ]
+      }
+    ],
+    <span class="prop">"TeammateIdle"</span>: [
+      {
+        <span class="prop">"hooks"</span>: [
+          {
+            <span class="prop">"type"</span>: <span class="str">"command"</span>,
+            <span class="prop">"command"</span>: <span class="str">"bash .claude/hooks/notify-idle.sh"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🛠 品質ゲートを実装する</h2>
+
+        <div class="step-card" data-step="EXERCISE 6-1">
+          <h3>TaskCompleted 品質ゲートの作成</h3>
+          <p>セキュリティ問題の修正が完了したとき、修正漏れがないか自動チェックするスクリプトを作成します。</p>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">bash — .claude/hooks/task-quality-gate.sh</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><span class="kw">#!/bin/bash</span>
+<span class="cm"># TaskCompleted Hook: セキュリティ修正の品質ゲート</span>
+
+TASK_DESCRIPTION="${CLAUDE_TASK_DESCRIPTION:-}"
+MODIFIED_FILES="${CLAUDE_MODIFIED_FILES:-}"
+
+<span class="cm"># タスクがSQLインジェクション修正に関するものかチェック</span>
+<span class="kw">if</span> echo "$TASK_DESCRIPTION" | grep -qi "sql\|injection\|sqli"; <span class="kw">then</span>
+
+  <span class="cm"># 変更されたJSファイルを確認</span>
+  <span class="kw">for</span> file <span class="kw">in</span> $(echo "$MODIFIED_FILES" | tr ',' '\n' | grep '\.js$'); <span class="kw">do</span>
+    <span class="kw">if</span> [ -f "$file" ]; <span class="kw">then</span>
+
+      <span class="cm"># テンプレートリテラルでSQLを組み立てているパターンを検索</span>
+      <span class="kw">if</span> grep -n "WHERE.*\${" "$file" | grep -v "^\s*//"; <span class="kw">then</span>
+        echo "❌ 品質ゲート失敗: $file にまだSQLインジェクションの疑いがあります"
+        echo "上記の行を確認し、プリペアドステートメントを使用してください"
+        exit 2  <span class="cm"># フィードバックをClaudeに送る</span>
+      <span class="kw">fi</span>
+
+    <span class="kw">fi</span>
+  <span class="kw">done</span>
+
+  echo "✅ SQLインジェクション品質ゲート通過"
+<span class="kw">fi</span>
+
+exit 0</pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">bash — .claude/hooks/notify-idle.sh</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><span class="kw">#!/bin/bash</span>
+<span class="cm"># TeammateIdle Hook: メンバーがアイドルになったら次のタスクを提案</span>
+
+TEAMMATE_NAME="${CLAUDE_TEAMMATE_NAME:-teammate}"
+PENDING_TASKS=$(cat .claude/pending-tasks.txt 2>/dev/null | head -1)
+
+<span class="kw">if</span> [ -n "$PENDING_TASKS" ]; <span class="kw">then</span>
+  echo "$TEAMMATE_NAME が待機中です。次のタスク候補: $PENDING_TASKS"
+  exit 2  <span class="cm"># リーダーにタスク割り当てを促す</span>
+<span class="kw">fi</span>
+
+exit 0</pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎯 実践: 品質ゲート付きレビューを実行する</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">EXERCISE 6-2</span>
+            <span class="exercise-title">Hook を設定してチームで修正 → 自動検証</span>
+          </div>
+
+          <div class="step-card" data-step="準備">
+            <h3>Hook ファイルを作成する</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre><span class="cm"># hooksディレクトリを作成</span>
+mkdir -p sample-project/.claude/hooks
+
+<span class="cm"># task-quality-gate.sh を作成（上記のスクリプトを貼り付け）</span>
+chmod +x sample-project/.claude/hooks/task-quality-gate.sh
+
+<span class="cm"># settings.json を作成（上記の設定を貼り付け）</span></pre>
+            </div>
+          </div>
+
+          <div class="step-card" data-step="実行">
+            <h3>チームで修正を実行</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>security-reviewer: src/search.js の suggestIssues() のSQLインジェクションを
+修正してください。修正が完了したらタスクを完了マークしてください。</pre>
+            </div>
+            <p>Hook が発火し、修正内容を自動検証します。テンプレートリテラルが残っていた場合、Claude に自動フィードバックが送られます。</p>
+          </div>
+
+          <h3>確認チェックリスト</h3>
+          <ul class="checklist">
+            <li><code>TaskCompleted</code> Hook がタスク完了時に発火したか？</li>
+            <li>修正が不完全な場合（テンプレートリテラルが残っている場合）に <code>exit 2</code> フィードバックが送られたか？</li>
+            <li>フィードバックを受けてエージェントが再修正したか？</li>
+            <li>完全な修正後に <code>exit 0</code> で品質ゲートが通過したか？</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>💡 Hook の応用パターン</h2>
+
+        <table>
+          <tr>
+            <th>パターン</th>
+            <th>イベント</th>
+            <th>処理</th>
+          </tr>
+          <tr>
+            <td>自動テスト実行</td>
+            <td>TaskCompleted</td>
+            <td>変更ファイルのテストを実行し、失敗したらフィードバック</td>
+          </tr>
+          <tr>
+            <td>Slack 通知</td>
+            <td>TaskCompleted</td>
+            <td>タスク完了をチームSlackに通知（<code>exit 0</code>）</td>
+          </tr>
+          <tr>
+            <td>優先度キュー</td>
+            <td>TeammateIdle</td>
+            <td>未完了タスクから優先度最高のものをメンバーに割り当て</td>
+          </tr>
+          <tr>
+            <td>セキュリティスキャン</td>
+            <td>TaskCreated</td>
+            <td>「セキュリティ修正」タスクを他メンバーにも自動共有</td>
+          </tr>
+          <tr>
+            <td>進捗ダッシュボード更新</td>
+            <td>TaskCreated / TaskCompleted</td>
+            <td>外部ダッシュボードAPIを呼んでリアルタイム更新</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(5)">← 前へ</button>
+        <button class="btn btn-primary" onclick="showChapter(7)">次へ: ユースケース集と実践課題 →</button>
+      </div>
+    </div>
+
+    <!-- ── Chapter 7 ── -->
+    <div class="chapter" id="chapter-7">
+      <div class="chapter-header">
+        <div class="chapter-num">CHAPTER 07</div>
+        <div class="chapter-title">ユースケース集と実践課題</div>
+        <div class="chapter-desc">Agent Teams が真価を発揮するユースケースを把握し、総まとめの実践課題に挑戦します。</div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+
+      <div class="section">
+        <h2>🗂 Agent Teams が特に有効なユースケース</h2>
+
+        <div class="step-card" data-step="ユースケース 1">
+          <h3>🔍 マルチ視点コードレビュー</h3>
+          <p>同一コードに対して「セキュリティ」「パフォーマンス」「可読性」の専門家が同時にレビューし、互いの発見を補完します。</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt例</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>PR #123 を3人でレビューしてください。
+security-reviewer: 脆弱性・認証・認可
+performance-analyst: クエリ・キャッシュ・N+1
+3人目のメンバーを追加して: 設計・可読性・テストカバレッジ
+重複した問題は互いに確認し合い、最終的に統合レポートを作成してください。</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="ユースケース 2">
+          <h3>🐛 仮説対決デバッグ</h3>
+          <p>本番障害の原因を複数エージェントが異なる仮説で調査し、互いに反証作業を行います。生き残った仮説が真の根本原因です。</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt例</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>本番で毎晩2時に APIが504エラーになります。
+Agent1（仮説A）: 「夜間バッチのDB競合が原因」という前提で調査
+Agent2（仮説B）: 「メモリリークで2時間後にOOMが起きている」という前提で調査
+それぞれ自分の仮説を証明しつつ、相手の仮説の証拠も探してください。</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="ユースケース 3">
+          <h3>📊 大規模リファクタリングの分担</h3>
+          <p>複数モジュールにまたがるリファクタリングを、モジュールごとに分担して並列実行します。</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt例</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>コールバックをすべてasync/awaitに変換してください。
+Agent1: src/users.js, src/auth.js を担当
+Agent2: src/issues.js, src/comments.js を担当
+変換中に型エラーを発見したら互いに共有し、
+変換後は互いのコードをクロスレビューしてください。</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="ユースケース 4">
+          <h3>📝 仕様書からの実装</h3>
+          <p>設計者とコーダーとテスター役のエージェントがリアルタイムで連携して実装を進めます。</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt例</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>検索機能を実装してください（仕様: search.md）。
+Agent1（設計者）: APIのインターフェースとDBスキーマを設計し、Agent2に共有
+Agent2（実装者）: 設計を受けて実装し、不明点はAgent1に確認
+リーダー（私）: 設計レビューと最終確認を担当</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>❌ Agent Teams が向かないケース</h2>
+
+        <table>
+          <tr>
+            <th>ケース</th>
+            <th>理由</th>
+            <th>代替手段</th>
+          </tr>
+          <tr>
+            <td>単純な1ファイル変更</td>
+            <td>チーム起動のオーバーヘッドが不要</td>
+            <td>通常の Claude Code</td>
+          </tr>
+          <tr>
+            <td>結果を集約するだけのパターン</td>
+            <td>Sub-agents の方がシンプル・安定</td>
+            <td>Sub-agents + AgentToolの並列呼び出し</td>
+          </tr>
+          <tr>
+            <td>セッションを跨いで継続する作業</td>
+            <td><code>/resume</code> 未対応</td>
+            <td>Sub-agents（セッション跨ぎ可能）</td>
+          </tr>
+          <tr>
+            <td>VS Code 内での利用</td>
+            <td>分割ペイン非対応（インプロセスのみ）</td>
+            <td>ターミナルで tmux + Claude Code</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>🏆 総まとめ実践課題</h2>
+
+        <div class="exercise">
+          <div class="exercise-header">
+            <span class="exercise-badge">FINAL EXERCISE</span>
+            <span class="exercise-title">TaskTracker API の完全調査・修正レポートを作成する</span>
+          </div>
+
+          <p>今まで学んだすべての機能を使って、TaskTracker API の全問題を調査・修正し、エグゼクティブサマリーを作成します。</p>
+
+          <div class="step-card" data-step="Phase 1 — 調査 (20分)">
+            <h3>全モジュールの並列スキャン</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>チームで src/ 以下の全ファイルを調査してください。
+
+security-reviewer: users.js, comments.js のセキュリティ問題を全て洗い出す
+performance-analyst: search.js, issues.js のパフォーマンス問題を全て洗い出す
+db.js は両者で確認して競合状態・メモリリークを特定する
+
+各問題は共有タスクリストに「[重大度] 問題の説明」形式で追加し、
+互いの発見で関連するものがあれば直接通知してください。</pre>
+            </div>
+          </div>
+
+          <div class="step-card" data-step="Phase 2 — プラン承認 (10分)">
+            <h3>優先度の高い問題から修正プランを提出・承認</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>調査が完了したら、重大度「高」の問題のみ修正プランを提出してください。
+各問題について:
+1. 問題の概要（1-2行）
+2. 修正方針
+3. 影響範囲
+4. 他の修正との依存関係
+
+プランを確認後、承認可否を伝えます。</pre>
+            </div>
+          </div>
+
+          <div class="step-card" data-step="Phase 3 — 修正 (20分)">
+            <h3>承認済みプランに基づいて修正を実施</h3>
+            <p>プランを承認したら、各エージェントに修正実施を指示します。同一ファイルへの修正は順番を調整してください。</p>
+          </div>
+
+          <div class="step-card" data-step="Phase 4 — レポート (10分)">
+            <h3>エグゼクティブサマリーの作成</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>全修正が完了したら、以下の形式でエグゼクティブサマリーを作成してください:
+
+## TaskTracker API セキュリティ・パフォーマンス改善レポート
+
+### 発見した問題（重大度別）
+### 実施した修正
+### 未対応問題と推奨対応
+### 改善後の期待効果（パフォーマンス数値含む）</pre>
+            </div>
+          </div>
+
+          <h3>達成条件チェックリスト</h3>
+          <ul class="checklist">
+            <li>2つの専門エージェントが並列で異なるモジュールを調査できた</li>
+            <li>エージェント間の P2P 通信（互いへの通知）が発生した</li>
+            <li>プラン承認ワークフローを経てコード変更が行われた</li>
+            <li>共有タスクリストに10件以上のタスクが追加・完了された</li>
+            <li>エグゼクティブサマリーが作成された</li>
+            <li>全エージェントがリーダーによって正常に終了された</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎓 学習のまとめ</h2>
+
+        <table>
+          <tr>
+            <th>章</th>
+            <th>習得した概念・スキル</th>
+          </tr>
+          <tr>
+            <td>Ch00</td>
+            <td>環境構築 (<code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code>)、サンプルプロジェクト構造</td>
+          </tr>
+          <tr>
+            <td>Ch01</td>
+            <td>Sub-agents vs Agent Teams の違い（通信モデル・タスク管理・プラン承認）</td>
+          </tr>
+          <tr>
+            <td>Ch02</td>
+            <td>チーム起動 (<kbd class="kbd">Shift+↓</kbd>)、エージェント定義の流用、チーム終了</td>
+          </tr>
+          <tr>
+            <td>Ch03</td>
+            <td>フォーカス切り替え (<kbd class="kbd">Shift+↑</kbd>)、タスクリスト (<kbd class="kbd">Ctrl+T</kbd>)、中断 (<kbd class="kbd">Escape</kbd>)</td>
+          </tr>
+          <tr>
+            <td>Ch04</td>
+            <td>P2P メッセージングの設計、相乗効果を生むプロンプト、仮説対決デバッグ</td>
+          </tr>
+          <tr>
+            <td>Ch05</td>
+            <td>プランモード、条件付き承認、同一ファイルへの並列変更の危険性</td>
+          </tr>
+          <tr>
+            <td>Ch06</td>
+            <td><code>TeammateIdle</code> / <code>TaskCreated</code> / <code>TaskCompleted</code> Hook、品質ゲートの実装</td>
+          </tr>
+          <tr>
+            <td>Ch07</td>
+            <td>有効・不向きなユースケース、総合実践課題</td>
+          </tr>
+        </table>
+
+        <div class="callout tip">
+          <span class="callout-icon">🎉</span>
+          <div class="callout-body">
+            <strong>ハンズオン完了！</strong>
+            Agent Teams はまだ実験的機能ですが、コードレビュー・デバッグ・大規模リファクタリングなど、複数の専門知識が交差する場面で大きな力を発揮します。実務への適用を検討する際は、まず単純なユースケースから始め、チームの設計を少しずつ洗練させてください。
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="showChapter(6)">← 前へ</button>
+        <button class="btn btn-primary" onclick="showChapter(0)">最初から →</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const TOTAL = 8;
+
+  function showChapter(n) {
+    document.querySelectorAll('.chapter').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+
+    const ch = document.getElementById('chapter-' + n);
+    const nav = document.getElementById('nav-' + n);
+    if (ch) ch.classList.add('active');
+    if (nav) {
+      nav.classList.add('active');
+      // 前の章をdone扱い
+      for (let i = 0; i < n; i++) {
+        const prev = document.getElementById('nav-' + i);
+        if (prev) prev.classList.add('done');
+      }
+    }
+    window.scrollTo(0, 0);
+    return false;
+  }
+
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
