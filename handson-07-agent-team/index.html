@@ -1326,64 +1326,83 @@ touch .claude/commands/review.md</pre>
       <div class="chapter-header">
         <div class="chapter-num">CHAPTER 06</div>
         <div class="chapter-title">Agent Teams <span class="exp-badge">⚗ 実験的機能</span></div>
-        <div class="chapter-desc">複数の Claude Code インスタンスがチームとして連携し、P2P通信・共有タスクリストで協調動作します。</div>
+        <div class="chapter-desc">実際に手を動かしながら、Agent Teams の全機能を体験します。3つのシナリオで段階的に学びます。</div>
       </div>
 
       <div class="progress-bar"><div class="progress-fill" style="width:87%"></div></div>
 
+      <!-- ────────────────────────────────────────
+           0. Agent Teams とは何か（概念整理）
+      ──────────────────────────────────────── -->
       <div class="section">
-        <h2>⚗ Agent Teams とは何が違うのか</h2>
+        <h2>🔍 Sub-agents と何が違うのか</h2>
 
         <div class="callout warn">
           <div class="callout-icon">⚠️</div>
           <div class="callout-body">
-            <strong>実験的機能</strong>
-            Agent Teams はデフォルト無効です。使用前に環境変数または settings.json で有効化が必要です。セッション再開・シャットダウン動作などに既知の制限があります。
+            <strong>実験的機能 — デフォルト無効</strong>
+            環境変数 <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> で有効化が必要です。v2.1.32 以降。セッション再開・シャットダウン動作に既知の制限があります。
           </div>
         </div>
 
-        <p>Sub-agents では「リーダーがサブに指示 → サブが結果を返す（一方向）」でした。<br>
-        Agent Teams では<strong>チームメンバー同士が直接メッセージを送り合い</strong>、共有タスクリストで自律的に調整します。</p>
+        <p>Sub-agents（Ch02〜05）との決定的な違いは<strong>通信方向</strong>です：</p>
 
         <div class="team-diagram">
-          <div class="team-leader-box">
-            🎯 <strong>チームリーダー</strong>（あなたが対話するセッション）<br>
-            <small>チームを作成・チームメンバーを生成・作業を調整</small>
-          </div>
-          <div class="bidirectional-arrow">↕ メッセージ（双方向）</div>
-          <div class="team-member-row">
-            <div class="team-member-box">🔒 <strong>UX担当</strong><br><small>teammate-1</small></div>
-            <div class="team-member-box">📐 <strong>アーキテクチャ担当</strong><br><small>teammate-2</small></div>
-            <div class="team-member-box">😈 <strong>悪魔の代弁者</strong><br><small>teammate-3</small></div>
-          </div>
-          <div class="bidirectional-arrow">↕ P2P メッセージ（互いに直接通信）</div>
-          <div class="arch-box tool" style="font-size:13px">
-            📋 <strong>共有タスクリスト</strong> — 全メンバーが参照・自己要求・完了マーク
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div>
+              <p style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:700;text-align:center">SUB-AGENTS（Ch02〜05）</p>
+              <div class="arch-box" style="font-size:13px;margin-bottom:6px">🎯 オーケストレーター</div>
+              <div style="text-align:center;color:var(--text2);font-size:18px">↓ 指示（一方向）</div>
+              <div class="arch-box sub" style="font-size:12px;margin:4px 0">🔒 security-reviewer</div>
+              <div class="arch-box sub" style="font-size:12px;margin:4px 0">📐 quality-reviewer</div>
+              <div style="text-align:center;color:var(--text2);font-size:18px">↓ 結果のみ返す</div>
+            </div>
+            <div>
+              <p style="font-size:12px;color:var(--accent2);margin-bottom:8px;font-weight:700;text-align:center">AGENT TEAMS（Ch06）⚗</p>
+              <div class="team-leader-box" style="font-size:13px;margin-bottom:6px">🎯 チームリーダー</div>
+              <div class="bidirectional-arrow">↕ 双方向メッセージ</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0">
+                <div class="team-member-box" style="font-size:11px">🔒 security<br><small>teammate-1</small></div>
+                <div class="team-member-box" style="font-size:11px">📐 quality<br><small>teammate-2</small></div>
+              </div>
+              <div class="bidirectional-arrow" style="font-size:12px">↔ P2P（互いに直接通信）</div>
+              <div class="arch-box tool" style="font-size:11px;margin-top:4px">📋 共有タスクリスト</div>
+            </div>
           </div>
         </div>
+
+        <table style="margin-top:16px">
+          <tr><th></th><th>Sub-agents</th><th>Agent Teams <span class="exp-badge">⚗</span></th></tr>
+          <tr><td><strong>通信</strong></td><td>リーダーにのみ結果を報告（一方向）</td><td>メンバー間で直接メッセージ送受信（P2P）</td></tr>
+          <tr><td><strong>調整</strong></td><td>リーダーがすべて管理</td><td>共有タスクリストで自己調整</td></tr>
+          <tr><td><strong>最適用途</strong></td><td>結果だけが重要な集中タスク</td><td>議論・相互検証・協力が必要な複雑作業</td></tr>
+          <tr><td><strong>コスト</strong></td><td>低（結果が要約されて返る）</td><td>高（各メンバーが独立した Claude インスタンス）</td></tr>
+        </table>
       </div>
 
+      <!-- ────────────────────────────────────────
+           1. 環境準備
+      ──────────────────────────────────────── -->
       <div class="section">
-        <h2>🔧 有効化する</h2>
+        <h2>🔧 Step 0：環境を準備する</h2>
+        <p>ハンズオンを始める前に以下を確認してください。</p>
 
-        <div class="step-card" data-step="方法①：環境変数">
+        <div class="step-card" data-step="確認①：バージョン">
           <div class="code-block" style="margin:0">
-            <div class="code-header">
-              <span class="lang">bash</span>
-              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-            </div>
-            <pre><span class="cm"># シェルに追加（.zshrc / .bashrc）</span>
-<span class="kw">export</span> CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=<span class="str">1</span></pre>
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>claude --version
+<span class="cm"># v2.1.32 以上であること</span></pre>
           </div>
         </div>
 
-        <div class="step-card" data-step="方法②：settings.json">
-          <div class="code-block" style="margin:0">
-            <div class="code-header">
-              <span class="lang">json</span>
-              <span>~/.claude/settings.json</span>
-              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-            </div>
+        <div class="step-card" data-step="確認②：Agent Teams を有効化">
+          <p>以下のどちらかで有効化してください。</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">bash</span><span>方法A：環境変数（今のセッションのみ）</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre><span class="kw">export</span> CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=<span class="str">1</span></pre>
+          </div>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">json</span><span>方法B：永続化（~/.claude/settings.json）</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
             <pre>{
   <span class="prop">"env"</span>: {
     <span class="prop">"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS"</span>: <span class="str">"1"</span>
@@ -1392,219 +1411,511 @@ touch .claude/commands/review.md</pre>
           </div>
         </div>
 
-        <div class="callout info">
-          <div class="callout-icon">ℹ️</div>
-          <div class="callout-body">
-            <strong>バージョン確認</strong>
-            Agent Teams には Claude Code <strong>v2.1.32 以降</strong>が必要です。<br>
-            <code>claude --version</code> で確認してください。
+        <div class="step-card" data-step="確認③：demo-project へ移動して Claude Code 起動">
+          <div class="code-block" style="margin:0">
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre><span class="fn">cd</span> handson-07-agent-team/demo-project
+<span class="fn">claude</span></pre>
           </div>
+          <p style="margin-top:10px;font-size:13px;color:var(--text2)">
+            デモプロジェクトには意図的な問題を含む5つのファイルがあります：<br>
+            <code>src/user-auth.js</code> <code>src/db.js</code> <code>src/routes/users.js</code>
+            <code>src/routes/products.js</code> <code>src/middleware/auth.js</code>
+          </p>
         </div>
       </div>
 
+      <!-- ────────────────────────────────────────
+           シナリオ 1：最初のチームを起動する
+      ──────────────────────────────────────── -->
       <div class="section">
-        <h2>🚀 最初のチームを起動する</h2>
-        <p>有効化後、Claude に自然言語でチームを作るよう指示するだけです：</p>
+        <h2>🚀 Scenario 1 — 最初のチームを起動する（15分）</h2>
+        <p>3人のチームメンバーで <code>src/user-auth.js</code> を並列レビューし、P2P通信を体験します。</p>
 
-        <div class="code-block">
-          <div class="code-header">
-            <span class="lang">claude-prompt</span>
-            <span>例：並列コードレビュー</span>
-            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-          </div>
-          <pre>エージェントチームを作成して、src/user-auth.js をレビューしてください。
-以下の3つの視点でチームメンバーを生成してください：
-- セキュリティの専門家
-- コード品質・設計のレビュアー
-- 悪魔の代弁者（あえて反論する役）
-
-3人が調査結果を共有・相互検証してから、最終レポートを作成してください。</pre>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="lang">claude-prompt</span>
-            <span>例：競合仮説でのデバッグ</span>
-            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-          </div>
-          <pre>認証後に接続が切れるバグを調査するエージェントチームを作成してください。
-5つの仮説（セッション管理・JWT期限・CORS・DB接続・ネットワーク）を
-それぞれ別のチームメンバーが担当し、お互いの理論を反証しながら
-根本原因を特定してください。</pre>
-        </div>
-
-        <p>Claude がチームを作成し、各メンバーを生成して作業を調整します。<strong>承認なしにチームは作成されません</strong>。</p>
-      </div>
-
-      <div class="section">
-        <h2>🕹️ チームの操作方法</h2>
-
-        <div class="step-card" data-step="表示モード①：In-process（デフォルト）">
-          <p>全チームメンバーがメインターミナル内で動く。追加セットアップ不要。</p>
-          <table style="margin:10px 0">
-            <tr><th>操作</th><th>キー</th></tr>
-            <tr><td>チームメンバーをサイクル</td><td><code>Shift + ↓</code></td></tr>
-            <tr><td>現在のターンを中断</td><td><code>Escape</code></td></tr>
-            <tr><td>タスクリストの切り替え</td><td><code>Ctrl + T</code></td></tr>
-          </table>
-        </div>
-
-        <div class="step-card" data-step="表示モード②：分割ペイン（tmux / iTerm2）">
-          <p>各チームメンバーが独自のペインを持つ。全員の出力を同時に確認できる。</p>
+        <div class="step-card" data-step="Step 1：チームを起動する">
+          <p>Claude Code のプロンプトに以下を入力してください：</p>
           <div class="code-block" style="margin:10px 0 0">
-            <div class="code-header">
-              <span class="lang">json</span>
-              <span>~/.claude/settings.json</span>
-              <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-            </div>
-            <pre>{
-  <span class="prop">"teammateMode"</span>: <span class="str">"tmux"</span>
-}</pre>
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>エージェントチームを作成して src/user-auth.js をレビューしてください。
+以下の3つの役割でチームメンバーを生成してください（名前も指定します）：
+- security という名前で：セキュリティの専門家として脆弱性を調査
+- quality という名前で：コード品質・設計を確認
+- advocate という名前で：他の2人の指摘に対して悪魔の代弁者として反論・検証
+
+3人が調査結果を互いに共有・議論してから、最終統合レポートをください。</pre>
           </div>
-          <p style="margin-top:10px;font-size:13px;color:var(--text2)">※ tmux または it2 CLI（iTerm2）のインストールが必要</p>
+          <div class="callout info" style="margin-top:12px">
+            <div class="callout-icon">👁</div>
+            <div class="callout-body">
+              <strong>観察ポイント</strong>
+              Claude がチーム作成を提案します。確認を求められたら Enter で承認してください。チームメンバーが生成され始めます。
+            </div>
+          </div>
         </div>
+
+        <div class="step-card" data-step="Step 2：チームメンバーをサイクルする">
+          <p>チームが動き始めたら、<strong>Shift + ↓</strong> を押してみてください。</p>
+          <table style="margin:10px 0">
+            <tr><th>キー操作</th><th>動作</th></tr>
+            <tr><td><code>Shift + ↓</code></td><td>次のチームメンバーのセッションへ切り替え</td></tr>
+            <tr><td><code>Shift + ↓</code>（最後のメンバーで）</td><td>リーダーに戻る</td></tr>
+            <tr><td><code>Ctrl + T</code></td><td>共有タスクリストの表示切り替え</td></tr>
+            <tr><td><code>Escape</code></td><td>現在のターンを中断</td></tr>
+          </table>
+          <div class="callout info">
+            <div class="callout-icon">👁</div>
+            <div class="callout-body">
+              <strong>観察ポイント</strong>
+              各メンバーが <code>user-auth.js</code> を読んで異なる視点で分析しているのを確認してください。<code>Ctrl + T</code> でタスクリストを開き、誰が何を担当しているか確認しましょう。
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="Step 3：P2P通信を観察する">
+          <p>各メンバーのセッションでメッセージのやり取りが起きているか確認してください。</p>
+          <div class="callout tip">
+            <div class="callout-icon">💡</div>
+            <div class="callout-body">
+              <strong>P2P通信が見えるタイミング</strong>
+              security が脆弱性を発見すると、それを quality や advocate に共有します。advocate が反論を送ると security が再検討します。このやり取りが Sub-agents にはない Agent Teams の特徴です。
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="Step 4：特定のメンバーに直接指示する">
+          <p>リーダーのプロンプトから特定メンバーへ追加指示を出せます：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>security チームメンバーに、db.js のコネクション管理も確認するよう伝えてください</pre>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--text2)">または <code>Shift + ↓</code> で security のセッションに直接切り替えて入力することもできます。</p>
+        </div>
+
+        <div class="step-card" data-step="Step 5：クリーンアップ">
+          <div class="callout danger" style="margin-bottom:10px">
+            <div class="callout-icon">🚫</div>
+            <div class="callout-body">
+              <strong>必ずリーダーからクリーンアップする</strong>
+              チームメンバー側から指示するとリソースが不整合になります。
+            </div>
+          </div>
+          <div class="code-block" style="margin:0">
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>チームメンバーを全員シャットダウンして、チームをクリーンアップしてください</pre>
+          </div>
+        </div>
+
+        <ul class="checklist">
+          <li>3つのチームメンバーが生成されたことを確認した</li>
+          <li><code>Shift + ↓</code> で各メンバーのセッションを見た</li>
+          <li><code>Ctrl + T</code> で共有タスクリストを開いた</li>
+          <li>メンバー同士がメッセージをやり取りしているのを確認した</li>
+          <li>クリーンアップが完了した</li>
+        </ul>
       </div>
 
+      <!-- ────────────────────────────────────────
+           シナリオ 2：プラン承認ワークフロー
+      ──────────────────────────────────────── -->
       <div class="section">
-        <h2>📋 共有タスクリスト</h2>
-        <p>チームメンバー全員が参照・要求・完了マークできる共有の作業リストです。</p>
+        <h2>📋 Scenario 2 — プラン承認ワークフロー（20分）</h2>
+        <p>リスクの高い変更（リファクタリング・DB変更など）では、実装前にプランをレビューするフローが重要です。</p>
 
-        <ul>
-          <li>リーダーがタスクを作成し、チームメンバーが<strong>自己要求</strong>できる</li>
-          <li>タスクには依存関係を設定できる（Aが完了するまでBはブロック）</li>
-          <li>依存タスクが完了すると、ブロックされたタスクが<strong>自動でブロック解除</strong>される</li>
-          <li>ファイルロックで複数メンバーが同じタスクを同時取得するのを防止</li>
+        <div class="step-card" data-step="プラン承認とは">
+          <p>チームメンバーに <strong>実装前にプランを立てることを義務付け</strong> できます。</p>
+          <ol style="margin:10px 0;padding-left:20px">
+            <li>チームメンバーが読み取り専用のプランモードで作業を開始する</li>
+            <li>プランが完成したらリーダーに承認リクエストを送信する</li>
+            <li>リーダーが承認 → 実装開始 / 却下（フィードバック付き）→ 再プランニング</li>
+          </ol>
+        </div>
+
+        <div class="step-card" data-step="Step 1：プラン承認ありでチームを起動">
+          <div class="code-block" style="margin:0">
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>src/routes/users.js の N+1クエリ問題を修正するチームメンバーを1名生成してください。
+名前は "refactor" にしてください。
+変更前に必ずリファクタリングプランを立案し、私の承認を得てから実装してください。
+テストカバレッジの言及があるプランのみ承認します。</pre>
+          </div>
+          <div class="callout info" style="margin-top:10px">
+            <div class="callout-icon">👁</div>
+            <div class="callout-body">
+              <strong>観察ポイント</strong>
+              チームメンバーがプランモードで動作し、ファイルを読むだけで書き込まないことを確認してください。プランが完成するとリーダーに承認リクエストが届きます。
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="Step 2：プランをレビューして承認・却下する">
+          <p>プラン承認リクエストが届いたら：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">claude-prompt</span><span>承認する場合</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>refactor のプランを承認してください。実装を開始してください。</pre>
+          </div>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">claude-prompt</span><span>却下してフィードバックを送る場合</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>refactor のプランを却下してください。
+理由：テストの追加計画が含まれていません。
+ユニットテストの追加も含めたプランを再提出してください。</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="Step 3：実装を観察する">
+          <div class="callout info">
+            <div class="callout-icon">👁</div>
+            <div class="callout-body">
+              <strong>観察ポイント</strong>
+              承認後、チームメンバーがプランモードを抜けて実際にファイルを書き換え始めます。<code>Shift + ↓</code> で refactor セッションに移動して、ファイル変更の様子を確認してください。
+            </div>
+          </div>
+        </div>
+
+        <ul class="checklist">
+          <li>チームメンバーがプランモードで動いていることを確認した（ファイルを書き換えない）</li>
+          <li>プランが届いてリーダーが承認・却下を判断した</li>
+          <li>却下した場合、メンバーが再プランニングしたことを確認した</li>
+          <li>承認後に実際の実装が始まったことを確認した</li>
         </ul>
+      </div>
+
+      <!-- ────────────────────────────────────────
+           シナリオ 3：競合仮説デバッグ（P2P通信の真価）
+      ──────────────────────────────────────── -->
+      <div class="section">
+        <h2>🔬 Scenario 3 — 競合仮説デバッグ（30分）</h2>
+        <p>これが Agent Teams の真価を最も体感できるシナリオです。複数のメンバーが異なる仮説で調査し、<strong>互いに反証し合い</strong>ながら根本原因を絞り込みます。</p>
 
         <div class="callout tip">
           <div class="callout-icon">💡</div>
           <div class="callout-body">
-            <strong>適切なタスクサイズ</strong>
-            チームメンバーあたり 5〜6 個のタスクが目安。小さすぎると調整オーバーヘッドが利益を超え、大きすぎるとチェックインなしで長時間動作してしまいます。
+            <strong>なぜこれが Sub-agents より優れるのか</strong>
+            シングルエージェントや Sub-agents では、最初に見つかった「もっともらしい原因」にアンカリングしてしまいます。Agent Teams で複数のメンバーが独立して調査し、互いの理論を積極的に反証することで、生き残った仮説が真の根本原因である可能性が大幅に高まります。
           </div>
+        </div>
+
+        <div class="step-card" data-step="Step 1：競合仮説チームを起動">
+          <p><code>src/db.js</code> のコネクションリーク問題を3つの仮説で調査させます：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>src/db.js でコネクションリークが発生している原因を調査するエージェントチームを作成してください。
+以下の3つの仮説を各チームメンバーに担当させてください：
+
+- hypothesis-a：エラー時のコネクション未解放が原因
+- hypothesis-b：競合状態（Race Condition）によるコネクション重複取得が原因
+- hypothesis-c：コネクションタイムアウト未実装によるリソース枯渇が原因
+
+各メンバーは自分の仮説を調査するだけでなく、
+他のメンバーの仮説に対して積極的に反証してください。
+科学的な議論のように、根拠のある反論を行ってください。
+最終的に最も可能性の高い原因についてコンセンサスを取り、
+修正提案をまとめてください。</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="Step 2：議論を観察する">
+          <p><code>Shift + ↓</code> で各メンバーのセッションを確認してください。</p>
+          <div class="callout info">
+            <div class="callout-icon">👁</div>
+            <div class="callout-body">
+              <strong>以下を観察してください：</strong><br>
+              • hypothesis-a が「エラー時に releaseConnection が呼ばれていない」という証拠を見つける<br>
+              • hypothesis-b が「pool.find は同期だが非同期呼び出しで競合が起きる」と指摘する<br>
+              • hypothesis-c が「上記2つは正しいが、タイムアウトがないと永久にリークする」と追加<br>
+              • メンバー同士が互いのメッセージに返答している様子
+            </div>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="Step 3：議論に介入する（オプション）">
+          <p>調査が停滞したり方向性がズレた場合、リーダーから修正指示を出せます：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>hypothesis-b チームメンバーに、非同期での競合状態の具体的なコードパスを
+示すよう伝えてください</pre>
+          </div>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>全チームメンバーに現在の調査状況を共有し合うよう伝えてください</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="Step 4：コンセンサスと修正提案を受け取る">
+          <div class="callout info">
+            <div class="callout-icon">👁</div>
+            <div class="callout-body">
+              <strong>期待される結果</strong>
+              <code>db.js</code> の問題は実際には3つの仮説すべてが当てはまります：<br>
+              ① <code>catch</code> 内で <code>releaseConnection</code> が呼ばれない<br>
+              ② <code>pool.find</code> が非同期競合に対応していない<br>
+              ③ タイムアウトがないため長期的にリークが蓄積する<br><br>
+              各メンバーの仮説が互いの調査を深めることで、単一エージェントより包括的な診断ができます。
+            </div>
+          </div>
+        </div>
+
+        <ul class="checklist">
+          <li>3つの仮説メンバーが独立して <code>db.js</code> を調査した</li>
+          <li>メンバー間でメッセージのやり取りがあったことを確認した</li>
+          <li>単一エージェントとの違いを体感できた</li>
+          <li>最終レポートで複数の問題が統合されていることを確認した</li>
+        </ul>
+      </div>
+
+      <!-- ────────────────────────────────────────
+           Hooks で品質ゲートを実施
+      ──────────────────────────────────────── -->
+      <div class="section">
+        <h2>🪝 Hooks で品質ゲートを実施する</h2>
+        <p>Agent Teams 専用の Hooks を使うと、チームメンバーの動作に自動チェックを組み込めます。</p>
+
+        <table>
+          <tr><th>フック名</th><th>発火タイミング</th><th>活用例</th></tr>
+          <tr>
+            <td><code>TeammateIdle</code></td>
+            <td>チームメンバーがアイドル状態になろうとしているとき</td>
+            <td>終了コード 2 でフィードバックを送り、作業を継続させる</td>
+          </tr>
+          <tr>
+            <td><code>TaskCreated</code></td>
+            <td>タスクが作成されているとき</td>
+            <td>タスク名やスコープを検証し、不適切なタスクを防ぐ</td>
+          </tr>
+          <tr>
+            <td><code>TaskCompleted</code></td>
+            <td>タスクが完了としてマークされているとき</td>
+            <td>テスト通過・ドキュメント作成を確認してから完了を許可</td>
+          </tr>
+        </table>
+
+        <div class="step-card" data-step="TeammateIdle フックの例">
+          <p>チームメンバーが「もうやることがない」と判断してアイドルになるのを防ぐフックです：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">json</span><span>~/.claude/settings.json</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>{
+  <span class="prop">"hooks"</span>: {
+    <span class="prop">"TeammateIdle"</span>: [
+      {
+        <span class="prop">"matcher"</span>: <span class="str">""</span>,
+        <span class="prop">"hooks"</span>: [
+          {
+            <span class="prop">"type"</span>: <span class="str">"command"</span>,
+            <span class="prop">"command"</span>: <span class="str">"echo '作業が残っていないか確認してください。タスクリストに未対応のタスクがあれば取得してください。'"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="TaskCompleted フックの例">
+          <p>タスク完了前にテストが通っているか確認するフックです：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">json</span><span>~/.claude/settings.json</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>{
+  <span class="prop">"hooks"</span>: {
+    <span class="prop">"TaskCompleted"</span>: [
+      {
+        <span class="prop">"matcher"</span>: <span class="str">""</span>,
+        <span class="prop">"hooks"</span>: [
+          {
+            <span class="prop">"type"</span>: <span class="str">"command"</span>,
+            <span class="prop">"command"</span>: <span class="str">"bash -c 'echo タスク完了前確認: テストとドキュメントが含まれていますか？ >&2; exit 2'"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--text2)">終了コード 2 でフィードバックを送ると、タスクが完了としてマークされずチームメンバーが再確認します。</p>
         </div>
       </div>
 
+      <!-- ────────────────────────────────────────
+           Sub-agents 定義の再利用
+      ──────────────────────────────────────── -->
       <div class="section">
-        <h2>🔗 チームメンバーと直接通信する</h2>
+        <h2>♻️ Sub-agents 定義をチームメンバーに再利用する</h2>
+        <p><code>.claude/agents/</code> に定義した Sub-agents をチームメンバーとして呼び出せます。</p>
 
         <div class="code-block">
-          <div class="code-header">
-            <span class="lang">claude-prompt</span>
-            <span>特定のチームメンバーに指示を出す</span>
-            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-          </div>
-          <pre><span class="cm"># リーダーのプロンプトで：</span>
-セキュリティ担当のチームメンバーに、JWTの実装も確認するよう伝えてください
-
-<span class="cm"># In-process モードで：</span>
-Shift+↓ でそのチームメンバーに切り替えて直接入力</pre>
-        </div>
-
-        <p>チームメンバー同士もお互いにメッセージを送り合えます。これが Sub-agents との最大の違いです。</p>
-      </div>
-
-      <div class="section">
-        <h2>🛑 チームのクリーンアップ</h2>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="lang">claude-prompt</span>
-            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-          </div>
-          <pre><span class="cm"># チームをシャットダウン</span>
-チームメンバーを全員シャットダウンして、チームをクリーンアップしてください</pre>
-        </div>
-
-        <div class="callout danger">
-          <div class="callout-icon">🚫</div>
-          <div class="callout-body">
-            <strong>必ずリーダーからクリーンアップする</strong>
-            チームメンバーにクリーンアップを指示しないでください。リソースが不整合な状態のままになる可能性があります。
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>🔗 Sub-agents 定義をチームメンバーに再利用する</h2>
-        <p><code>.claude/agents/</code> に定義した Sub-agents をチームメンバーとして指定できます：</p>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="lang">claude-prompt</span>
-            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-          </div>
+          <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
           <pre>security-reviewer エージェントタイプを使ってチームメンバーを生成し、
-認証モジュールを監査してください。</pre>
+src/middleware/auth.js を監査してください。</pre>
         </div>
 
-        <p>チームメンバーはそのエージェント定義の <code>tools</code> と <code>model</code> を継承します。</p>
+        <div class="callout info">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-body">
+            チームメンバーはエージェント定義の <code>tools</code> と <code>model</code> を継承します。ただし <code>skills</code> と <code>mcpServers</code> frontmatter は適用されません（プロジェクト・ユーザー設定から自動ロードされます）。
+          </div>
+        </div>
       </div>
 
-      <div class="exercise">
-        <div class="exercise-header">
-          <span class="exercise-badge">EXERCISE 6-1</span>
-          <span class="exercise-title">Agent Team を起動してみる</span>
-        </div>
+      <!-- ────────────────────────────────────────
+           トークンコストとベストプラクティス
+      ──────────────────────────────────────── -->
+      <div class="section">
+        <h2>💰 トークンコストとベストプラクティス</h2>
 
         <div class="callout warn">
           <div class="callout-icon">⚠️</div>
           <div class="callout-body">
-            <strong>事前準備</strong>
-            <code>export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> を設定してから Claude Code を起動してください。
+            <strong>コスト注意</strong>
+            Agent Teams は各チームメンバーが独立した Claude インスタンスです。3人のチームは同時に3倍のトークンを消費します。調整オーバーヘッドも加算されます。
           </div>
         </div>
 
-        <div class="code-block">
-          <div class="code-header">
-            <span class="lang">claude-prompt</span>
-            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
-          </div>
-          <pre>エージェントチームを作成して、src/user-auth.js の問題を調査してください。
-以下の2つの視点でチームメンバーを生成してください：
-1. セキュリティ専門家（security-reviewer エージェントタイプを使用）
-2. コード品質のレビュアー
+        <table>
+          <tr><th>チームメンバー数</th><th>おすすめの用途</th></tr>
+          <tr><td><strong>2〜3人</strong></td><td>レビュー・設計比較・単純な調査。バランスが良い</td></tr>
+          <tr><td><strong>4〜5人</strong></td><td>複数の独立モジュールの並列実装・大規模調査</td></tr>
+          <tr><td><strong>6人以上</strong></td><td>収穫逓減。調整コストが価値を超えることが多い</td></tr>
+        </table>
 
-2人が調査結果を互いに共有し、相互にレビューしてから最終報告を作成してください。</pre>
-        </div>
-
-        <ul class="checklist">
-          <li>チームが作成され、チームメンバーが生成されることを確認する</li>
-          <li><code>Shift + ↓</code> で各チームメンバーの作業状況を確認する</li>
-          <li>チームメンバー同士がメッセージを送り合っているかを確認する</li>
-          <li>作業完了後に「チームをクリーンアップして」と指示する</li>
+        <h3 style="margin:16px 0 10px">ベストプラクティス</h3>
+        <ul>
+          <li><strong>焦点を絞ったタスクから始める</strong> — コードレビュー・ライブラリ調査など、境界が明確でコードを書かないタスクで始める</li>
+          <li><strong>タスクを適切にサイズ設定する</strong> — 1メンバーあたり5〜6タスクが目安。関数・テストファイル・レビューなど明確な成果物があるもの</li>
+          <li><strong>ファイル競合を避ける</strong> — 2人が同じファイルを編集すると上書きが発生する。各メンバーに異なるファイルを担当させる</li>
+          <li><strong>生成プロンプトに十分なコンテキストを</strong> — メンバーはリーダーの会話履歴を引き継がないため、生成時に必要な情報を全て渡す</li>
+          <li><strong>定期的に監視・操舵する</strong> — 長時間放置するとコスト増・無駄な作業が積み重なる</li>
         </ul>
       </div>
 
-      <div class="exercise">
-        <div class="exercise-header">
-          <span class="exercise-badge">EXERCISE 6-2（発展）</span>
-          <span class="exercise-title">競合仮説デバッグに挑戦</span>
-        </div>
-        <p>以下のプロンプトで、チームメンバーが互いに反証しながら調査する体験をしてみましょう：</p>
+      <!-- ────────────────────────────────────────
+           分割ペインモード（tmux / iTerm2）
+      ──────────────────────────────────────── -->
+      <div class="section">
+        <h2>🖥️ 分割ペインモード（tmux / iTerm2）</h2>
+        <p>デフォルトの In-process モードでは全メンバーが同じターミナル内で動きます。<br>
+        分割ペインモードでは各メンバーが<strong>独自のペインを持ち、全員の出力を同時に見られます</strong>。</p>
 
-        <div class="code-block">
-          <div class="code-header">
-            <span class="lang">claude-prompt</span>
-            <button class="copy-btn" onclick="copyCode(this)">コピー</button>
+        <div class="step-card" data-step="tmux で分割ペインを使う">
+          <div class="code-block" style="margin:0 0 8px">
+            <div class="code-header"><span class="lang">bash</span><span>tmux のインストール（macOS）</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>brew install tmux</pre>
           </div>
-          <pre>user-auth.js のログイン関数が特定の条件でエラーになる原因を
-エージェントチームで調査してください。
-
-3つの仮説を立て、各チームメンバーに担当させてください：
-1. SQLクエリの問題（NULL・特殊文字）
-2. 非同期処理のタイミング問題
-3. エラーハンドリングの欠如
-
-お互いの理論を科学的な議論のように反証し合い、
-最も可能性の高い原因を特定してください。</pre>
+          <div class="code-block" style="margin:0 0 8px">
+            <div class="code-header"><span class="lang">bash</span><span>tmux セッション内で Claude Code を起動</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>tmux new-session -s agent-team
+claude</pre>
+          </div>
+          <div class="code-block" style="margin:0">
+            <div class="code-header"><span class="lang">json</span><span>~/.claude/settings.json</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>{
+  <span class="prop">"teammateMode"</span>: <span class="str">"tmux"</span>
+}</pre>
+          </div>
         </div>
 
-        <ul class="checklist">
-          <li>3つのチームメンバーが独立して調査を開始することを確認する</li>
-          <li>チームメンバーが互いにメッセージを送っている様子を観察する</li>
-          <li>Sub-agents の並列実行と何が違うかを言語化してみる</li>
-        </ul>
+        <div class="step-card" data-step="iTerm2 で分割ペインを使う">
+          <div class="code-block" style="margin:0 0 8px">
+            <div class="code-header"><span class="lang">bash</span><span>it2 CLI のインストール</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>npm install -g it2</pre>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--text2)">
+            その後 iTerm2 の <strong>Settings → General → Magic → Enable Python API</strong> を有効化してください。
+          </p>
+        </div>
+
+        <div class="callout info">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-body">
+            <strong>自動検出</strong>
+            デフォルト設定 <code>"auto"</code> では、tmux セッション内なら分割ペイン、そうでなければ In-process が自動で使われます。
+          </div>
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────
+           トラブルシューティング
+      ──────────────────────────────────────── -->
+      <div class="section">
+        <h2>🔧 トラブルシューティング</h2>
+
+        <div class="step-card" data-step="チームメンバーが表示されない">
+          <ul>
+            <li>In-process モードでは <code>Shift + ↓</code> を押してチームメンバーをサイクルしてください（既に動いているが見えていない場合）</li>
+            <li>タスクが単純すぎてチームが不要と Claude が判断している場合は、より複雑なタスクを与えるか「チームを作成してください」と明示する</li>
+            <li>分割ペインをリクエストした場合：<code>which tmux</code> で tmux がインストールされているか確認</li>
+          </ul>
+        </div>
+
+        <div class="step-card" data-step="権限プロンプトが多すぎる">
+          <p>チームメンバーの権限リクエストがリーダーにバブルアップして摩擦が生じます。<br>
+          チームメンバー生成前に <code>.claude/settings.json</code> でよく使う操作を事前承認してください：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">json</span><span>.claude/settings.json</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>{
+  <span class="prop">"permissions"</span>: {
+    <span class="prop">"allow"</span>: [<span class="str">"Read(*)"</span>, <span class="str">"Grep(*)"</span>]
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="リーダーが早期シャットダウンする">
+          <p>タスクが完了していないのにリーダーが「完了」と判断した場合：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">claude-prompt</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>チームメンバーが完了するまで待ってから、作業を続けてください</pre>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="孤立した tmux セッションが残る">
+          <p>チームのクリーンアップが不完全な場合、tmux セッションが残ることがあります：</p>
+          <div class="code-block" style="margin:8px 0 0">
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">コピー</button></div>
+            <pre>tmux ls                          <span class="cm"># セッション一覧</span>
+tmux kill-session -t &lt;name&gt;     <span class="cm"># 特定セッションを終了</span>
+tmux kill-server                 <span class="cm"># 全セッションを終了（最終手段）</span></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────
+           既知の制限事項
+      ──────────────────────────────────────── -->
+      <div class="section">
+        <h2>⚠️ 既知の制限事項</h2>
+
+        <table>
+          <tr><th>制限</th><th>内容</th><th>回避策</th></tr>
+          <tr>
+            <td>セッション再開なし</td>
+            <td><code>/resume</code> と <code>/rewind</code> は In-process チームメンバーを復元しない</td>
+            <td>リーダーに新しいチームメンバーを生成するよう指示</td>
+          </tr>
+          <tr>
+            <td>タスクステータス遅延</td>
+            <td>チームメンバーがタスクを完了としてマークできず依存タスクがブロックされることがある</td>
+            <td>リーダーにチームメンバーをナッジするよう指示</td>
+          </tr>
+          <tr>
+            <td>シャットダウン遅延</td>
+            <td>現在のリクエスト・ツール呼び出しを完了してからシャットダウン</td>
+            <td>少し待つ</td>
+          </tr>
+          <tr>
+            <td>1チームのみ</td>
+            <td>リーダーは同時に1チームのみ管理できる</td>
+            <td>新チームを始める前に現在のチームをクリーンアップ</td>
+          </tr>
+          <tr>
+            <td>ネストなし</td>
+            <td>チームメンバーは独自のチームを生成できない</td>
+            <td>リーダーのみがチームを管理できる</td>
+          </tr>
+          <tr>
+            <td>分割ペイン制限</td>
+            <td>VS Code 統合ターミナル・Windows Terminal・Ghostty では分割ペイン不可</td>
+            <td>In-process モードを使用（デフォルト）</td>
+          </tr>
+        </table>
       </div>
 
       <div class="nav-buttons">
