@@ -749,7 +749,7 @@ ls src/</pre>
           <tr>
             <td><strong>起動方法</strong></td>
             <td>リーダーが <code>Agent</code> ツールで呼ぶ</td>
-            <td>ユーザーが <kbd class="kbd">Shift+↓</kbd> でメンバーを追加</td>
+            <td><code>TeamCreate</code> でチームを作成し、<code>Agent(team_name, name)</code> でメンバーをスポーン</td>
           </tr>
           <tr>
             <td><strong>通信モデル</strong></td>
@@ -759,7 +759,7 @@ ls src/</pre>
           <tr>
             <td><strong>タスク管理</strong></td>
             <td>各エージェントが独立管理</td>
-            <td>共有タスクリスト（<kbd class="kbd">Ctrl+T</kbd> で確認）</td>
+            <td><code>TaskCreate</code> / <code>TaskUpdate</code> でメンバーが共有タスクを管理</td>
           </tr>
           <tr>
             <td><strong>並行実行</strong></td>
@@ -868,8 +868,8 @@ ls src/</pre>
               <li>セッション再開（<code>/resume</code>）は未対応。中断したら最初から</li>
               <li>タスクステータス更新に数秒の遅延がある場合がある</li>
               <li>ネストチーム（チームの中のチーム）は非対応</li>
-              <li>分割ペイン表示は tmux / iTerm2 のみ（VS Code, Windows Terminal, Ghostty は未対応）</li>
-              <li>チームクリーンアップはリーダーが必ず行うこと（メンバーは不可）</li>
+              <li>チームのシャットダウンはリーダーが各メンバーに <code>shutdown_request</code> を送信して行う</li>
+              <li>アイドル通知（<code>idle_notification</code>）は自動配信される。返信は不要</li>
             </ul>
           </div>
         </div>
@@ -894,125 +894,113 @@ ls src/</pre>
       <div class="section">
         <h2>🚀 チームの起動方法</h2>
 
-        <p>Agent Teams には 2 つの起動方法があります。まずシンプルな方法から試します。</p>
-
-        <h3>方法 A: インプロセス（デフォルト）</h3>
-        <p>同一ターミナル内でチームが動作します。チームメンバーの会話は現在のセッションに統合されます。</p>
-        <div class="code-block">
-          <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-          <pre><span class="cm"># 1. sample-project ディレクトリで Claude Code を起動</span>
-<span class="kw">cd</span> handson-08-agent-teams/sample-project
-CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude</pre>
-        </div>
-
-        <h3>方法 B: 分割ペイン（tmux / iTerm2 のみ）</h3>
-        <div class="code-block">
-          <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-          <pre><span class="cm"># tmux セッション内で起動した場合、チームメンバーが別ペインに表示される</span>
-CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude</pre>
-        </div>
-
-        <div class="callout info">
-          <span class="callout-icon">ℹ️</span>
-          <div class="callout-body">
-            <strong>今回はインプロセスで進めます</strong>
-            分割ペインは視覚的にわかりやすいですが、tmux/iTerm2 が必要です。インプロセスでも Agent Teams の全機能は体験できます。
-          </div>
-        </div>
-
-        <h3>方法 C: プログラマティック（ツール経由）</h3>
-        <p>Claude Code 自身がリーダーとなり、<strong>ツールを使ってチームを構成・操作する</strong>方法です。キーボード操作は不要で、プロンプトで指示するだけで Claude が自律的にチームを組み立てます。</p>
-
-        <div class="arch-diagram">
-          <div style="font-family:var(--font-mono);font-size:13px;line-height:2">
-            <span style="color:var(--accent)">TeamCreate</span>(team_name)<br>
-            &nbsp;&nbsp;↓<br>
-            <span style="color:var(--accent)">Agent</span>(subagent_type=<span style="color:var(--str)">"security-reviewer"</span>, team_name, name=<span style="color:var(--str)">"sec"</span>)<br>
-            <span style="color:var(--accent)">Agent</span>(subagent_type=<span style="color:var(--str)">"performance-analyst"</span>, team_name, name=<span style="color:var(--str)">"perf"</span>)<br>
-            &nbsp;&nbsp;↓ &nbsp;&nbsp;<span style="color:#5c6370;font-style:italic">（並列スポーン）</span><br>
-            <span style="color:var(--accent)">TaskCreate</span> + <span style="color:var(--accent)">SendMessage</span>(to: <span style="color:var(--str)">"sec"</span>, task) &nbsp; <span style="color:#5c6370;font-style:italic">// タスク割り当て</span><br>
-            <span style="color:var(--accent)">TaskCreate</span> + <span style="color:var(--accent)">SendMessage</span>(to: <span style="color:var(--str)">"perf"</span>, task)<br>
-            &nbsp;&nbsp;↓ &nbsp;&nbsp;<span style="color:#5c6370;font-style:italic">（メンバーが作業・idle になったら次へ）</span><br>
-            <span style="color:var(--accent)">SendMessage</span>({type: <span style="color:var(--str)">"shutdown_request"</span>}) &nbsp; <span style="color:#5c6370;font-style:italic">// graceful shutdown</span>
-          </div>
-        </div>
-
-        <div class="callout tip">
-          <span class="callout-icon">💡</span>
-          <div class="callout-body">
-            <strong>方法 A/B との使い分け</strong>
-            <ul>
-              <li><strong>方法 A/B（インタラクティブ）</strong>: 人間がリアルタイムで介入しながら進める場合。会話しながらチームを動かしたいとき。</li>
-              <li><strong>方法 C（プログラマティック）</strong>: Claude に「チームを作ってXXXを調査して」と一言指示するだけで、チームの構成・タスク割り当て・終了まで自律実行させたいとき。</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>➕ チームメンバーを追加する</h2>
+        <p>Agent Teams は <strong>プログラマティック</strong> に構成します。ユーザーは Claude Code（リーダー）に自然言語で指示するだけで、Claude がツールを使ってチームを自動構成します。特別なキー操作は不要です。</p>
 
         <div class="step-card" data-step="STEP 1">
-          <h3>定義済みエージェントをメンバーに追加</h3>
-          <p>Claude Code が起動したら、<kbd class="kbd">Shift+↓</kbd> を押します。メンバー追加の UI が表示されます。</p>
-          <div class="callout tip">
-            <span class="callout-icon">💡</span>
-            <div class="callout-body">
-              <code>.claude/agents/</code> にあるエージェント定義（<code>security-reviewer</code>, <code>performance-analyst</code>）がリストに表示されます。選択するとそのシステムプロンプトを持つメンバーが追加されます。
-            </div>
+          <h3>環境変数を設定して Claude Code を起動</h3>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre><span class="kw">cd</span> handson-08-agent-teams/sample-project
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude</pre>
           </div>
-        </div>
-
-        <div class="step-card" data-step="STEP 2">
-          <h3>security-reviewer を追加</h3>
-          <p><kbd class="kbd">Shift+↓</kbd> → <code>security-reviewer</code> を選択 → <kbd class="kbd">Enter</kbd></p>
-          <p>追加後、チームメンバーとして認識されたことを確認します。</p>
-        </div>
-
-        <div class="step-card" data-step="STEP 3">
-          <h3>performance-analyst を追加</h3>
-          <p>もう一度 <kbd class="kbd">Shift+↓</kbd> → <code>performance-analyst</code> を選択 → <kbd class="kbd">Enter</kbd></p>
+          <p>起動後はリーダーの Claude Code に自然言語で指示するだけです。チームの構成は Claude が自動的に行います。</p>
         </div>
       </div>
 
       <div class="section">
-        <h2>📋 共有タスクリストを確認する</h2>
-        <p><kbd class="kbd">Ctrl+T</kbd> を押すと、共有タスクリストが表示されます。まだタスクがないことを確認します。</p>
+        <h2>🔧 チーム構成の内部フロー</h2>
+
+        <p>リーダーへ「チームを作って調査して」と指示すると、Claude は以下のツールを順に呼び出してチームを構成します：</p>
+
+        <div class="arch-diagram">
+          <div class="arch-box" style="max-width:480px;margin:0 auto 8px">
+            1️⃣ <code>TeamCreate(team_name)</code> — チームを作成
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-row">
+            <div class="arch-box sub">2️⃣ <code>Agent(subagent_type,<br>team_name, "sec")</code></div>
+            <div class="arch-box sub" style="margin-left:8px">2️⃣ <code>Agent(subagent_type,<br>team_name, "perf")</code></div>
+          </div>
+          <div style="text-align:center;font-size:12px;color:var(--text2);margin:4px 0">※ 複数メンバーは並列でスポーン可能</div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-box" style="max-width:480px;margin:0 auto 8px">
+            3️⃣ <code>TaskCreate(subject, description)</code> — タスクを作成
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-box" style="max-width:480px;margin:0 auto 8px">
+            4️⃣ <code>SendMessage(to: "メンバー名", message: "指示")</code> — タスクを割り当て
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-box" style="max-width:480px;margin:0 auto 8px;background:rgba(61,214,140,0.05);border-color:var(--green)">
+            5️⃣ メンバーが作業完了 → <code>teammate-message</code> で自動報告
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-box" style="max-width:480px;margin:0 auto 8px">
+            6️⃣ <code>SendMessage({type: "shutdown_request"})</code> — シャットダウン要求
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-box" style="max-width:480px;margin:0 auto;background:rgba(61,214,140,0.05);border-color:var(--green)">
+            7️⃣ <code>teammate_terminated</code> が通知されて完了
+          </div>
+        </div>
 
         <div class="callout info">
           <span class="callout-icon">ℹ️</span>
           <div class="callout-body">
-            <strong>共有タスクリストとは？</strong>
-            全チームメンバーが閲覧・更新できる共通の作業リストです。誰がどのタスクを担当しているか、どこまで完了したかが一目でわかります。Sub-agents にはない Agent Teams 固有の機能です。
+            <strong>エージェント定義の活用</strong>
+            <code>.claude/agents/*.md</code> に定義したエージェント（<code>security-reviewer</code>, <code>performance-analyst</code>）は <code>subagent_type</code> として指定できます。定義のシステムプロンプトがそのままメンバーの専門性になります。
           </div>
         </div>
       </div>
 
       <div class="section">
-        <h2>🎯 最初のタスクを依頼する</h2>
+        <h2>📋 タスクとメッセージングの仕組み</h2>
+
+        <p>チームメンバーは <code>TaskCreate</code> / <code>TaskUpdate</code> でタスクを管理し、<code>SendMessage</code> でリーダーや他のメンバーと通信します。</p>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">メッセージフロー例（リーダー視点）</span></div>
+          <pre><span class="cm">// リーダーがセキュリティメンバーにタスクを割り当て</span>
+SendMessage(to: <span class="str">"sec"</span>, message: <span class="str">"src/users.js のSQLiを調査してください"</span>)
+
+<span class="cm">// メンバーが自動的に報告を返す（teammate-message として配信）</span>
+<span class="cm">// { from: "sec", content: "3件のSQLiを発見: line 45, 78, 112..." }</span>
+
+<span class="cm">// メンバーが完了後アイドル状態になる（idle_notification が届く）</span>
+<span class="cm">// { type: "idle_notification", member: "sec" } — 返信不要</span>
+
+<span class="cm">// 全作業完了後、シャットダウン</span>
+SendMessage(to: <span class="str">"sec"</span>,  message: {type: <span class="str">"shutdown_request"</span>})
+SendMessage(to: <span class="str">"perf"</span>, message: {type: <span class="str">"shutdown_request"</span>})
+<span class="cm">// → teammate_terminated が通知されて完了</span></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🎯 最初のチームを動かす</h2>
 
         <div class="exercise">
           <div class="exercise-header">
             <span class="exercise-badge">EXERCISE 2-1</span>
-            <span class="exercise-title">チームで users.js を調査する</span>
+            <span class="exercise-title">チームで sample-project をレビューする</span>
           </div>
 
-          <p>Claude Code（リーダー）に以下のプロンプトを入力してください：</p>
+          <p>Claude Code を起動し、以下のプロンプトを入力してください：</p>
 
           <div class="code-block">
             <div class="code-header"><span class="lang">prompt（リーダーへの指示）</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-            <pre>チームメンバーと協力して src/users.js を調査してください。
-security-reviewer はセキュリティ問題を、
-performance-analyst はパフォーマンス問題を調べてください。
-発見した問題は共有タスクリストに追加して、互いの発見を共有してください。</pre>
+            <pre>セキュリティレビュー担当（security-reviewer）と
+パフォーマンス分析担当（performance-analyst）の2名で
+エージェントチームを作成し、sample-project の src/ 以下を
+並列調査して結果を報告してください。</pre>
           </div>
 
           <h3>観察ポイント</h3>
           <ul class="checklist">
-            <li>リーダーがチームメンバーにタスクを割り振るのを確認できたか？</li>
-            <li><kbd class="kbd">Ctrl+T</kbd> でタスクリストに項目が追加されるのを確認できたか？</li>
-            <li>各エージェントが自分の専門分野の問題を発見しているか？</li>
-            <li>エージェント間でメッセージが交換されているか？</li>
+            <li><code>TeamCreate</code> でチームが作成されるか？</li>
+            <li>2つのエージェントが並列でスポーンされるか（<code>Agent</code> ツールが2回呼ばれるか）？</li>
+            <li>各エージェントが <code>SendMessage</code> で作業報告を返すか？</li>
+            <li>全完了後に <code>shutdown_request</code> → <code>teammate_terminated</code> の graceful shutdown が完了するか？</li>
           </ul>
 
           <div class="callout tip">
@@ -1026,106 +1014,22 @@ performance-analyst はパフォーマンス問題を調べてください。
       </div>
 
       <div class="section">
-        <h2>🔚 チームを終了する</h2>
+        <h2>🔚 チームを正しくシャットダウンする</h2>
         <div class="callout danger">
           <span class="callout-icon">🚨</span>
           <div class="callout-body">
-            <strong>必ずリーダーが終了すること</strong>
-            チームの終了はリーダー（最初のClaude Codeインスタンス）から行います。メンバーのウィンドウを閉じるだけでは不完全です。
+            <strong>シャットダウンは必ずリーダーが行うこと</strong>
+            セッションを突然終了するとメンバープロセスが残ります。リーダーから各メンバーへ <code>shutdown_request</code> を送り、<code>teammate_terminated</code> を受け取ってから終了してください。
           </div>
         </div>
-
-        <h3>インタラクティブ方式（方法 A/B）</h3>
-        <p>リーダーのセッションに戻り、<code>/exit</code> または <code>exit</code> を入力するか、<kbd class="kbd">Ctrl+C</kbd> でリーダーを終了します。リーダーが終了するとメンバーも自動的に終了します。</p>
-
-        <h3>プログラマティック方式（方法 C）— Graceful Shutdown</h3>
-        <p>ツール経由のチームでは、強制終了でなく<strong>graceful shutdown</strong> フローで各メンバーを安全に停止させます。</p>
-
         <div class="code-block">
-          <div class="code-header"><span class="lang">shutdown フロー（Claude が自動実行）</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-          <pre><span class="cm">// 1. リーダーが各メンバーに shutdown_request を送信</span>
-SendMessage({
-  to: <span class="str">"sec"</span>,
-  message: { type: <span class="str">"shutdown_request"</span> }
-})
-SendMessage({
-  to: <span class="str">"perf"</span>,
-  message: { type: <span class="str">"shutdown_request"</span> }
-})
+          <div class="code-header"><span class="lang">シャットダウンの正しい手順</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><span class="cm">// リーダーが各メンバーに shutdown_request を送信</span>
+SendMessage({ to: <span class="str">"sec"</span>,  message: {type: <span class="str">"shutdown_request"</span>} })
+SendMessage({ to: <span class="str">"perf"</span>, message: {type: <span class="str">"shutdown_request"</span>} })
 
-<span class="cm">// 2. メンバーが shutdown_approved を返す</span>
-<span class="cm">// → { type: "shutdown_approved", from: "sec" }</span>
-<span class="cm">// → { type: "shutdown_approved", from: "perf" }</span>
-
-<span class="cm">// 3. system から teammate_terminated が通知されて完了</span>
-<span class="cm">// → { type: "teammate_terminated", name: "sec" }</span></pre>
-        </div>
-
-        <table>
-          <tr>
-            <th>終了方法</th>
-            <th>特徴</th>
-            <th>使いどころ</th>
-          </tr>
-          <tr>
-            <td><kbd class="kbd">Ctrl+C</kbd> / <code>/exit</code></td>
-            <td>強制終了。即座に全メンバーを停止</td>
-            <td>インタラクティブ操作中・緊急時</td>
-          </tr>
-          <tr>
-            <td><code>shutdown_request</code></td>
-            <td>graceful。メンバーが現在の作業を完了してから停止</td>
-            <td>プログラマティック方式・作業を途中で切らしたくない場合</td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="section">
-        <h2>🎯 プログラマティックでチームを起動する</h2>
-
-        <div class="exercise">
-          <div class="exercise-header">
-            <span class="exercise-badge">EXERCISE 2-2</span>
-            <span class="exercise-title">プロンプト一発でチームを自律構成させる</span>
-          </div>
-
-          <p>Claude Code（<code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 有効）に以下のプロンプトを入力してください。Claude が <code>TeamCreate</code> → <code>Agent</code> 呼び出し → <code>SendMessage</code> によるタスク割り当て → shutdown まで自律的に実行します。</p>
-
-          <div class="code-block">
-            <div class="code-header"><span class="lang">prompt（これだけ入力する）</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-            <pre>セキュリティレビュー担当と、パフォーマンス分析担当の
-2名でエージェントチームを作成し、sample-project の
-src/ 以下を並列調査して結果を報告してください。</pre>
-          </div>
-
-          <h3>Claude が内部で実行するフロー</h3>
-          <div class="step-card" data-step="自動実行される手順">
-            <ol>
-              <li><code>TeamCreate("review-team")</code> — チームを作成</li>
-              <li><code>Agent(subagent_type="security-reviewer", team_name="review-team", name="sec")</code> を起動</li>
-              <li><code>Agent(subagent_type="performance-analyst", team_name="review-team", name="perf")</code> を起動</li>
-              <li><code>TaskCreate</code> でタスクを作成し、<code>SendMessage(to: "sec", ...)</code> / <code>SendMessage(to: "perf", ...)</code> で各メンバーに割り当て</li>
-              <li>各メンバーがファイルを調査し、完了後に <code>idle</code> 状態になる</li>
-              <li><code>SendMessage({type: "shutdown_request"})</code> を両メンバーに送信</li>
-              <li><code>shutdown_approved</code> 受信 → <code>teammate_terminated</code> 通知で完了</li>
-            </ol>
-          </div>
-
-          <h3>観察ポイント</h3>
-          <ul class="checklist">
-            <li><code>TeamCreate</code> ツールが呼び出されたか？</li>
-            <li>2 つの <code>Agent</code> ツール呼び出しが（ほぼ同時に）発火したか？</li>
-            <li>各エージェントが専門分野の問題を発見して報告したか？</li>
-            <li>終了時に <code>shutdown_request</code> → <code>shutdown_approved</code> のやり取りが確認できたか？</li>
-          </ul>
-
-          <div class="callout tip">
-            <span class="callout-icon">💡</span>
-            <div class="callout-body">
-              <strong>ツール呼び出しを確認するには</strong>
-              Claude Code の出力に <code>[TeamCreate]</code> <code>[Agent]</code> <code>[SendMessage]</code> などのツール名が表示されます。これがプログラマティック方式の証拠です。
-            </div>
-          </div>
+<span class="cm">// メンバーが shutdown_approved を返す</span>
+<span class="cm">// system から teammate_terminated が通知 → 完了</span></pre>
         </div>
       </div>
 
@@ -1140,126 +1044,104 @@ src/ 以下を並列調査して結果を報告してください。</pre>
       <div class="chapter-header">
         <div class="chapter-num">CHAPTER 03</div>
         <div class="chapter-title">チームを操作する</div>
-        <div class="chapter-desc">キーボードショートカットを使って、チームメンバーの切り替え・タスク確認・中断を行います。</div>
+        <div class="chapter-desc">タスクの割り当て・メンバーへの指示・アイドル通知の扱い・シャットダウンをプログラマティックに操作します。</div>
       </div>
 
       <div class="progress-bar"><div class="progress-fill" style="width:37%"></div></div>
 
       <div class="section">
-        <h2>⌨️ キーボードショートカット一覧</h2>
+        <h2>📋 タスクの割り当てと追跡</h2>
 
-        <div class="shortcut-grid">
-          <div class="shortcut-key"><kbd class="kbd">Shift+↓</kbd></div>
-          <div class="shortcut-desc">チームメンバーを追加する（新規メンバー選択UI を開く）</div>
-
-          <div class="shortcut-key"><kbd class="kbd">Shift+↑</kbd></div>
-          <div class="shortcut-desc">チームメンバーを切り替える（次のメンバーへフォーカス移動）</div>
-
-          <div class="shortcut-key"><kbd class="kbd">Ctrl+T</kbd></div>
-          <div class="shortcut-desc">共有タスクリストを表示・非表示切り替え</div>
-
-          <div class="shortcut-key"><kbd class="kbd">Escape</kbd></div>
-          <div class="shortcut-desc">現在のエージェントの作業を中断する</div>
-
-          <div class="shortcut-key"><kbd class="kbd">Ctrl+C</kbd></div>
-          <div class="shortcut-desc">リーダーのセッションを終了（メンバーも終了）</div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>🔄 メンバー間のフォーカス切り替え</h2>
-
-        <p><kbd class="kbd">Shift+↑</kbd> を押すたびに、フォーカスが次のチームメンバーに移ります。フォーカスしているメンバーに直接メッセージを送ることができます。</p>
-
-        <div class="callout info">
-          <span class="callout-icon">ℹ️</span>
-          <div class="callout-body">
-            <strong>フォーカスとメッセージング</strong>
-            フォーカスしていないメンバーもバックグラウンドで作業を継続しています。<kbd class="kbd">Shift+↑</kbd> は「どのメンバーの会話を見るか・誰に話しかけるか」を切り替えるだけです。
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>📌 プログラマティックなタスク割り当て</h2>
-
-        <p>プログラマティック方式（方法 C）では、リーダーが <code>TaskCreate</code> と <code>SendMessage</code> を組み合わせてタスクをメンバーに割り当てます。インタラクティブ方式の「プロンプトを入力する」に相当する操作です。</p>
-
-        <div class="code-block">
-          <div class="code-header"><span class="lang">タスク割り当てフロー（Claude が内部で実行）</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-          <pre><span class="cm">// 1. リーダーがタスクを作成（ステータス: pending）</span>
-<span class="fn">TaskCreate</span>({
-  title: <span class="str">"src/users.js のセキュリティ調査"</span>,
-  description: <span class="str">"SQLi・認証・認可・機密情報漏洩を確認"</span>,
-  assignee: <span class="str">"sec"</span>
-})
-
-<span class="cm">// 2. SendMessage でメンバーに明示的に割り当て</span>
-<span class="fn">SendMessage</span>({
-  to: <span class="str">"sec"</span>,
-  message: <span class="str">"src/users.js のセキュリティ問題を全て洗い出してください。"</span>
-})
-
-<span class="cm">// 3. メンバーが作業中に TaskUpdate でステータスを更新</span>
-<span class="cm">// → { status: "in_progress" }  ← メンバー側が自律的に更新</span>
-
-<span class="cm">// 4. メンバー完了後に TaskUpdate でステータスを完了に</span>
-<span class="cm">// → { status: "completed", result: "発見した問題のサマリー..." }</span>
-
-<span class="cm">// 5. 完了報告が teammate-message としてリーダーに自動配信</span>
-<span class="cm">// → { type: "teammate_message", from: "sec", content: "調査完了: ..." }</span></pre>
-        </div>
-
-        <div class="callout info">
-          <span class="callout-icon">ℹ️</span>
-          <div class="callout-body">
-            <strong>インタラクティブ vs プログラマティックのタスク割り当て比較</strong>
-            <table style="margin-top:8px">
-              <tr><th>操作</th><th>インタラクティブ（方法A/B）</th><th>プログラマティック（方法C）</th></tr>
-              <tr><td>タスク割り当て</td><td>プロンプトを入力してリーダーに伝える</td><td><code>TaskCreate</code> + <code>SendMessage</code></td></tr>
-              <tr><td>進捗確認</td><td><kbd class="kbd">Ctrl+T</kbd> でタスクリストを表示</td><td><code>TaskGet</code> / <code>TaskList</code> ツールで取得</td></tr>
-              <tr><td>完了通知</td><td>チャット欄にメッセージが届く</td><td><code>teammate-message</code> として自動配信</td></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>🛑 作業の中断と再指示</h2>
-
-        <p>エージェントが誤った方向に進んでいると気づいたら、<kbd class="kbd">Escape</kbd> でそのエージェントの現在の作業を中断できます。その後、新しい指示を送ることができます。</p>
-
-        <div class="step-card" data-step="シナリオ">
-          <h3>性能アナリストが間違ったファイルを調査している場合</h3>
-          <ol>
-            <li><kbd class="kbd">Shift+↑</kbd> で <code>performance-analyst</code> にフォーカスを移す</li>
-            <li><kbd class="kbd">Escape</kbd> で現在の作業を中断</li>
-            <li>正しい指示を入力：<code>src/search.js のパフォーマンス問題を優先して調査してください</code></li>
-          </ol>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>📋 タスクリストの読み方</h2>
-
-        <p><kbd class="kbd">Ctrl+T</kbd> で表示されるタスクリストには以下の情報が含まれます：</p>
-
-        <div class="code-block">
-          <div class="code-header"><span class="lang">タスクリスト表示例</span></div>
-          <pre><span class="cm">── 共有タスクリスト ──────────────────────</span>
-<span class="str">✅ [security-reviewer] users.js SQLインジェクション調査</span>
-<span class="str">✅ [security-reviewer] MD5ハッシュ問題の特定</span>
-<span class="prop">🔄 [performance-analyst] search.js LIKE検索のインデックス分析中...</span>
-<span class="kw">⬜ [leader] 発見した問題のまとめ作成</span>
-<span class="kw">⬜ [leader] 修正方針の策定</span>
-<span class="cm">─────────────────────────────────────────</span></pre>
-        </div>
+        <p>Agent Teams の操作はすべて <strong>プログラマティック</strong>です。リーダーがツールを呼ぶか、リーダーへの自然言語指示を通じてチームを制御します。</p>
 
         <table>
           <tr>
-            <th>アイコン</th>
-            <th>意味</th>
+            <th>操作</th>
+            <th>ツール / 方法</th>
           </tr>
+          <tr>
+            <td><strong>タスク作成</strong></td>
+            <td><code>TaskCreate(subject, description)</code></td>
+          </tr>
+          <tr>
+            <td><strong>タスク割り当て</strong></td>
+            <td><code>SendMessage(to: "メンバー名", message: "指示内容")</code></td>
+          </tr>
+          <tr>
+            <td><strong>完了報告受信</strong></td>
+            <td>メンバーから <code>teammate-message</code> が自動配信される</td>
+          </tr>
+          <tr>
+            <td><strong>タスク状態更新</strong></td>
+            <td>メンバーが <code>TaskUpdate</code> でステータスを変更</td>
+          </tr>
+          <tr>
+            <td><strong>追加指示</strong></td>
+            <td>アイドル状態のメンバーに再度 <code>SendMessage</code></td>
+          </tr>
+          <tr>
+            <td><strong>シャットダウン</strong></td>
+            <td><code>SendMessage({type: "shutdown_request"})</code> → <code>teammate_terminated</code></td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>💤 メンバーのアイドル状態について</h2>
+
+        <p>メンバーはターン終了後に自動的に<strong>アイドル状態</strong>になります。</p>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">アイドル通知の例（JSON形式で自動配信）</span></div>
+          <pre>{
+  <span class="prop">"type"</span>: <span class="str">"idle_notification"</span>,
+  <span class="prop">"member"</span>: <span class="str">"sec"</span>,
+  <span class="prop">"message"</span>: <span class="str">"作業が完了し、次の指示を待っています"</span>
+}</pre>
+        </div>
+
+        <div class="callout info">
+          <span class="callout-icon">ℹ️</span>
+          <div class="callout-body">
+            <strong>アイドル状態の特徴</strong>
+            <ul>
+              <li>アイドル ≠ 終了。次の指示を待っている状態</li>
+              <li><code>SendMessage</code> を送ると再び作業を開始する</li>
+              <li>アイドル通知への返信は<strong>不要</strong>（追加タスクがある場合のみ <code>SendMessage</code>）</li>
+              <li>全員がアイドルになったらシャットダウンのタイミング</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="step-card" data-step="シナリオ">
+          <h3>performance-analyst が誤ったファイルを調査している場合</h3>
+          <p>メンバーが間違った方向に進んでいると判断したら、リーダーが直接 <code>SendMessage</code> で軌道修正します。</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>performance-analyst に SendMessage で
+「src/search.js のパフォーマンス問題を優先して調査してください」
+と指示してください。</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔍 タスクの状態を把握する</h2>
+
+        <p>各メンバーが <code>TaskCreate</code> / <code>TaskUpdate</code> でタスクを更新すると、リーダーは <code>TaskList</code> で一覧を確認できます。</p>
+
+        <div class="code-block">
+          <div class="code-header"><span class="lang">タスク状態の例</span></div>
+          <pre><span class="cm">── TaskList 結果 ────────────────────────────</span>
+<span class="str">✅ [sec]  users.js SQLインジェクション調査     完了</span>
+<span class="str">✅ [sec]  MD5ハッシュ問題の特定               完了</span>
+<span class="prop">🔄 [perf] search.js LIKE検索インデックス分析   進行中</span>
+<span class="kw">⬜ [leader] 発見した問題のまとめ作成          未着手</span>
+<span class="cm">────────────────────────────────────────────</span></pre>
+        </div>
+
+        <table>
+          <tr><th>アイコン</th><th>意味</th></tr>
           <tr><td>✅</td><td>完了済み</td></tr>
           <tr><td>🔄</td><td>作業中</td></tr>
           <tr><td>⬜</td><td>未着手</td></tr>
@@ -1268,62 +1150,7 @@ src/ 以下を並列調査して結果を報告してください。</pre>
       </div>
 
       <div class="section">
-        <h2>💤 メンバーのアイドル状態</h2>
-
-        <p>チームメンバーはターン（指示への応答）が終わると自動的に <strong>idle（アイドル）</strong> 状態になります。これは「終了」ではなく「次の指示を待っている状態」です。</p>
-
-        <div class="code-block">
-          <div class="code-header"><span class="lang">idle 通知 JSON の例</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-          <pre>{
-  <span class="prop">"type"</span>: <span class="str">"idle_notification"</span>,
-  <span class="prop">"from"</span>: <span class="str">"sec"</span>,
-  <span class="prop">"team_name"</span>: <span class="str">"review-team"</span>,
-  <span class="prop">"message"</span>: <span class="str">"src/users.js の調査が完了しました。次の指示をお待ちします。"</span>
-}</pre>
-        </div>
-
-        <table>
-          <tr>
-            <th>状態</th>
-            <th>意味</th>
-            <th>次のアクション</th>
-          </tr>
-          <tr>
-            <td><strong>idle</strong></td>
-            <td>ターン完了。次の指示を待機中</td>
-            <td><code>SendMessage</code> で再起動 / <kbd class="kbd">Shift+↑</kbd> でフォーカスして話しかける</td>
-          </tr>
-          <tr>
-            <td><strong>in_progress</strong></td>
-            <td>タスクを実行中</td>
-            <td><kbd class="kbd">Escape</kbd> で中断 / 作業完了を待つ</td>
-          </tr>
-          <tr>
-            <td><strong>terminated</strong></td>
-            <td>shutdown_approved 後の終了状態</td>
-            <td>再起動不可。チームを再作成する必要がある</td>
-          </tr>
-        </table>
-
-        <div class="callout tip">
-          <span class="callout-icon">💡</span>
-          <div class="callout-body">
-            <strong>idle ≠ 終了</strong>
-            idle になったメンバーは依然としてチームのメンバーであり、<code>SendMessage</code> で新しいタスクを渡せば即座に再開します。「何も言ってこなくなった＝壊れた」ではなく「仕事が終わって待っている」状態です。
-          </div>
-        </div>
-
-        <div class="callout info">
-          <span class="callout-icon">ℹ️</span>
-          <div class="callout-body">
-            <strong>Hook との連携</strong>
-            <code>TeammateIdle</code> Hook（Chapter 06 で詳しく説明）は、メンバーが idle になった瞬間に発火します。この Hook を使うと「idle になったら次のタスクを自動割り当てする」というパイプラインを構築できます。
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2>🎯 実践: チームを操作しながら調査する</h2>
+        <h2>🎯 実践: チームで全モジュールを並列調査する</h2>
 
         <div class="exercise">
           <div class="exercise-header">
@@ -1331,43 +1158,49 @@ src/ 以下を並列調査して結果を報告してください。</pre>
             <span class="exercise-title">全モジュールをチームで並列調査する</span>
           </div>
 
-          <p>以下の手順でチームを操作してください：</p>
+          <p>以下のプロンプトを Claude Code に入力してください：</p>
 
           <div class="step-card" data-step="1">
-            <h3>チームを起動してメンバーを追加</h3>
+            <h3>チームを起動して調査を依頼</h3>
             <div class="code-block">
               <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
               <pre>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 claude</pre>
             </div>
-            <p><kbd class="kbd">Shift+↓</kbd> × 2 で <code>security-reviewer</code> と <code>performance-analyst</code> を追加</p>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>security-reviewer と performance-analyst の2名でチームを作り、
+src/ 以下の全ファイルを分担して調査してください。
+security-reviewer は users.js と comments.js を、
+performance-analyst は search.js と issues.js を担当してください。
+発見した問題はそれぞれ TaskCreate でタスクとして記録し、
+全完了後に報告してください。</pre>
+            </div>
           </div>
 
           <div class="step-card" data-step="2">
-            <h3>リーダーに調査を依頼</h3>
+            <h3>進捗を確認する</h3>
             <div class="code-block">
               <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
-              <pre>src/ 以下の全ファイルを分担して調査してください。
-security-reviewer は users.js と comments.js を、
-performance-analyst は search.js と issues.js を担当してください。
-発見した問題は全て共有タスクリストに追加してください。</pre>
+              <pre>TaskList で現在のタスク状況を確認してください。</pre>
             </div>
           </div>
 
           <div class="step-card" data-step="3">
-            <h3>タスクリストを定期的に確認</h3>
-            <p><kbd class="kbd">Ctrl+T</kbd> を押して、タスクが追加・完了されていくのを観察してください。</p>
-          </div>
-
-          <div class="step-card" data-step="4">
-            <h3>メンバーを切り替えて状況確認</h3>
-            <p><kbd class="kbd">Shift+↑</kbd> で各メンバーにフォーカスを移し、それぞれが何を発見しているか確認してください。</p>
+            <h3>追加指示で深掘りする</h3>
+            <div class="code-block">
+              <div class="code-header"><span class="lang">prompt</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+              <pre>performance-analyst に SendMessage で、
+search.js の getPopularIssues() のキャッシュ欠如問題を
+重点的に確認するよう追加指示してください。</pre>
+            </div>
           </div>
 
           <h3>確認チェックリスト</h3>
           <ul class="checklist">
             <li>2つのエージェントが並列で異なるファイルを調査できたか？</li>
-            <li>タスクリストにメンバー名付きのタスクが追加されたか？</li>
-            <li><kbd class="kbd">Shift+↑</kbd> でメンバーを切り替えられたか？</li>
+            <li><code>TaskCreate</code> でタスクが登録されたか？</li>
+            <li>メンバーが <code>teammate-message</code> で自動報告したか？</li>
+            <li>アイドル通知（<code>idle_notification</code>）が届いたか？</li>
             <li>各エージェントが自分の専門分野の問題を優先して発見しているか？</li>
           </ul>
         </div>
@@ -2148,11 +1981,11 @@ db.js は両者で確認して競合状態・メモリリークを特定する
           </tr>
           <tr>
             <td>Ch02</td>
-            <td>チーム起動 (<kbd class="kbd">Shift+↓</kbd>)、エージェント定義の流用、チーム終了</td>
+            <td><code>TeamCreate</code> → <code>Agent</code> によるプログラマティック起動、エージェント定義の流用、graceful shutdown</td>
           </tr>
           <tr>
             <td>Ch03</td>
-            <td>フォーカス切り替え (<kbd class="kbd">Shift+↑</kbd>)、タスクリスト (<kbd class="kbd">Ctrl+T</kbd>)、中断 (<kbd class="kbd">Escape</kbd>)</td>
+            <td><code>SendMessage</code> による追加指示、アイドル通知の扱い、<code>TaskList</code> での状態確認</td>
           </tr>
           <tr>
             <td>Ch04</td>
