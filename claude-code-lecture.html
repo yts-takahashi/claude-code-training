@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code で変わる！研修運営の新常識</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #102346;
+    --navy2: #1a3a6e;
+    --cyan: #0099D8;
+    --cyan-light: #e6f6fd;
+    --blue: #2c79bc;
+    --orange: #F5821F;
+    --green: #27AE60;
+    --red: #E74C3C;
+    --yellow: #F39C12;
+    --white: #FFFFFF;
+    --gray: #9b9b9b;
+    --light-bg: #f5f7fa;
+    --dark-text: #1a1a2e;
+    --body-text: #333333;
+  }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body { font-family: 'M PLUS 1p', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; background: #000; color: var(--dark-text); }
+
+  /* ===== SLIDE ENGINE ===== */
+  .slides-container { width: 100vw; height: 100vh; }
+  .slide { display: none; width: 100vw; height: 100vh; overflow: hidden; position: relative; }
+  .slide.active { display: flex; flex-direction: column; }
+
+  /* ===== COMMON PARTS ===== */
+  .slide-header {
+    background: var(--navy);
+    padding: 0 60px;
+    height: 72px; min-height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .slide-header h2 { font-size: 1.25em; font-weight: 700; color: var(--white); }
+  .slide-header .tag {
+    background: var(--cyan); color: var(--white);
+    font-size: 0.7em; font-weight: 700;
+    padding: 4px 12px; border-radius: 20px;
+  }
+  .slide-body { flex: 1; overflow: hidden; }
+  .slide-footer {
+    height: 36px; min-height: 36px;
+    background: var(--navy);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 60px;
+  }
+  .slide-footer .copy { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .slide-footer .page { font-size: 12px; color: rgba(255,255,255,0.6); }
+
+  /* ===== COVER ===== */
+  .slide.cover {
+    background: linear-gradient(135deg, var(--navy) 0%, #0d2b5e 50%, #102346 100%);
+    justify-content: center; align-items: center; text-align: center; flex-direction: column;
+  }
+  .cover-badge {
+    background: var(--cyan); color: var(--white);
+    font-size: 0.85em; font-weight: 700;
+    padding: 6px 20px; border-radius: 30px;
+    margin-bottom: 32px; display: inline-block;
+    letter-spacing: 0.05em;
+  }
+  .cover h1 {
+    font-size: 2.8em; font-weight: 800; color: var(--white);
+    line-height: 1.5; margin-bottom: 20px;
+  }
+  .cover h1 span { color: var(--cyan); }
+  .cover .subtitle {
+    font-size: 1.1em; color: rgba(255,255,255,0.7);
+    font-weight: 400; margin-bottom: 48px; line-height: 1.8;
+  }
+  .cover-meta { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+  .cover-meta-item { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.5); font-size: 0.9em; }
+  .cover-dots {
+    position: absolute; width: 100%; height: 100%;
+    background-image: radial-gradient(rgba(0,153,216,0.12) 1px, transparent 1px);
+    background-size: 40px 40px; pointer-events: none;
+  }
+  .cover-glow {
+    position: absolute; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,153,216,0.15) 0%, transparent 70%);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* ===== DIVIDER ===== */
+  .slide.divider { flex-direction: row !important; }
+  .divider-left {
+    width: 45%; background: var(--navy);
+    display: flex; flex-direction: column; justify-content: center; padding: 60px;
+  }
+  .divider-left .section-label { color: var(--cyan); font-size: 0.9em; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 16px; }
+  .divider-left h2 { font-size: 2.2em; font-weight: 800; color: var(--white); line-height: 1.5; }
+  .divider-left p { margin-top: 20px; color: rgba(255,255,255,0.65); font-size: 0.95em; line-height: 1.9; }
+  .divider-right {
+    width: 55%; background: linear-gradient(135deg, #1a3a6e, #0d1b36);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ===== CONTENT LAYOUTS ===== */
+  .slide.content { background: var(--light-bg); }
+  .body-2col { display: flex; gap: 24px; height: 100%; padding: 36px 60px; }
+  .body-pad { padding: 36px 60px; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 20px 24px;
+  }
+  .card.accent-top { border-top: 4px solid var(--cyan); }
+  .card.accent-orange { border-top: 4px solid var(--orange); }
+  .card.accent-green { border-top: 4px solid var(--green); }
+  .card.accent-red { border-top: 4px solid var(--red); }
+  .card h3 { font-size: 1em; font-weight: 700; color: var(--navy); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .card p, .card li { font-size: 0.88em; color: var(--body-text); line-height: 1.8; }
+  .card ul { padding-left: 16px; }
+
+  /* ===== ICON BADGE ===== */
+  .icon-badge {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 1.2em; flex-shrink: 0;
+  }
+  .icon-badge.cyan { background: var(--cyan-light); }
+  .icon-badge.orange { background: #fef3ea; }
+  .icon-badge.green { background: #eafaf1; }
+  .icon-badge.red { background: #fdf0ef; }
+
+  /* ===== CHAT BUBBLE ===== */
+  .chat-area { display: flex; flex-direction: column; gap: 12px; }
+  .chat-bubble {
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .chat-bubble.user { flex-direction: row-reverse; }
+  .chat-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85em; font-weight: 700; flex-shrink: 0;
+  }
+  .chat-avatar.user-av { background: var(--orange); color: white; }
+  .chat-avatar.ai-av { background: var(--cyan); color: white; }
+  .bubble-text {
+    max-width: 80%; padding: 10px 16px; border-radius: 16px;
+    font-size: 0.83em; line-height: 1.7;
+  }
+  .bubble-text.user-bubble { background: var(--orange); color: white; border-radius: 16px 4px 16px 16px; }
+  .bubble-text.ai-bubble { background: var(--white); color: var(--dark-text); border-radius: 4px 16px 16px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .bubble-text code { background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+
+  /* ===== STEP FLOW ===== */
+  .step-flow { display: flex; gap: 0; align-items: stretch; }
+  .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .step-item:not(:last-child)::after {
+    content: '→';
+    position: absolute; right: -16px; top: 24px;
+    font-size: 1.4em; color: var(--cyan);
+    z-index: 1;
+  }
+  .step-num {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--cyan); color: white;
+    font-size: 1.1em; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px; flex-shrink: 0;
+  }
+  .step-content {
+    background: white; border-radius: 12px;
+    padding: 14px 12px; text-align: center;
+    width: calc(100% - 32px);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    flex: 1;
+  }
+  .step-content h4 { font-size: 0.85em; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+  .step-content p { font-size: 0.78em; color: #666; line-height: 1.7; }
+  .step-emoji { font-size: 1.5em; margin-bottom: 6px; }
+
+  /* ===== HIGHLIGHT BOX ===== */
+  .highlight-box {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+    border-radius: 14px; padding: 20px 24px;
+    color: white;
+  }
+  .highlight-box h3 { font-size: 1em; font-weight: 700; color: var(--cyan); margin-bottom: 10px; }
+  .highlight-box p { font-size: 0.87em; line-height: 1.8; color: rgba(255,255,255,0.85); }
+
+  /* ===== BROWSER MOCKUP ===== */
+  .browser-mock {
+    background: #1e1e2e; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .browser-bar {
+    background: #2d2d3f; padding: 8px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser-url {
+    flex: 1; background: #1a1a2a; border-radius: 6px;
+    padding: 3px 12px; font-size: 0.75em; color: #aaa; margin: 0 8px;
+    font-family: monospace;
+  }
+  .browser-content { padding: 16px; }
+
+  /* ===== TERMINAL ===== */
+  .terminal {
+    background: #1e1e2e; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    font-family: 'Courier New', monospace; font-size: 0.8em;
+  }
+  .terminal-bar {
+    background: #2d2d3f; padding: 8px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .terminal-title { color: #888; font-size: 0.85em; margin-left: 8px; }
+  .terminal-body { padding: 16px 20px; color: #cdd6f4; line-height: 1.9; }
+  .terminal-body .prompt { color: var(--cyan); }
+  .terminal-body .input { color: #a6e3a1; }
+  .terminal-body .output { color: #cdd6f4; }
+  .terminal-body .comment { color: #6c7086; }
+
+  /* ===== SLACK MOCKUP ===== */
+  .slack-mock {
+    background: #1a1d21; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .slack-header {
+    background: #19171d; padding: 10px 16px;
+    display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #333;
+  }
+  .slack-channel { color: #d1d2d3; font-size: 0.9em; font-weight: 700; }
+  .slack-body { padding: 16px; }
+  .slack-msg { display: flex; gap: 10px; margin-bottom: 12px; }
+  .slack-avatar {
+    width: 34px; height: 34px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1em; flex-shrink: 0; font-weight: 700;
+  }
+  .slack-msg-content { flex: 1; }
+  .slack-sender { font-size: 0.82em; font-weight: 700; color: #d1d2d3; margin-bottom: 2px; }
+  .slack-sender .timestamp { font-weight: 400; color: #666; margin-left: 6px; font-size: 0.85em; }
+  .slack-text { font-size: 0.82em; color: #d1d2d3; line-height: 1.6; }
+  .slack-text .mention { color: #1d9bd1; }
+  .slack-bot-badge {
+    background: #1d9bd1; color: white;
+    font-size: 0.6em; padding: 1px 4px; border-radius: 3px; margin-left: 4px; font-weight: 700;
+  }
+
+  /* ===== TABLE ===== */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
+  .data-table th { background: var(--navy); color: white; padding: 8px 12px; text-align: left; font-weight: 700; }
+  .data-table td { padding: 7px 12px; border-bottom: 1px solid #e8ecf2; }
+  .data-table tr:nth-child(even) td { background: #f9fafb; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 700; }
+  .badge.red { background: #fde8e8; color: var(--red); }
+  .badge.yellow { background: #fef9e7; color: var(--yellow); }
+  .badge.green { background: #eafaf1; color: var(--green); }
+
+  /* ===== POINT LIST ===== */
+  .point-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .point-list li {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: white; border-radius: 10px; padding: 12px 16px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    font-size: 0.88em; line-height: 1.7;
+  }
+  .point-list li .bullet {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--cyan); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75em; font-weight: 700; flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== KEYWORD TAG ===== */
+  .kw-tag {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 0.8em; font-weight: 700; margin: 3px;
+  }
+  .kw-tag.neg { background: #fde8e8; color: var(--red); border: 1px solid #f5c6c6; }
+  .kw-tag.pos { background: #eafaf1; color: var(--green); border: 1px solid #b8e8cb; }
+
+  /* ===== NAVIGATION ===== */
+  .nav-bar {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 10px; align-items: center;
+    background: rgba(16, 35, 70, 0.95); border-radius: 50px;
+    padding: 8px 20px; z-index: 100;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+  }
+  .nav-btn {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    cursor: pointer; font-size: 1.1em; padding: 6px 14px;
+    border-radius: 30px; transition: all 0.2s;
+    font-family: inherit;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+  .nav-counter { color: rgba(255,255,255,0.5); font-size: 0.8em; min-width: 60px; text-align: center; }
+  .nav-dots { display: flex; gap: 5px; align-items: center; }
+  .nav-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s;
+  }
+  .nav-dot.active { background: var(--cyan); width: 18px; border-radius: 3px; }
+
+  /* ===== BACK COVER ===== */
+  .slide.backcover {
+    background: linear-gradient(135deg, var(--navy) 0%, #0d2b5e 100%);
+    justify-content: center; align-items: center;
+  }
+  .backcover-inner { text-align: center; }
+  .backcover-inner h2 { font-size: 2.4em; font-weight: 800; color: white; margin-bottom: 20px; }
+  .backcover-inner h2 span { color: var(--cyan); }
+  .backcover-inner p { color: rgba(255,255,255,0.65); font-size: 1em; line-height: 1.9; }
+
+  /* ===== UTILS ===== */
+  .text-cyan { color: var(--cyan); }
+  .text-orange { color: var(--orange); }
+  .text-red { color: var(--red); }
+  .text-green { color: var(--green); }
+  .fw-700 { font-weight: 700; }
+  .section-title { font-size: 1.15em; font-weight: 700; color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; display: block; width: 4px; height: 1.2em; background: var(--cyan); border-radius: 2px; }
+  .divider-line { border: none; border-top: 1px solid #e0e6ee; margin: 12px 0; }
+  .small { font-size: 0.78em; color: #777; }
+  .gap-12 { gap: 12px; }
+  .mt-12 { margin-top: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+</style>
+</head>
+<body>
+<div class="slides-container">
+
+  <!-- ===== SLIDE 1: COVER ===== -->
+  <div class="slide cover active" data-index="0">
+    <div class="cover-dots"></div>
+    <div class="cover-glow"></div>
+    <div class="cover-badge">Claude Code 活用講座</div>
+    <h1>AIに話しかけるだけで<br><span>研修運営がラクになる</span></h1>
+    <p class="subtitle">
+      プログラミング不要・操作は日本語テキストのみ<br>
+      Slack報告・データ収集・日報分析を自動化しよう
+    </p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span>🎯</span><span>対象：非エンジニアの研修担当者</span>
+      </div>
+      <div class="cover-meta-item">
+        <span>⏱</span><span>所要時間：約60分</span>
+      </div>
+      <div class="cover-meta-item">
+        <span>🛠</span><span>使用ツール：Claude Code</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 2: Claude Codeとは ===== -->
+  <div class="slide content" data-index="1">
+    <div class="slide-header">
+      <h2>Claude Code とは？</h2>
+      <span class="tag">基礎知識</span>
+    </div>
+    <div class="slide-body body-pad" style="justify-content:flex-start; padding-top:28px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; height:100%;">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="highlight-box">
+            <h3>Claude Code とは</h3>
+            <p>Anthropic社が開発した<strong style="color:white;">AIエージェント</strong>です。<br>
+            ターミナル（黒い画面）に<strong style="color:white;">日本語で指示するだけ</strong>で、ファイルの作成・編集・ブラウザ操作・データ集計など様々な作業を自動でこなします。</p>
+          </div>
+          <div class="card" style="flex:1;">
+            <h3><span class="icon-badge cyan">💬</span> 使い方はシンプル</h3>
+            <div class="chat-area" style="margin-top:6px;">
+              <div class="chat-bubble user">
+                <div class="chat-avatar user-av">私</div>
+                <div class="bubble-text user-bubble">今日の勤怠報告を Slack の #勤怠チャンネルに投稿して。「9時05分 業務開始」という内容で</div>
+              </div>
+              <div class="chat-bubble">
+                <div class="chat-avatar ai-av">AI</div>
+                <div class="bubble-text ai-bubble">了解しました！Slack の #勤怠 チャンネルに「9時05分 業務開始」を投稿しました ✅</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="card accent-top" style="flex:0 0 auto;">
+            <h3><span class="icon-badge cyan">🤖</span> できることの例</h3>
+            <ul class="point-list" style="margin-top:8px;">
+              <li><span class="bullet">1</span><div>Slack・チャットツールへの自動投稿</div></li>
+              <li><span class="bullet">2</span><div>Webブラウザを自動操作してデータ収集</div></li>
+              <li><span class="bullet">3</span><div>Excelやレポートを自動生成</div></li>
+              <li><span class="bullet">4</span><div>テキストを分析・要約・分類</div></li>
+            </ul>
+          </div>
+          <div class="card" style="background: linear-gradient(135deg,#fff9f0,#fff); border-left: 4px solid var(--orange);">
+            <h3><span style="color:var(--orange)">⚡</span> 今日のゴール</h3>
+            <p style="margin-top:6px; line-height:1.9;">
+              研修運営でよく発生する<strong>4つの作業</strong>をClaude Codeに任せ、<br>
+              空いた時間を受講者サポートに使えるようにしましょう！
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">2</span></div>
+  </div>
+
+  <!-- ===== SLIDE 3: 本日のアジェンダ ===== -->
+  <div class="slide content" data-index="2">
+    <div class="slide-header">
+      <h2>本日カバーする4つのユースケース</h2>
+      <span class="tag">アジェンダ</span>
+    </div>
+    <div class="slide-body body-pad">
+      <div class="grid-2" style="height:100%;">
+        <div class="card" style="border-left: 5px solid var(--cyan);">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            <div style="width:48px; height:48px; border-radius:12px; background: var(--cyan); display:flex; align-items:center; justify-content:center; font-size:1.6em; flex-shrink:0;">💬</div>
+            <div>
+              <div class="small" style="color:var(--cyan); font-weight:700;">CASE 01</div>
+              <div style="font-size:1.05em; font-weight:800; color:var(--navy);">Slack 勤怠報告</div>
+            </div>
+          </div>
+          <p>オンライン研修中の<strong>業務開始・一時離席・復帰報告</strong>を、時刻と理由を指定してAIに投稿させる。</p>
+          <hr class="divider-line">
+          <p class="small">🛠 使用ツール: Slack MCP</p>
+        </div>
+        <div class="card" style="border-left: 5px solid var(--orange);">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            <div style="width:48px; height:48px; border-radius:12px; background: var(--orange); display:flex; align-items:center; justify-content:center; font-size:1.6em; flex-shrink:0;">📊</div>
+            <div>
+              <div class="small" style="color:var(--orange); font-weight:700;">CASE 02</div>
+              <div style="font-size:1.05em; font-weight:800; color:var(--navy);">CSAT推移スクショ</div>
+            </div>
+          </div>
+          <p>定例報告用に<strong>期間を指定してCSATグラフをスクリーンショット</strong>で取得。報告資料の差し込みまで自動化。</p>
+          <hr class="divider-line">
+          <p class="small">🛠 使用ツール: Playwright MCP（ブラウザ自動操作）</p>
+        </div>
+        <div class="card" style="border-left: 5px solid var(--red);">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            <div style="width:48px; height:48px; border-radius:12px; background: var(--red); display:flex; align-items:center; justify-content:center; font-size:1.6em; flex-shrink:0;">🔍</div>
+            <div>
+              <div class="small" style="color:var(--red); font-weight:700;">CASE 03</div>
+              <div style="font-size:1.05em; font-weight:800; color:var(--navy);">日報ネガティブ検出</div>
+            </div>
+          </div>
+          <p>日報テキストから<strong>不満・疲労・困惑を示すワード</strong>を自動抽出。フォローが必要な受講者を素早く特定。</p>
+          <hr class="divider-line">
+          <p class="small">🛠 使用ツール: Playwright MCP + Claude AI分析</p>
+        </div>
+        <div class="card" style="border-left: 5px solid var(--green);">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+            <div style="width:48px; height:48px; border-radius:12px; background: var(--green); display:flex; align-items:center; justify-content:center; font-size:1.6em; flex-shrink:0;">📋</div>
+            <div>
+              <div class="small" style="color:var(--green); font-weight:700;">CASE 04</div>
+              <div style="font-size:1.05em; font-weight:800; color:var(--navy);">受講者別 日報一覧</div>
+            </div>
+          </div>
+          <p>受講者ごとに<strong>日報の推移・感情変化・コメント</strong>をまとめた一覧レポートをHTMLで自動生成。</p>
+          <hr class="divider-line">
+          <p class="small">🛠 使用ツール: Playwright MCP + HTML生成</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">3</span></div>
+  </div>
+
+  <!-- ===== SLIDE 4: DIVIDER - CASE 01 ===== -->
+  <div class="slide divider" data-index="3">
+    <div class="divider-left">
+      <div class="section-label">CASE 01</div>
+      <h2>Slack<br>勤怠報告の<br>自動化</h2>
+      <p>「何時に何の報告をしたいか」を日本語で伝えるだけ。Slackへの投稿をClaude Codeが代わりに行います。</p>
+    </div>
+    <div class="divider-right" style="flex-direction:column; gap:20px; padding:40px;">
+      <div style="font-size:4em;">💬</div>
+      <div style="color:rgba(255,255,255,0.6); text-align:center; font-size:0.9em; line-height:1.9;">
+        業務開始・離席・復帰を<br>自動でSlackに投稿
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 5: CASE 01 詳細 ===== -->
+  <div class="slide content" data-index="4">
+    <div class="slide-header">
+      <h2>CASE 01｜Slack 勤怠報告 — 使い方</h2>
+      <span class="tag" style="background:var(--cyan);">💬 Slack</span>
+    </div>
+    <div class="slide-body body-2col">
+      <div class="col" style="flex:1.1;">
+        <div class="section-title">こう話しかけるだけ</div>
+        <div class="card" style="flex:1;">
+          <div class="chat-area">
+            <div class="chat-bubble user">
+              <div class="chat-avatar user-av">私</div>
+              <div class="bubble-text user-bubble">9時02分に業務を開始した旨を #勤怠報告 チャンネルに投稿して</div>
+            </div>
+            <div class="chat-bubble">
+              <div class="chat-avatar ai-av">AI</div>
+              <div class="bubble-text ai-bubble">了解です。#勤怠報告 に以下を投稿します：<br><br>「09:02 業務開始しました」<br><br>投稿完了しました ✅</div>
+            </div>
+            <div class="chat-bubble user">
+              <div class="chat-avatar user-av">私</div>
+              <div class="bubble-text user-bubble">14時30分から体調不良で一時離席します、と #勤怠報告 に投稿して</div>
+            </div>
+            <div class="chat-bubble">
+              <div class="chat-avatar ai-av">AI</div>
+              <div class="bubble-text ai-bubble">「14:30 体調不良により一時離席いたします」<br>を #勤怠報告 に投稿しました ✅<br><br>お大事に。復帰報告が必要な際はお声がけください。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="flex:0.9;">
+        <div class="section-title">Slackの投稿イメージ</div>
+        <div class="slack-mock">
+          <div class="slack-header">
+            <span style="color:#aaa; font-size:1em;">#</span>
+            <span class="slack-channel">勤怠報告</span>
+          </div>
+          <div class="slack-body">
+            <div class="slack-msg">
+              <div class="slack-avatar" style="background:#27AE60; color:white;">田</div>
+              <div class="slack-msg-content">
+                <div class="slack-sender">田中 花子<span class="timestamp">9:02 AM</span></div>
+                <div class="slack-text">09:02 業務開始しました</div>
+              </div>
+            </div>
+            <div class="slack-msg">
+              <div class="slack-avatar" style="background:#27AE60; color:white;">田</div>
+              <div class="slack-msg-content">
+                <div class="slack-sender">田中 花子<span class="timestamp">14:30 PM</span></div>
+                <div class="slack-text">14:30 体調不良により一時離席いたします</div>
+              </div>
+            </div>
+            <div class="slack-msg">
+              <div class="slack-avatar" style="background:#27AE60; color:white;">田</div>
+              <div class="slack-msg-content">
+                <div class="slack-sender">田中 花子<span class="timestamp">15:10 PM</span></div>
+                <div class="slack-text">15:10 業務復帰しました。ご迷惑をおかけしました。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card accent-top" style="margin-top:4px;">
+          <h3>💡 ポイント</h3>
+          <ul style="padding-left:16px; margin-top:6px;">
+            <li style="font-size:0.83em; line-height:1.8;">日時・状況を自然な日本語で伝えるだけ</li>
+            <li style="font-size:0.83em; line-height:1.8;">投稿先チャンネルも指定できる</li>
+            <li style="font-size:0.83em; line-height:1.8;">フォーマットはAIが自動で整形</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">5</span></div>
+  </div>
+
+  <!-- ===== SLIDE 6: DIVIDER - CASE 02 ===== -->
+  <div class="slide divider" data-index="5">
+    <div class="divider-left">
+      <div class="section-label">CASE 02</div>
+      <h2>CSAT推移を<br>期間指定して<br>スクショ取得</h2>
+      <p>ブラウザを自動操作して定例報告用のグラフをキャプチャ。毎回の手作業から解放されます。</p>
+    </div>
+    <div class="divider-right" style="flex-direction:column; gap:20px; padding:40px;">
+      <div style="font-size:4em;">📊</div>
+      <div style="color:rgba(255,255,255,0.6); text-align:center; font-size:0.9em; line-height:1.9;">
+        Playwright MCPで<br>ブラウザを自動操作
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 7: CASE 02 詳細 ===== -->
+  <div class="slide content" data-index="6">
+    <div class="slide-header">
+      <h2>CASE 02｜CSAT推移スクショ — 仕組みと使い方</h2>
+      <span class="tag" style="background:var(--orange);">📊 CSAT</span>
+    </div>
+    <div class="slide-body body-2col">
+      <div class="col" style="flex:1.1;">
+        <div class="section-title">Playwright MCP とは</div>
+        <div class="card accent-top" style="margin-bottom:0;">
+          <h3>🌐 ブラウザを "代わりに操作" してくれる仕組み</h3>
+          <div class="step-flow" style="margin-top:14px; gap:8px;">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div class="step-content">
+                <div class="step-emoji">💬</div>
+                <h4>あなたが指示</h4>
+                <p>「先月分のCSATをスクショして」</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div class="step-content">
+                <div class="step-emoji">🤖</div>
+                <h4>AIがログイン</h4>
+                <p>管理画面に自動でアクセス</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div class="step-content">
+                <div class="step-emoji">🖱</div>
+                <h4>期間を設定</h4>
+                <p>日付入力・フィルタ操作を自動実行</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div class="step-content">
+                <div class="step-emoji">📸</div>
+                <h4>スクショ保存</h4>
+                <p>グラフ画像をファイルに保存</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <div class="chat-area">
+            <div class="chat-bubble user">
+              <div class="chat-avatar user-av">私</div>
+              <div class="bubble-text user-bubble">mjs.train.tracks.run の管理画面で、6月1日〜6月30日のCSAT推移グラフをスクリーンショットして保存して</div>
+            </div>
+            <div class="chat-bubble">
+              <div class="chat-avatar ai-av">AI</div>
+              <div class="bubble-text ai-bubble">ブラウザを起動して管理画面にアクセスします…<br>
+              期間を6/1〜6/30に設定しました。<br>
+              CSATグラフのスクリーンショットを<code>csat_june.png</code>として保存しました ✅</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="flex:0.9;">
+        <div class="section-title">ブラウザ操作のイメージ</div>
+        <div class="browser-mock">
+          <div class="browser-bar">
+            <div class="browser-dot" style="background:#ff5f57;"></div>
+            <div class="browser-dot" style="background:#ffbd2e;"></div>
+            <div class="browser-dot" style="background:#28c840;"></div>
+            <div class="browser-url">mjs.train.tracks.run/dashboard/csat</div>
+          </div>
+          <div class="browser-content">
+            <div style="background:#252540; border-radius:8px; padding:12px;">
+              <div style="color:#aaa; font-size:0.75em; margin-bottom:8px;">📅 期間: 2024/06/01 〜 2024/06/30</div>
+              <!-- Fake chart -->
+              <div style="height:100px; display:flex; align-items:flex-end; gap:6px; padding:0 4px;">
+                <div style="flex:1; background:linear-gradient(to top, #0099D8, #66c7f0); height:60%; border-radius:3px 3px 0 0;"></div>
+                <div style="flex:1; background:linear-gradient(to top, #0099D8, #66c7f0); height:75%; border-radius:3px 3px 0 0;"></div>
+                <div style="flex:1; background:linear-gradient(to top, #0099D8, #66c7f0); height:65%; border-radius:3px 3px 0 0;"></div>
+                <div style="flex:1; background:linear-gradient(to top, #0099D8, #66c7f0); height:80%; border-radius:3px 3px 0 0;"></div>
+                <div style="flex:1; background:linear-gradient(to top, #F5821F, #f9b36e); height:55%; border-radius:3px 3px 0 0;"></div>
+                <div style="flex:1; background:linear-gradient(to top, #0099D8, #66c7f0); height:85%; border-radius:3px 3px 0 0;"></div>
+                <div style="flex:1; background:linear-gradient(to top, #0099D8, #66c7f0); height:90%; border-radius:3px 3px 0 0;"></div>
+                <div style="flex:1; background:linear-gradient(to top, #27AE60, #6fcf97); height:95%; border-radius:3px 3px 0 0;"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; color:#666; font-size:0.68em; margin-top:4px;">
+                <span>6/1</span><span>6/8</span><span>6/15</span><span>6/22</span><span>6/30</span>
+              </div>
+              <div style="color:#27AE60; font-size:0.78em; margin-top:8px; font-weight:700;">CSAT平均: 4.2 / 5.0 ↑</div>
+            </div>
+            <div style="margin-top:8px; display:flex; align-items:center; gap:6px; font-size:0.72em; color:#27AE60;">
+              <span>✅</span><span style="color:#aaa;">csat_june.png として保存完了</span>
+            </div>
+          </div>
+        </div>
+        <div class="card accent-top" style="margin-top:14px;">
+          <h3>⏱ どれくらい時間が削減できる？</h3>
+          <div style="display:flex; gap:16px; margin-top:10px;">
+            <div style="text-align:center; flex:1;">
+              <div style="font-size:1.8em; font-weight:800; color:#E74C3C;">15分</div>
+              <div class="small">従来の手作業</div>
+            </div>
+            <div style="display:flex; align-items:center; font-size:1.5em; color:var(--cyan);">→</div>
+            <div style="text-align:center; flex:1;">
+              <div style="font-size:1.8em; font-weight:800; color:var(--green);">1分</div>
+              <div class="small">Claude Code利用時</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">7</span></div>
+  </div>
+
+  <!-- ===== SLIDE 8: DIVIDER - CASE 03 ===== -->
+  <div class="slide divider" data-index="7">
+    <div class="divider-left">
+      <div class="section-label">CASE 03</div>
+      <h2>日報の<br>ネガティブワードを<br>自動検出</h2>
+      <p>大量の日報を一括読み込み、フォローが必要な受講者をAIが自動でピックアップします。</p>
+    </div>
+    <div class="divider-right" style="flex-direction:column; gap:20px; padding:40px;">
+      <div style="font-size:4em;">🔍</div>
+      <div style="color:rgba(255,255,255,0.6); text-align:center; font-size:0.9em; line-height:1.9;">
+        感情分析で見落としゼロへ
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 9: CASE 03 詳細 ===== -->
+  <div class="slide content" data-index="8">
+    <div class="slide-header">
+      <h2>CASE 03｜日報ネガティブワード検出 — 仕組みと出力</h2>
+      <span class="tag" style="background:var(--red);">🔍 分析</span>
+    </div>
+    <div class="slide-body body-2col">
+      <div class="col" style="flex:1;">
+        <div class="section-title">何を検出するか</div>
+        <div class="card" style="margin-bottom:0;">
+          <h3>検出するネガティブワードの例</h3>
+          <div style="margin-top:10px; line-height:2;">
+            <span class="kw-tag neg">難しい</span>
+            <span class="kw-tag neg">わからない</span>
+            <span class="kw-tag neg">つらい</span>
+            <span class="kw-tag neg">疲れた</span>
+            <span class="kw-tag neg">不安</span>
+            <span class="kw-tag neg">ついていけない</span>
+            <span class="kw-tag neg">焦っている</span>
+            <span class="kw-tag neg">限界</span>
+            <span class="kw-tag neg">できなかった</span>
+            <span class="kw-tag neg">自信がない</span>
+            <span class="kw-tag neg">混乱</span>
+            <span class="kw-tag neg">しんどい</span>
+          </div>
+          <hr class="divider-line">
+          <p class="small">※ AIが文脈を理解して判定するため、ネガティブな意味を持たない使い方は除外されます</p>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <div class="chat-area">
+            <div class="chat-bubble user">
+              <div class="chat-avatar user-av">私</div>
+              <div class="bubble-text user-bubble">今週の全受講者の日報を取得して、ネガティブなワードや表現が含まれている人をリストアップして</div>
+            </div>
+            <div class="chat-bubble">
+              <div class="chat-avatar ai-av">AI</div>
+              <div class="bubble-text ai-bubble">管理画面から今週分の日報を取得しました。<br>分析結果：<br>
+              🔴 <strong>要フォロー</strong>: 山田さん、鈴木さん（強いネガティブ表現あり）<br>
+              🟡 <strong>様子見</strong>: 佐藤さん（一部不安の表現）<br>
+              🟢 <strong>問題なし</strong>: その他8名</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="flex:1;">
+        <div class="section-title">出力レポートのイメージ</div>
+        <div class="card" style="flex:1; padding:16px 20px;">
+          <div style="font-size:0.8em; font-weight:700; color:var(--navy); margin-bottom:10px;">📋 日報分析レポート ｜ 2024年6月第3週</div>
+          <table class="data-table" style="font-size:0.78em;">
+            <thead>
+              <tr>
+                <th>受講者名</th>
+                <th>判定</th>
+                <th>検出ワード</th>
+                <th>日付</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>山田 太郎</strong></td>
+                <td><span class="badge red">要フォロー</span></td>
+                <td><span class="kw-tag neg" style="font-size:0.8em;">ついていけない</span></td>
+                <td>6/18</td>
+              </tr>
+              <tr>
+                <td><strong>鈴木 一郎</strong></td>
+                <td><span class="badge red">要フォロー</span></td>
+                <td><span class="kw-tag neg" style="font-size:0.8em;">不安</span><span class="kw-tag neg" style="font-size:0.8em;">わからない</span></td>
+                <td>6/19</td>
+              </tr>
+              <tr>
+                <td><strong>佐藤 美咲</strong></td>
+                <td><span class="badge yellow">様子見</span></td>
+                <td><span class="kw-tag neg" style="font-size:0.8em;">難しい</span></td>
+                <td>6/17</td>
+              </tr>
+              <tr>
+                <td>田中 花子</td>
+                <td><span class="badge green">問題なし</span></td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>伊藤 健司</td>
+                <td><span class="badge green">問題なし</span></td>
+                <td>—</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px; padding:10px 12px; background:#fff9f0; border-radius:8px; border-left:3px solid var(--orange);">
+            <div style="font-size:0.78em; font-weight:700; color:var(--orange); margin-bottom:4px;">🤖 AIコメント</div>
+            <p style="font-size:0.76em; line-height:1.7;">山田さんは「ついていけない」という表現から進捗に遅れを感じている可能性があります。個別面談の設定を推奨します。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">9</span></div>
+  </div>
+
+  <!-- ===== SLIDE 10: DIVIDER - CASE 04 ===== -->
+  <div class="slide divider" data-index="9">
+    <div class="divider-left">
+      <div class="section-label">CASE 04</div>
+      <h2>受講者ごとの<br>日報推移と<br>コメント一覧</h2>
+      <p>各受講者の日報を時系列で整理し、感情の変化とコメント内容をまとめたレポートを自動生成します。</p>
+    </div>
+    <div class="divider-right" style="flex-direction:column; gap:20px; padding:40px;">
+      <div style="font-size:4em;">📋</div>
+      <div style="color:rgba(255,255,255,0.6); text-align:center; font-size:0.9em; line-height:1.9;">
+        全員分の状況を<br>一画面で把握
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 11: CASE 04 詳細 ===== -->
+  <div class="slide content" data-index="10">
+    <div class="slide-header">
+      <h2>CASE 04｜受講者別 日報推移一覧 — 出力イメージ</h2>
+      <span class="tag" style="background:var(--green);">📋 レポート</span>
+    </div>
+    <div class="slide-body body-2col">
+      <div class="col" style="flex:0.9;">
+        <div class="section-title">指示の例</div>
+        <div class="card">
+          <div class="chat-area">
+            <div class="chat-bubble user">
+              <div class="chat-avatar user-av">私</div>
+              <div class="bubble-text user-bubble">mjs.train.tracks.run から受講者全員の今月の日報を取得して、受講者ごとに日報の推移とコメントを一覧できるHTMLレポートを作って</div>
+            </div>
+            <div class="chat-bubble">
+              <div class="chat-avatar ai-av">AI</div>
+              <div class="bubble-text ai-bubble">管理画面から全受講者のデータを収集しています…<br><br>
+              ✅ 受講者数: 12名<br>
+              ✅ 取得日報: 計 84件<br>
+              ✅ HTMLレポート生成完了: <code>report_june.html</code><br><br>
+              各受講者のページを開くと日報の推移・気持ちの変化・コメント内容が確認できます。</div>
+            </div>
+          </div>
+        </div>
+        <div class="card accent-top" style="margin-top:14px;">
+          <h3>📌 レポートに含まれる情報</h3>
+          <ul class="point-list" style="margin-top:10px;">
+            <li><span class="bullet">✓</span><div>日報提出日と感情スコアの折れ線グラフ</div></li>
+            <li><span class="bullet">✓</span><div>日報のキーワード・ポジネガ分類</div></li>
+            <li><span class="bullet">✓</span><div>AIによる受講者ごとのサマリーコメント</div></li>
+            <li><span class="bullet">✓</span><div>フォロー優先度の自動ランキング</div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col" style="flex:1.1;">
+        <div class="section-title">生成されるレポートのイメージ</div>
+        <div style="background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1); overflow:hidden; flex:1;">
+          <div style="background:var(--navy); padding:10px 16px; display:flex; align-items:center; justify-content:space-between;">
+            <div style="color:white; font-size:0.85em; font-weight:700;">📋 受講者別 日報推移レポート ｜ 2024年6月</div>
+          </div>
+          <div style="padding:14px 16px;">
+            <!-- Student Card 1 -->
+            <div style="border:1px solid #e0e6ee; border-radius:8px; padding:12px; margin-bottom:10px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="width:28px; height:28px; border-radius:50%; background:var(--red); color:white; display:flex; align-items:center; justify-content:center; font-size:0.7em; font-weight:700;">山</div>
+                  <span style="font-size:0.85em; font-weight:700;">山田 太郎</span>
+                </div>
+                <span class="badge red">要フォロー</span>
+              </div>
+              <!-- Sparkline -->
+              <div style="display:flex; align-items:flex-end; gap:3px; height:30px; margin-bottom:6px;">
+                <div style="flex:1; background:#27AE60; height:80%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#27AE60; height:70%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#F39C12; height:50%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#E74C3C; height:30%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#E74C3C; height:25%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+              </div>
+              <p style="font-size:0.73em; color:#555; line-height:1.6;">「ついていけない」「わからない」などの表現が増加傾向。週後半から落ち込みが顕著。個別面談を推奨。</p>
+            </div>
+            <!-- Student Card 2 -->
+            <div style="border:1px solid #e0e6ee; border-radius:8px; padding:12px; margin-bottom:10px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div style="width:28px; height:28px; border-radius:50%; background:var(--green); color:white; display:flex; align-items:center; justify-content:center; font-size:0.7em; font-weight:700;">田</div>
+                  <span style="font-size:0.85em; font-weight:700;">田中 花子</span>
+                </div>
+                <span class="badge green">順調</span>
+              </div>
+              <div style="display:flex; align-items:flex-end; gap:3px; height:30px; margin-bottom:6px;">
+                <div style="flex:1; background:#27AE60; height:60%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#27AE60; height:70%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#27AE60; height:80%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#27AE60; height:85%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+                <div style="flex:1; background:#27AE60; height:95%; border-radius:2px 2px 0 0; opacity:0.7;"></div>
+              </div>
+              <p style="font-size:0.73em; color:#555; line-height:1.6;">積極的な質問・成長実感のコメントが継続。「できた」「理解できた」など肯定的表現が増加中。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">11</span></div>
+  </div>
+
+  <!-- ===== SLIDE 12: 始め方 ===== -->
+  <div class="slide content" data-index="11">
+    <div class="slide-header">
+      <h2>さっそく始めるには</h2>
+      <span class="tag">セットアップ</span>
+    </div>
+    <div class="slide-body body-pad" style="justify-content:flex-start; padding-top:24px;">
+      <div class="grid-2" style="gap:18px; height:100%;">
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="section-title">準備するもの（3つだけ）</div>
+          <div class="card accent-top">
+            <h3><span class="icon-badge cyan">1️⃣</span> Claude Code のインストール</h3>
+            <p style="margin-top:8px; line-height:1.9;">ターミナルに 1行コマンドを入力するだけ。<br>担当者が事前にセットアップ済みの環境を配布する場合は不要です。</p>
+          </div>
+          <div class="card accent-top">
+            <h3><span class="icon-badge cyan">2️⃣</span> Slack MCP の設定</h3>
+            <p style="margin-top:8px; line-height:1.9;">SlackのAPIトークンを1度設定するだけ。<br>以降はClaude Codeが自動で投稿先を判断します。</p>
+          </div>
+          <div class="card accent-top">
+            <h3><span class="icon-badge cyan">3️⃣</span> 管理画面のID/PW</h3>
+            <p style="margin-top:8px; line-height:1.9;">mjs.train.tracks.run のログイン情報を渡すだけ。<br>ブラウザ操作はPlaywright MCPが全て自動化します。</p>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div class="section-title">注意点とコツ</div>
+          <div class="highlight-box" style="flex:0 0 auto;">
+            <h3>🔑 うまく使うコツ</h3>
+            <ul style="padding-left:16px; margin-top:8px;">
+              <li style="font-size:0.85em; line-height:2; color:rgba(255,255,255,0.85);">指示は<strong style="color:white;">具体的に</strong>書くほど精度が上がる</li>
+              <li style="font-size:0.85em; line-height:2; color:rgba(255,255,255,0.85);">期間・チャンネル名・対象者など<strong style="color:white;">条件を明示</strong>する</li>
+              <li style="font-size:0.85em; line-height:2; color:rgba(255,255,255,0.85);">出力形式（HTML・CSV・スクショ等）も指定できる</li>
+              <li style="font-size:0.85em; line-height:2; color:rgba(255,255,255,0.85);">「確認してから実行」と伝えると安全</li>
+            </ul>
+          </div>
+          <div class="card" style="border-left:4px solid var(--yellow);">
+            <h3>⚠️ 注意点</h3>
+            <ul style="padding-left:16px; margin-top:8px;">
+              <li style="font-size:0.83em; line-height:1.9;">Slack投稿など外部への送信は<strong>取り消し不可</strong>なため、内容を確認してから実行</li>
+              <li style="font-size:0.83em; line-height:1.9;">個人情報を含む日報データは<strong>社内ポリシー</strong>に従って取り扱う</li>
+              <li style="font-size:0.83em; line-height:1.9;">AIの判定は参考情報。最終判断は<strong>人間が行う</strong></li>
+            </ul>
+          </div>
+          <div class="card accent-green">
+            <h3><span class="icon-badge green">💡</span> まずはここから試してみよう</h3>
+            <p style="margin-top:8px; line-height:1.9;">「今日の業務開始を Slack に投稿して」という一言から始めてみましょう。<br>成功体験を積んでから、より複雑な指示に挑戦するのがおすすめです！</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">12</span></div>
+  </div>
+
+  <!-- ===== SLIDE 13: まとめ ===== -->
+  <div class="slide content" data-index="12">
+    <div class="slide-header">
+      <h2>まとめ ― Claude Code で変わること</h2>
+      <span class="tag">まとめ</span>
+    </div>
+    <div class="slide-body body-pad" style="justify-content:flex-start; padding-top:24px;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-bottom:18px;">
+        <div class="card" style="border-left:5px solid var(--cyan);">
+          <h3>💬 CASE 01 | Slack 勤怠報告</h3>
+          <p style="margin-top:6px; line-height:1.9;"><strong>Before:</strong> スマホ・PCを開いてSlackを起動 → チャンネルを探す → 入力して送信<br><strong class="text-cyan">After:</strong> AIに「○時に業務開始」と話しかけるだけ</p>
+        </div>
+        <div class="card" style="border-left:5px solid var(--orange);">
+          <h3>📊 CASE 02 | CSAT スクショ</h3>
+          <p style="margin-top:6px; line-height:1.9;"><strong>Before:</strong> 管理画面を開く → 期間設定 → グラフを探してスクショ → ファイル整理<br><strong class="text-orange">After:</strong> 期間を告げるだけで画像ファイルが完成</p>
+        </div>
+        <div class="card" style="border-left:5px solid var(--red);">
+          <h3>🔍 CASE 03 | ネガティブ検出</h3>
+          <p style="margin-top:6px; line-height:1.9;"><strong>Before:</strong> 全員の日報を1件ずつ読んでチェック<br><strong class="text-red">After:</strong> AIが自動で全件を分析し、フォロー要否を判定</p>
+        </div>
+        <div class="card" style="border-left:5px solid var(--green);">
+          <h3>📋 CASE 04 | 受講者別一覧</h3>
+          <p style="margin-top:6px; line-height:1.9;"><strong>Before:</strong> スプレッドシートに手動でデータを集めてグラフ作成<br><strong class="text-green">After:</strong> 指示一発でHTML形式のレポートが自動生成</p>
+        </div>
+      </div>
+      <div class="highlight-box" style="text-align:center; padding:18px 32px;">
+        <h3 style="font-size:1.1em;">🚀 プログラミング知識ゼロでも「日本語で話しかけるだけ」で業務を自動化できます</h3>
+        <p style="margin-top:8px;">空いた時間を受講者へのサポートや、より付加価値の高い業務に使いましょう！</p>
+      </div>
+    </div>
+    <div class="slide-footer"><span class="copy">© Claude Code 活用講座</span><span class="page">13</span></div>
+  </div>
+
+  <!-- ===== SLIDE 14: BACK COVER ===== -->
+  <div class="slide backcover" data-index="13">
+    <div class="cover-dots"></div>
+    <div class="cover-glow"></div>
+    <div class="backcover-inner">
+      <h2>さあ、<span>Claude Code</span> を<br>使ってみましょう！</h2>
+      <p>
+        疑問点はいつでも気軽に聞いてください。<br>
+        AIと対話しながら少しずつ慣れていけば大丈夫です。
+      </p>
+    </div>
+  </div>
+
+</div><!-- /slides-container -->
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592;</button>
+  <div class="nav-dots" id="navDots"></div>
+  <span class="nav-counter" id="navCounter"></span>
+  <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
+</nav>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const navDots = document.getElementById('navDots');
+  const navCounter = document.getElementById('navCounter');
+  let current = 0;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => goTo(i);
+    navDots.appendChild(dot);
+  });
+
+  function goTo(idx) {
+    slides[current].classList.remove('active');
+    navDots.children[current].classList.remove('active');
+    current = Math.max(0, Math.min(idx, slides.length - 1));
+    slides[current].classList.add('active');
+    navDots.children[current].classList.add('active');
+    navCounter.textContent = (current + 1) + ' / ' + slides.length;
+  }
+
+  function navigate(dir) { goTo(current + dir); }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigate(-1); }
+  });
+
+  // Init counter
+  navCounter.textContent = '1 / ' + slides.length;
+</script>
+</body>
+</html>
