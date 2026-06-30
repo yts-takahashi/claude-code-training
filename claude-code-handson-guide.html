@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code ハンズオン演習ガイド｜研修担当者向け</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --navy: #102346;
+    --navy2: #1a3a6e;
+    --cyan: #0099D8;
+    --cyan-light: #e8f6fd;
+    --orange: #F5821F;
+    --orange-light: #fef3ea;
+    --green: #27AE60;
+    --green-light: #eafaf1;
+    --red: #E74C3C;
+    --red-light: #fdf0ef;
+    --yellow: #F39C12;
+    --yellow-light: #fef9e7;
+    --purple: #8B5CF6;
+    --purple-light: #f3f0ff;
+    --white: #FFFFFF;
+    --light-bg: #f5f7fa;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-sub: #64748b;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'M PLUS 1p', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    background: var(--light-bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* ===== HEADER ===== */
+  .site-header {
+    background: linear-gradient(135deg, var(--navy) 0%, #0d2b5e 100%);
+    padding: 48px 0 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(0,153,216,0.1) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .header-inner { max-width: 900px; margin: 0 auto; padding: 0 32px; position: relative; }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--cyan); color: white;
+    font-size: 0.78em; font-weight: 700;
+    padding: 4px 14px; border-radius: 20px;
+    margin-bottom: 18px; letter-spacing: 0.04em;
+  }
+  .site-header h1 {
+    font-size: 2em; font-weight: 800; color: white;
+    line-height: 1.5; margin-bottom: 14px;
+  }
+  .site-header h1 span { color: var(--cyan); }
+  .header-desc { color: rgba(255,255,255,0.7); font-size: 0.92em; line-height: 1.9; margin-bottom: 28px; }
+  .header-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .meta-chip {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8);
+    padding: 5px 14px; border-radius: 20px; font-size: 0.82em;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  /* ===== TOC ===== */
+  .toc-bar {
+    background: white;
+    border-bottom: 2px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .toc-inner {
+    max-width: 900px; margin: 0 auto; padding: 0 32px;
+    display: flex; gap: 4px; overflow-x: auto;
+  }
+  .toc-link {
+    display: flex; align-items: center; gap: 6px;
+    padding: 12px 14px;
+    font-size: 0.8em; font-weight: 700;
+    color: var(--text-sub);
+    text-decoration: none; white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .toc-link:hover { color: var(--navy); border-bottom-color: var(--cyan); }
+  .toc-link .lvl { font-size: 0.75em; padding: 1px 6px; border-radius: 10px; font-weight: 800; }
+  .toc-link.green-lv .lvl { background: var(--green-light); color: var(--green); }
+  .toc-link.yellow-lv .lvl { background: var(--yellow-light); color: var(--yellow); }
+  .toc-link.red-lv .lvl { background: var(--red-light); color: var(--red); }
+
+  /* ===== MAIN ===== */
+  .main { max-width: 900px; margin: 0 auto; padding: 40px 32px 80px; }
+
+  /* ===== SECTION BLOCKS ===== */
+  .info-block {
+    background: white; border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    padding: 28px 32px; margin-bottom: 28px;
+  }
+  .info-block.cyan-border { border-left: 5px solid var(--cyan); }
+  .info-block.yellow-border { border-left: 5px solid var(--yellow); }
+  .info-block h2 {
+    font-size: 1.05em; font-weight: 800; color: var(--navy);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .info-block p { font-size: 0.9em; line-height: 1.9; color: var(--text); }
+  .info-block p + p { margin-top: 8px; }
+
+  /* ===== EXERCISE CARD ===== */
+  .exercise-card {
+    background: white; border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    margin-bottom: 36px; overflow: hidden;
+  }
+  .exercise-card-header {
+    padding: 22px 28px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .exercise-card-header.green { background: linear-gradient(135deg, #eafaf1 0%, #f0fff4 100%); border-bottom: 2px solid #b7eac9; }
+  .exercise-card-header.yellow { background: linear-gradient(135deg, #fef9e7 0%, #fffdf0 100%); border-bottom: 2px solid #fce27a; }
+  .exercise-card-header.red { background: linear-gradient(135deg, #fdf0ef 0%, #fff5f5 100%); border-bottom: 2px solid #f9c0bb; }
+  .ex-num {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3em; font-weight: 800; flex-shrink: 0;
+    color: white;
+  }
+  .ex-num.green { background: var(--green); }
+  .ex-num.yellow { background: var(--yellow); }
+  .ex-num.red { background: var(--red); }
+  .ex-title-area { flex: 1; }
+  .ex-level {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.72em; font-weight: 800;
+    padding: 2px 10px; border-radius: 10px; margin-bottom: 6px;
+  }
+  .ex-level.green { background: var(--green-light); color: var(--green); }
+  .ex-level.yellow { background: var(--yellow-light); color: var(--yellow); }
+  .ex-level.red { background: var(--red-light); color: var(--red); }
+  .ex-title { font-size: 1.15em; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+  .ex-subtitle { font-size: 0.83em; color: var(--text-sub); }
+  .ex-tools { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .tool-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.72em; font-weight: 700;
+    padding: 2px 10px; border-radius: 10px; border: 1px solid;
+  }
+  .tool-chip.slack { background: #f0f7ff; color: #0062cc; border-color: #b8d4f5; }
+  .tool-chip.gdocs { background: #f0f7ff; color: #1a73e8; border-color: #b8d4f5; }
+  .tool-chip.gsheets { background: #f0fff4; color: #137333; border-color: #b7e0c4; }
+  .tool-chip.gmail { background: #fff0f0; color: #d93025; border-color: #f5b8b4; }
+  .tool-chip.csv { background: #f8f0ff; color: #6d28d9; border-color: #d4b8f5; }
+  .tool-chip.chat { background: #f5f5f5; color: #555; border-color: #ddd; }
+
+  .exercise-body { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ===== LEARN / GOAL ===== */
+  .learn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .learn-box {
+    background: var(--light-bg); border-radius: 10px; padding: 14px 16px;
+  }
+  .learn-box h4 {
+    font-size: 0.78em; font-weight: 800; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .learn-box ul { list-style: none; }
+  .learn-box li {
+    font-size: 0.84em; line-height: 1.8; color: var(--text);
+    padding-left: 16px; position: relative;
+  }
+  .learn-box li::before { content: '✓'; position: absolute; left: 0; color: var(--cyan); font-weight: 700; }
+
+  /* ===== PROMPT BOX ===== */
+  .prompt-section h4 {
+    font-size: 0.82em; font-weight: 800; color: var(--navy);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .prompt-box {
+    background: #1e1e2e; border-radius: 12px; padding: 18px 20px;
+    position: relative;
+  }
+  .prompt-box::before {
+    content: 'プロンプト例';
+    position: absolute; top: -10px; left: 16px;
+    background: var(--navy); color: white;
+    font-size: 0.68em; font-weight: 700;
+    padding: 2px 10px; border-radius: 6px;
+  }
+  .prompt-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.83em; color: #a6e3a1;
+    line-height: 1.9; white-space: pre-wrap;
+  }
+  .prompt-text .var { color: #cba6f7; }
+  .prompt-text .note { color: #6c7086; }
+
+  /* ===== FALLBACK BOX ===== */
+  .fallback-box {
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 12px; padding: 16px 20px;
+  }
+  .fallback-box .fb-header {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.82em; font-weight: 800; color: var(--text-sub);
+    margin-bottom: 10px;
+  }
+  .fallback-box .fb-header .fb-badge {
+    background: #e2e8f0; color: var(--text-sub);
+    font-size: 0.75em; padding: 1px 8px; border-radius: 8px;
+  }
+  .fallback-prompt {
+    background: #1e1e2e; border-radius: 8px; padding: 12px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8em; color: #89dceb;
+    line-height: 1.8; white-space: pre-wrap;
+    margin-top: 8px;
+  }
+  .fallback-box p { font-size: 0.83em; color: var(--text-sub); line-height: 1.8; }
+
+  /* ===== OUTPUT EXAMPLE ===== */
+  .output-section h4 {
+    font-size: 0.82em; font-weight: 800; color: var(--navy);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .output-box {
+    background: white; border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .output-bar {
+    background: var(--light-bg); padding: 7px 14px;
+    font-size: 0.75em; color: var(--text-sub);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .output-content { padding: 14px 18px; font-size: 0.84em; line-height: 1.85; }
+
+  /* ===== SLACK MOCK ===== */
+  .slack-mock {
+    background: #1a1d21; border-radius: 10px; overflow: hidden;
+  }
+  .slack-topbar {
+    background: #19171d; padding: 8px 14px;
+    display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid #2d2d3f;
+  }
+  .slack-topbar span { color: #d1d2d3; font-size: 0.82em; font-weight: 700; }
+  .slack-body { padding: 12px 14px; }
+  .slack-msg { display: flex; gap: 10px; }
+  .slack-avatar {
+    width: 30px; height: 30px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75em; font-weight: 800; flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .slack-name { font-size: 0.78em; font-weight: 700; color: #d1d2d3; margin-bottom: 3px; }
+  .slack-name .ts { font-weight: 400; color: #5c5c6e; margin-left: 6px; font-size: 0.85em; }
+  .slack-text { font-size: 0.8em; color: #d1d2d3; line-height: 1.7; }
+
+  /* ===== TIP ===== */
+  .tip-box {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+    border-radius: 12px; padding: 16px 20px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .tip-icon { font-size: 1.2em; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 0.84em; color: rgba(255,255,255,0.85); line-height: 1.8; }
+  .tip-text strong { color: var(--cyan); }
+
+  /* ===== STEP INDICATOR ===== */
+  .step-row { display: flex; gap: 0; margin: 4px 0 14px; }
+  .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .step-item:not(:last-child)::after {
+    content: '→'; position: absolute; right: -10px; top: 10px;
+    color: var(--cyan); font-size: 1em; z-index: 1;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--cyan); color: white;
+    font-size: 0.75em; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 5px;
+  }
+  .step-label { font-size: 0.72em; color: var(--text-sub); text-align: center; line-height: 1.4; }
+
+  /* ===== OVERVIEW TABLE ===== */
+  .overview-table { width: 100%; border-collapse: collapse; font-size: 0.86em; }
+  .overview-table th {
+    background: var(--navy); color: white;
+    padding: 10px 14px; text-align: left; font-weight: 700;
+  }
+  .overview-table th:first-child { border-radius: 8px 0 0 0; }
+  .overview-table th:last-child { border-radius: 0 8px 0 0; }
+  .overview-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .overview-table tr:nth-child(even) td { background: #f9fafb; }
+  .overview-table tr:hover td { background: var(--cyan-light); }
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 10px;
+    font-size: 0.75em; font-weight: 800;
+  }
+  .badge.green { background: var(--green-light); color: var(--green); }
+  .badge.yellow { background: var(--yellow-light); color: var(--yellow); }
+  .badge.red { background: var(--red-light); color: var(--red); }
+
+  /* ===== SECTION TITLE ===== */
+  .section-title {
+    font-size: 1.3em; font-weight: 800; color: var(--navy);
+    margin: 40px 0 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .section-title::before {
+    content: ''; display: block;
+    width: 5px; height: 1.4em; background: var(--cyan); border-radius: 3px;
+  }
+
+  /* ===== DIVIDER ===== */
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* ===== PRINT ===== */
+  @media print {
+    .toc-bar { display: none; }
+    .exercise-card { break-inside: avoid; }
+    body { background: white; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-badge">🛠 Claude Code ハンズオン演習ガイド</div>
+    <h1>日報CSVで学ぶ<br><span>AI×SlackとGoogleWorkspaceの活用</span></h1>
+    <p class="header-desc">
+      研修管理システムから出力した日報CSVを素材に、<br>
+      AIに日本語で指示するだけでSlack投稿・Googleドキュメント作成・データ分析ができるようになりましょう。
+    </p>
+    <div class="header-meta">
+      <div class="meta-chip">🎯 対象：非エンジニアの研修担当者</div>
+      <div class="meta-chip">📄 前提データ：日報CSVファイル</div>
+      <div class="meta-chip">⏱ 目安：各演習 10〜20分</div>
+      <div class="meta-chip">🔧 ツール：Claude Code</div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== TOC ===== -->
+<nav class="toc-bar">
+  <div class="toc-inner">
+    <a href="#overview" class="toc-link">📋 一覧</a>
+    <a href="#ex01" class="toc-link green-lv"><span class="lvl">初級</span>お題1｜満足度をSlack報告</a>
+    <a href="#ex02" class="toc-link green-lv"><span class="lvl">初級</span>お題2｜未提出者リスト</a>
+    <a href="#ex03" class="toc-link yellow-lv"><span class="lvl">中級</span>お題3｜改善要望をGoogleドキュメントへ</a>
+    <a href="#ex04" class="toc-link yellow-lv"><span class="lvl">中級</span>お題4｜スプレッドシートに整形</a>
+    <a href="#ex05" class="toc-link red-lv"><span class="lvl">上級</span>お題5｜週次サマリー→Docs→Slack</a>
+    <a href="#ex06" class="toc-link red-lv"><span class="lvl">上級</span>お題6｜フォローアップメール</a>
+  </div>
+</nav>
+
+<!-- ===== MAIN ===== -->
+<main class="main">
+
+  <!-- 注意事項 -->
+  <div class="info-block yellow-border">
+    <h2>⚠️ Slack・Google Workspace 連携について</h2>
+    <p>各演習は <strong>Slack連携・Google Workspace連携が設定済み</strong> の環境を想定していますが、設定がない場合でも演習は実施できます。</p>
+    <p style="margin-top:10px;">各お題には「<strong>💬 連携なしで試す場合</strong>」として、<strong>結果をチャット画面に表示するだけのプロンプト例</strong>も記載しています。まずはチャット表示で内容・操作感を確認してから、連携環境で本番の自動化に挑戦しましょう。</p>
+  </div>
+
+  <div class="info-block cyan-border">
+    <h2>📄 前提となるCSVファイルの構造</h2>
+    <p>研修管理システムから出力した日報CSVには以下の列が含まれています。</p>
+    <div style="margin-top:14px; overflow-x:auto;">
+      <table class="overview-table">
+        <thead>
+          <tr>
+            <th>列名</th><th>内容</th><th>例</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>日付</td><td>日報の対象日</td><td>2026-05-08</td></tr>
+          <tr><td>受講者名</td><td>フルネーム</td><td>赤塚 昂希</td></tr>
+          <tr><td>受講者アカウントID</td><td>システムID</td><td>koki_akatsuka</td></tr>
+          <tr><td>受講者グループ</td><td>期・グループ名</td><td>50期（2026）新入社員</td></tr>
+          <tr><td>提出ステータス</td><td>Completed / NotStarted</td><td>Completed</td></tr>
+          <tr><td>満足度（1〜5）</td><td>研修満足度のスコア</td><td>5</td></tr>
+          <tr><td>満足度コメント</td><td>満足度の理由・感想</td><td>（自由記述）</td></tr>
+          <tr><td>理解度（1〜5）</td><td>研修内容の理解度スコア</td><td>4</td></tr>
+          <tr><td>理解度コメント</td><td>理解度の理由・補足</td><td>（自由記述）</td></tr>
+          <tr><td>質問有無</td><td>特になし / 質問がある / 改善要望がある</td><td>改善要望がある</td></tr>
+          <tr><td>質問・要望内容</td><td>具体的な内容（自由記述）</td><td>（自由記述）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 一覧表 -->
+  <h2 class="section-title" id="overview">演習一覧</h2>
+  <div class="info-block" style="padding: 0; overflow: hidden;">
+    <table class="overview-table">
+      <thead>
+        <tr>
+          <th>#</th><th>お題</th><th>使うツール</th><th>難易度</th><th>所要時間</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>01</strong></td>
+          <td>今日の満足度平均をSlackに投稿しよう</td>
+          <td>CSV + Slack（またはチャット）</td>
+          <td><span class="badge green">🟢 初級</span></td>
+          <td>約10分</td>
+        </tr>
+        <tr>
+          <td><strong>02</strong></td>
+          <td>日報未提出者リストのリマインドメッセージを作ろう</td>
+          <td>CSV + Slack（またはチャット）</td>
+          <td><span class="badge green">🟢 初級</span></td>
+          <td>約10分</td>
+        </tr>
+        <tr>
+          <td><strong>03</strong></td>
+          <td>改善要望コメントをGoogleドキュメントにまとめよう</td>
+          <td>CSV + Google Docs（またはチャット）</td>
+          <td><span class="badge yellow">🟡 中級</span></td>
+          <td>約15分</td>
+        </tr>
+        <tr>
+          <td><strong>04</strong></td>
+          <td>受講者別スコアをGoogleスプレッドシートに整形しよう</td>
+          <td>CSV + Google Sheets（またはチャット）</td>
+          <td><span class="badge yellow">🟡 中級</span></td>
+          <td>約15分</td>
+        </tr>
+        <tr>
+          <td><strong>05</strong></td>
+          <td>週次サマリーをGoogleドキュメントで作りSlackで共有しよう</td>
+          <td>CSV + Google Docs + Slack</td>
+          <td><span class="badge red">🔴 上級</span></td>
+          <td>約20分</td>
+        </tr>
+        <tr>
+          <td><strong>06</strong></td>
+          <td>低スコア受講者へのフォローアップメールをGmailで下書き保存しよう</td>
+          <td>CSV + Gmail（またはチャット）</td>
+          <td><span class="badge red">🔴 上級</span></td>
+          <td>約20分</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== EXERCISE 01 ===== -->
+  <div class="exercise-card" id="ex01">
+    <div class="exercise-card-header green">
+      <div class="ex-num green">01</div>
+      <div class="ex-title-area">
+        <div class="ex-level green">🟢 初級</div>
+        <div class="ex-title">今日の満足度平均をSlackに投稿しよう</div>
+        <div class="ex-subtitle">AIに数値計算をさせて、結果を自動投稿する感覚を掴む</div>
+        <div class="ex-tools">
+          <span class="tool-chip csv">📄 CSV</span>
+          <span class="tool-chip slack">💬 Slack</span>
+          <span class="tool-chip chat">🖥 またはチャット表示</span>
+        </div>
+      </div>
+    </div>
+    <div class="exercise-body">
+
+      <div class="learn-row">
+        <div class="learn-box">
+          <h4>🎯 この演習で学べること</h4>
+          <ul>
+            <li>CSVをAIに渡して計算させる方法</li>
+            <li>投稿フォーマットを日本語で指定する方法</li>
+            <li>Slackチャンネルへの自動投稿の仕組み</li>
+          </ul>
+        </div>
+        <div class="learn-box">
+          <h4>📋 演習のゴール</h4>
+          <ul>
+            <li>対象日の満足度平均点が計算できている</li>
+            <li>「本日の研修満足度：◯点（◯名回答）」の形式で出力</li>
+            <li>Slackの #研修報告 に投稿（または画面表示）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="prompt-section">
+        <h4>💬 Slack連携あり｜プロンプト例</h4>
+        <div class="prompt-box">
+          <div class="prompt-text">添付のCSVファイルを読み込んで、<span class="var">2026-05-08</span> の「満足度」列の平均点を計算してください。
+
+計算できたら、以下のフォーマットでSlackの <span class="var">#研修報告</span> チャンネルに投稿してください。
+
+【フォーマット】
+本日（<span class="var">5/8</span>）の研修満足度：<span class="var">◯.◯</span> 点（<span class="var">◯</span> 名回答）</div>
+        </div>
+      </div>
+
+      <div class="fallback-box">
+        <div class="fb-header">
+          💬 連携なしで試す場合 <span class="fb-badge">Slack不要</span>
+        </div>
+        <p>Slack連携が設定されていない場合は、投稿せずにチャット画面に表示させましょう。「投稿して」を「表示して」に変えるだけです。</p>
+        <div class="fallback-prompt">添付のCSVファイルを読み込んで、2026-05-08 の「満足度」列の平均点を計算して、
+以下のフォーマットで<strong style="color:#f9e2af;">チャットに表示</strong>してください。
+
+【フォーマット】
+本日（5/8）の研修満足度：◯.◯ 点（◯ 名回答）</div>
+      </div>
+
+      <div class="output-section">
+        <h4>📤 期待される出力例</h4>
+        <div class="output-box">
+          <div class="output-bar">🖥 チャット画面 または Slackの #研修報告</div>
+          <div class="slack-mock">
+            <div class="slack-topbar"><span style="color:#aaa; margin-right:2px;">#</span><span>研修報告</span></div>
+            <div class="slack-body">
+              <div class="slack-msg">
+                <div class="slack-avatar" style="background:#0099D8; color:white;">AI</div>
+                <div>
+                  <div class="slack-name">Claude Code <span class="ts">10:05</span></div>
+                  <div class="slack-text">本日（5/8）の研修満足度：<strong style="color:#a6e3a1;">4.4 点</strong>（18 名回答）</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>ポイント：</strong>「CSVを読み込んで」と伝えるだけで、AIが自動で列を判断して計算します。日付や列名を正確に伝えると、より精度が上がります。フォーマットを指定することで、毎回同じ形式で出力されるので報告が楽になります。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== EXERCISE 02 ===== -->
+  <div class="exercise-card" id="ex02">
+    <div class="exercise-card-header green">
+      <div class="ex-num green">02</div>
+      <div class="ex-title-area">
+        <div class="ex-level green">🟢 初級</div>
+        <div class="ex-title">日報未提出者リストのリマインドメッセージを作ろう</div>
+        <div class="ex-subtitle">データを条件でフィルタリングして、使えるテキストを生成する</div>
+        <div class="ex-tools">
+          <span class="tool-chip csv">📄 CSV</span>
+          <span class="tool-chip slack">💬 Slack</span>
+          <span class="tool-chip chat">🖥 またはチャット表示</span>
+        </div>
+      </div>
+    </div>
+    <div class="exercise-body">
+
+      <div class="learn-row">
+        <div class="learn-box">
+          <h4>🎯 この演習で学べること</h4>
+          <ul>
+            <li>条件（NotStarted）でデータを絞り込む指示の出し方</li>
+            <li>リスト形式でテキストを生成させる方法</li>
+            <li>Slackリマインド文の自動生成</li>
+          </ul>
+        </div>
+        <div class="learn-box">
+          <h4>📋 演習のゴール</h4>
+          <ul>
+            <li>特定日のNotStarted受講者名を抽出できている</li>
+            <li>リマインドメッセージ文が自動生成されている</li>
+            <li>そのままSlackに貼れる形式になっている</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="prompt-section">
+        <h4>💬 Slack連携あり｜プロンプト例</h4>
+        <div class="prompt-box">
+          <div class="prompt-text">添付のCSVから <span class="var">2026-05-09</span> の「提出ステータス」が <span class="var">NotStarted</span> になっている受講者名を全員抽出してください。
+
+抽出できたら、以下の形式でSlackの <span class="var">#研修連絡</span> チャンネルに投稿してください。
+
+【フォーマット】
+📢 本日（<span class="var">5/9</span>）日報未提出の方へ
+日報の提出をお願いします🙏
+
+未提出者：
+・◯◯さん
+・◯◯さん
+（以下、名前を列挙）</div>
+        </div>
+      </div>
+
+      <div class="fallback-box">
+        <div class="fb-header">
+          💬 連携なしで試す場合 <span class="fb-badge">Slack不要</span>
+        </div>
+        <p>Slack連携がない場合は、同じフォーマットでチャットに表示させましょう。そのままコピーしてSlackに貼り付けることもできます。</p>
+        <div class="fallback-prompt">添付のCSVから 2026-05-09 の「提出ステータス」が NotStarted の受講者名を全員抽出して、
+以下の形式で<strong style="color:#f9e2af;">チャットに表示</strong>してください。そのままSlackにコピペできる形にしてください。
+
+📢 本日（5/9）日報未提出の方へ
+日報の提出をお願いします🙏
+
+未提出者：
+・◯◯さん …（名前を列挙）</div>
+      </div>
+
+      <div class="output-section">
+        <h4>📤 期待される出力例</h4>
+        <div class="output-box">
+          <div class="output-bar">🖥 チャット画面 または Slackの #研修連絡</div>
+          <div class="slack-mock">
+            <div class="slack-topbar"><span style="color:#aaa; margin-right:2px;">#</span><span>研修連絡</span></div>
+            <div class="slack-body">
+              <div class="slack-msg">
+                <div class="slack-avatar" style="background:#0099D8; color:white;">AI</div>
+                <div>
+                  <div class="slack-name">Claude Code <span class="ts">18:00</span></div>
+                  <div class="slack-text">📢 本日（5/9）日報未提出の方へ<br>日報の提出をお願いします🙏<br><br>未提出者：<br>・赤塚 昂希さん<br>・浅島 柊生さん<br>・伊藤 楓舞さん<br>（他 ◯ 名）</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>ポイント：</strong>「NotStarted」「Completed」といった<strong>CSVの実際の値をそのまま条件として伝える</strong>と精度が上がります。「そのままSlackに貼り付けられる形で」と付け加えると、余計な説明なしに使いやすい出力になります。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== EXERCISE 03 ===== -->
+  <div class="exercise-card" id="ex03">
+    <div class="exercise-card-header yellow">
+      <div class="ex-num yellow">03</div>
+      <div class="ex-title-area">
+        <div class="ex-level yellow">🟡 中級</div>
+        <div class="ex-title">改善要望コメントをGoogleドキュメントにまとめよう</div>
+        <div class="ex-subtitle">条件抽出したテキストをそのままドキュメントに書き出す</div>
+        <div class="ex-tools">
+          <span class="tool-chip csv">📄 CSV</span>
+          <span class="tool-chip gdocs">📝 Google Docs</span>
+          <span class="tool-chip chat">🖥 またはチャット表示</span>
+        </div>
+      </div>
+    </div>
+    <div class="exercise-body">
+
+      <div class="learn-row">
+        <div class="learn-box">
+          <h4>🎯 この演習で学べること</h4>
+          <ul>
+            <li>複数列を組み合わせた条件抽出</li>
+            <li>Google Docsへの自動書き出し</li>
+            <li>ドキュメントのタイトル・構成を指定する方法</li>
+          </ul>
+        </div>
+        <div class="learn-box">
+          <h4>📋 演習のゴール</h4>
+          <ul>
+            <li>「改善要望がある」受講者のコメントが抽出されている</li>
+            <li>受講者名とコメントがセットで整理されている</li>
+            <li>Googleドキュメントに保存（またはチャット表示）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="prompt-section">
+        <h4>📝 Google Docs連携あり｜プロンプト例</h4>
+        <div class="prompt-box">
+          <div class="prompt-text">添付のCSVを読み込んで、「質問有無」列が<span class="var">「改善要望がある」</span>になっている受講者の名前と、その「質問・要望内容」を全件抽出してください。
+
+抽出したら、以下の構成でGoogleドキュメントを新規作成して書き出してください。
+
+【ドキュメント設定】
+タイトル：<span class="var">2026/05/08 受講者フィードバック（改善要望）</span>
+
+【本文構成】
+# 改善要望一覧
+日付：◯◯◯◯/◯◯/◯◯
+対象受講者数：◯名
+
+## ◯◯ さん
+> （コメント内容）
+
+## ◯◯ さん
+> （コメント内容）</div>
+        </div>
+      </div>
+
+      <div class="fallback-box">
+        <div class="fb-header">
+          💬 連携なしで試す場合 <span class="fb-badge">Google Docs不要</span>
+        </div>
+        <p>Google Docsへの書き出しができない場合は、同じ構成でチャットに表示させましょう。内容を確認してからGoogleドキュメントに手動で貼り付けることができます。</p>
+        <div class="fallback-prompt">添付のCSVから「質問有無」が「改善要望がある」の受講者名とコメントを全件抽出して、
+以下の構成で<strong style="color:#f9e2af;">チャットに表示</strong>してください。
+
+# 改善要望一覧
+## ◯◯ さん
+> （コメント内容）
+（以下、全員分）</div>
+      </div>
+
+      <div class="output-section">
+        <h4>📤 期待される出力例</h4>
+        <div class="output-box">
+          <div class="output-bar">📝 Googleドキュメント または チャット画面</div>
+          <div class="output-content">
+            <strong style="font-size:1em; color:#102346;">2026/05/08 受講者フィードバック（改善要望）</strong>
+            <hr style="margin:10px 0; border-color:#eee;">
+            <p><strong>改善要望一覧</strong></p>
+            <p>日付：2026/05/08 ｜ 対象受講者数：6名</p>
+            <br>
+            <p><strong>澤田 樹 さん</strong></p>
+            <p style="color:#555; padding-left:12px; border-left:3px solid #ddd; margin-top:4px;">もう少しだけゆっくり説明していただけるとありがたいです。</p>
+            <br>
+            <p><strong>島袋 莉子 さん</strong></p>
+            <p style="color:#555; padding-left:12px; border-left:3px solid #ddd; margin-top:4px;">講義スピードがやや速いと感じたので、もう少しゆとりをもって進めていただけるとより理解が深まると感じた。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>ポイント：</strong>「どのタイトルで」「どの構成で」を細かく指定するほど、毎回同じフォーマットのドキュメントが生成されます。マークダウン形式（#や##）で構成を指定すると、Googleドキュメントでも見やすく整形されます。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== EXERCISE 04 ===== -->
+  <div class="exercise-card" id="ex04">
+    <div class="exercise-card-header yellow">
+      <div class="ex-num yellow">04</div>
+      <div class="ex-title-area">
+        <div class="ex-level yellow">🟡 中級</div>
+        <div class="ex-title">受講者別スコアをGoogleスプレッドシートに整形しよう</div>
+        <div class="ex-subtitle">CSVのデータを加工・ソートしてスプレッドシートに書き出す</div>
+        <div class="ex-tools">
+          <span class="tool-chip csv">📄 CSV</span>
+          <span class="tool-chip gsheets">📊 Google Sheets</span>
+          <span class="tool-chip chat">🖥 またはチャット表示</span>
+        </div>
+      </div>
+    </div>
+    <div class="exercise-body">
+
+      <div class="learn-row">
+        <div class="learn-box">
+          <h4>🎯 この演習で学べること</h4>
+          <ul>
+            <li>必要な列だけを抽出・整形する指示の出し方</li>
+            <li>ソート条件を日本語で指定する方法</li>
+            <li>Googleスプレッドシートへの自動書き出し</li>
+          </ul>
+        </div>
+        <div class="learn-box">
+          <h4>📋 演習のゴール</h4>
+          <ul>
+            <li>受講者名・満足度・理解度の3列が抽出されている</li>
+            <li>満足度の低い順（昇順）に並んでいる</li>
+            <li>スプレッドシートに書き出し（またはチャット表示）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="prompt-section">
+        <h4>📊 Google Sheets連携あり｜プロンプト例</h4>
+        <div class="prompt-box">
+          <div class="prompt-text">添付のCSVから <span class="var">2026-05-08</span> のデータだけを対象に、以下の3列を抽出してください。
+・受講者名
+・満足度
+・理解度
+
+抽出したら<span class="var">満足度の低い順（昇順）</span>に並べ替えて、Googleスプレッドシートに書き出してください。
+
+【シート設定】
+スプレッドシート名：<span class="var">研修スコア一覧_20260508</span>
+シート名：<span class="var">5月8日</span></div>
+        </div>
+      </div>
+
+      <div class="fallback-box">
+        <div class="fb-header">
+          💬 連携なしで試す場合 <span class="fb-badge">Google Sheets不要</span>
+        </div>
+        <p>スプレッドシートへの書き出しができない場合は、表形式でチャットに表示させましょう。表示された内容をコピーしてスプレッドシートに貼り付けることができます。</p>
+        <div class="fallback-prompt">添付のCSVから 2026-05-08 の「受講者名」「満足度」「理解度」の3列を抽出して、
+満足度の低い順に並べ替えて、<strong style="color:#f9e2af;">表形式でチャットに表示</strong>してください。</div>
+      </div>
+
+      <div class="output-section">
+        <h4>📤 期待される出力例</h4>
+        <div class="output-box">
+          <div class="output-bar">📊 Googleスプレッドシート または チャット画面（表形式）</div>
+          <div class="output-content" style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85em;">
+              <thead>
+                <tr style="background:#102346; color:white;">
+                  <th style="padding:8px 12px;">受講者名</th>
+                  <th style="padding:8px 12px; text-align:center;">満足度</th>
+                  <th style="padding:8px 12px; text-align:center;">理解度</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:#fdf0ef;"><td style="padding:7px 12px;">澤田 樹</td><td style="text-align:center; font-weight:700; color:#E74C3C;">3</td><td style="text-align:center;">2</td></tr>
+                <tr><td style="padding:7px 12px;">後藤 大輝</td><td style="text-align:center; font-weight:700; color:#E74C3C;">3</td><td style="text-align:center;">4</td></tr>
+                <tr style="background:#fef9e7;"><td style="padding:7px 12px;">竹内 まりな</td><td style="text-align:center; font-weight:700; color:#F39C12;">4</td><td style="text-align:center;">3</td></tr>
+                <tr><td style="padding:7px 12px;">浅島 柊生</td><td style="text-align:center; font-weight:700; color:#F39C12;">4</td><td style="text-align:center;">4</td></tr>
+                <tr style="background:#fef9e7;"><td style="padding:7px 12px;">大野 龍翔</td><td style="text-align:center; font-weight:700; color:#27AE60;">5</td><td style="text-align:center;">4</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>ポイント：</strong>「低い順」「高い順」「日付順」など<strong>ソート条件を明示</strong>するとデータが意図通りに並びます。スプレッドシート名とシート名を指定しておくと、毎週の報告用シートを統一フォーマットで管理しやすくなります。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== EXERCISE 05 ===== -->
+  <div class="exercise-card" id="ex05">
+    <div class="exercise-card-header red">
+      <div class="ex-num red">05</div>
+      <div class="ex-title-area">
+        <div class="ex-level red">🔴 上級</div>
+        <div class="ex-title">週次サマリーをGoogleドキュメントで作りSlackで共有しよう</div>
+        <div class="ex-subtitle">複数ツールをまたいだ自動化を1つの指示で完結させる</div>
+        <div class="ex-tools">
+          <span class="tool-chip csv">📄 CSV</span>
+          <span class="tool-chip gdocs">📝 Google Docs</span>
+          <span class="tool-chip slack">💬 Slack</span>
+        </div>
+      </div>
+    </div>
+    <div class="exercise-body">
+
+      <div style="margin-bottom:4px;">
+        <div style="font-size:0.82em; font-weight:800; color:var(--navy); margin-bottom:10px;">🔄 このお題の処理の流れ</div>
+        <div class="step-row">
+          <div class="step-item">
+            <div class="step-dot">1</div>
+            <div class="step-label">CSVから<br>1週間分を集計</div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">2</div>
+            <div class="step-label">サマリーを<br>Docsに書き出し</div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">3</div>
+            <div class="step-label">DocsのURLを<br>取得</div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">4</div>
+            <div class="step-label">SlackにURL付きで<br>通知</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="learn-row">
+        <div class="learn-box">
+          <h4>🎯 この演習で学べること</h4>
+          <ul>
+            <li>複数ステップを1つのプロンプトで指示する方法</li>
+            <li>生成したドキュメントのリンクを別ツールに連携する仕組み</li>
+            <li>週次レポートの自動化フロー全体像</li>
+          </ul>
+        </div>
+        <div class="learn-box">
+          <h4>📋 演習のゴール</h4>
+          <ul>
+            <li>週次サマリーのGoogleドキュメントが生成されている</li>
+            <li>Slackにドキュメントのリンクが投稿されている</li>
+            <li>手作業ゼロで週次報告が完結している</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="prompt-section">
+        <h4>💬 プロンプト例（Google Docs + Slack 連携あり）</h4>
+        <div class="prompt-box">
+          <div class="prompt-text">添付のCSVを読み込んで、<span class="var">2026-05-08 から 2026-05-14</span> の1週間分のデータを対象に、以下の手順で週次サマリーを作成してください。
+
+【ステップ1：データ集計】
+・満足度の日別平均と週平均
+・理解度の日別平均と週平均
+・「改善要望がある」受講者の名前とコメントの一覧
+・日報未提出者がいた日とその人数
+
+【ステップ2：Googleドキュメント作成】
+タイトル：<span class="var">週次研修サマリー 2026/05/08〜05/14</span>
+上記の集計結果をまとめた見やすいドキュメントを作成してください。
+
+【ステップ3：Slack通知】
+作成完了後、Slackの <span class="var">#研修報告</span> チャンネルに以下を投稿してください。
+
+「今週の研修サマリーをまとめました📋
+満足度平均：◯.◯点 / 理解度平均：◯.◯点
+▶ 詳細レポート：（GoogleドキュメントのURL）」</div>
+        </div>
+      </div>
+
+      <div class="fallback-box">
+        <div class="fb-header">
+          💬 連携なしで試す場合 <span class="fb-badge">Slack / Google Docs不要</span>
+        </div>
+        <p>連携がない場合でも、集計とサマリー文の生成はチャット上で行えます。出力されたサマリーを手動でGoogleドキュメントに貼り付け、リンクをSlackに貼ることで同じ結果を再現できます。</p>
+        <div class="fallback-prompt">添付のCSVから 2026-05-08 の1日分のデータを対象に、以下を<strong style="color:#f9e2af;">チャットに表示</strong>してください。
+
+・満足度の平均点（回答者数）
+・理解度の平均点
+・改善要望のあった受講者名とコメント一覧
+・Slackに投稿できるサマリーメッセージ文</div>
+      </div>
+
+      <div class="output-section">
+        <h4>📤 期待される出力例</h4>
+        <div class="output-box">
+          <div class="output-bar">💬 Slackの #研修報告 への投稿</div>
+          <div class="slack-mock">
+            <div class="slack-topbar"><span style="color:#aaa; margin-right:2px;">#</span><span>研修報告</span></div>
+            <div class="slack-body">
+              <div class="slack-msg">
+                <div class="slack-avatar" style="background:#0099D8; color:white;">AI</div>
+                <div>
+                  <div class="slack-name">Claude Code <span class="ts">月曜 9:00</span></div>
+                  <div class="slack-text">
+                    今週の研修サマリーをまとめました📋<br>
+                    満足度平均：<strong style="color:#a6e3a1;">4.4点</strong> / 理解度平均：<strong style="color:#a6e3a1;">3.8点</strong><br>
+                    ▶ 詳細レポート：<span style="color:#89dceb;">https://docs.google.com/document/d/...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>ポイント：</strong>「ステップ1→2→3」のように<strong>順番に何をするかを番号で整理</strong>して指示すると、複数ツールをまたぐ処理でも意図通りに動きます。このお題が自動化できると、毎週月曜の報告作業がゼロになります。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== EXERCISE 06 ===== -->
+  <div class="exercise-card" id="ex06">
+    <div class="exercise-card-header red">
+      <div class="ex-num red">06</div>
+      <div class="ex-title-area">
+        <div class="ex-level red">🔴 上級</div>
+        <div class="ex-title">低スコア受講者へのフォローアップメールをGmailで下書き保存しよう</div>
+        <div class="ex-subtitle">複合条件の抽出 × 個別メール文の生成 × Gmail保存を自動化する</div>
+        <div class="ex-tools">
+          <span class="tool-chip csv">📄 CSV</span>
+          <span class="tool-chip gmail">📧 Gmail</span>
+          <span class="tool-chip chat">🖥 またはチャット表示</span>
+        </div>
+      </div>
+    </div>
+    <div class="exercise-body">
+
+      <div class="learn-row">
+        <div class="learn-box">
+          <h4>🎯 この演習で学べること</h4>
+          <ul>
+            <li>「AまたはB」のような複合条件を指定する方法</li>
+            <li>受講者ごとに内容が異なるメール文の自動生成</li>
+            <li>GmailへのAPI連携と下書き保存の仕組み</li>
+          </ul>
+        </div>
+        <div class="learn-box">
+          <h4>📋 演習のゴール</h4>
+          <ul>
+            <li>満足度3以下 または 理解度3以下の受講者が抽出されている</li>
+            <li>各受講者のコメントを踏まえた個別メール文が生成されている</li>
+            <li>Gmailの下書きに保存（またはチャット表示）</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="prompt-section">
+        <h4>📧 Gmail連携あり｜プロンプト例</h4>
+        <div class="prompt-box">
+          <div class="prompt-text">添付のCSVから <span class="var">2026-05-08</span> のデータを対象に、以下の条件に該当する受講者を抽出してください。
+
+【抽出条件】
+・満足度が <span class="var">3以下</span>　または
+・理解度が <span class="var">3以下</span>
+
+抽出できたら、各受講者のコメント内容を踏まえて、<span class="var">1人ずつ個別のフォローアップメール</span>を作成し、Gmailの下書きに保存してください。
+
+【メールの設定】
+件名：<span class="var">研修フォローアップ ◯◯さんへ</span>
+宛先：<span class="var">（受講者アカウントIDに @example.com を付けたアドレス）</span>
+本文：
+・研修お疲れ様でした、という書き出し
+・コメント内容への具体的な言及
+・困っていることがあればいつでも相談を、という締め</div>
+        </div>
+      </div>
+
+      <div class="fallback-box">
+        <div class="fb-header">
+          💬 連携なしで試す場合 <span class="fb-badge">Gmail不要</span>
+        </div>
+        <p>Gmail連携がない場合でも、メール文をチャットに表示させて確認できます。内容を確認してからGmailに手動でコピーして送信できます。</p>
+        <div class="fallback-prompt">添付のCSVから 2026-05-08 の「満足度が3以下」または「理解度が3以下」の受講者を抽出して、
+各受講者へのフォローアップメール文を<strong style="color:#f9e2af;">チャットに表示</strong>してください。
+
+1人ずつ以下の形式で：
+件名：研修フォローアップ ◯◯さんへ
+本文：（コメント内容を踏まえた個別の内容）</div>
+      </div>
+
+      <div class="output-section">
+        <h4>📤 期待される出力例</h4>
+        <div class="output-box">
+          <div class="output-bar">📧 Gmail 下書き または チャット画面</div>
+          <div class="output-content">
+            <p><strong>件名：</strong>研修フォローアップ 澤田 樹さんへ</p>
+            <p><strong>宛先：</strong>miki_sawada@example.com</p>
+            <hr style="margin:8px 0; border-color:#eee;">
+            <p>澤田さん、</p>
+            <p>研修、お疲れ様でした。</p>
+            <p>日報にて「GitHub Copilotの具体的な使い方について十分に理解できなかった」とのコメントをいただきました。ツールの活用イメージがなかなか掴みにくいと感じていらっしゃるとのこと、もう少し具体的なデモや実践の時間を設けることで解消できると思います。</p>
+            <p>何か困っていることや聞きたいことがあれば、いつでもお声がけください。一緒に解決しましょう！</p>
+            <p>よろしくお願いします。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <div class="tip-text">
+          <strong>ポイント：</strong>「コメント内容を踏まえて」と指示するだけで、AIが各受講者のコメントを読んで<strong>個別に内容を変えたメール</strong>を生成します。テンプレートではなく、一人ひとりに寄り添った文面が自動でできあがります。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- フッター補足 -->
+  <hr class="divider">
+  <div class="info-block cyan-border">
+    <h2>🚀 次のステップ</h2>
+    <p>お題をひと通り試したら、<strong>自分の業務に合わせてプロンプトをアレンジ</strong>してみましょう。「もっと〇〇な形式で」「△△の条件も追加して」と継続して指示することで、より自分のニーズに合った出力になります。</p>
+    <p style="margin-top:10px;">うまくいかないときは「もう少しわかりやすく」「日本語でまとめて」など、<strong>日常会話のように言い直す</strong>のがコツです。AIは何度でも修正に応じてくれます。</p>
+  </div>
+
+</main>
+
+</body>
+</html>
